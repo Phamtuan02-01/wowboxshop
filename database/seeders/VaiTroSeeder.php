@@ -15,8 +15,8 @@ class VaiTroSeeder extends Seeder
     {
         DB::table('vai_tro')->insert([
             ['ten_vai_tro' => 'Admin', 'created_at' => now(), 'updated_at' => now()],
-            ['ten_vai_tro' => 'Customer', 'created_at' => now(), 'updated_at' => now()],
-            ['ten_vai_tro' => 'Manager', 'created_at' => now(), 'updated_at' => now()],
+            ['ten_vai_tro' => 'Khach hang', 'created_at' => now(), 'updated_at' => now()],
+            ['ten_vai_tro' => 'Quan ly', 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }

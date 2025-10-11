@@ -12,6 +12,10 @@ class GioHang extends Model
     protected $table = 'gio_hang';
     protected $primaryKey = 'ma_gio_hang';
     
+    // Chỉ định tên cột timestamps tùy chỉnh
+    const CREATED_AT = 'ngay_tao';
+    const UPDATED_AT = 'ngay_cap_nhat';
+    
     protected $fillable = [
         'ma_tai_khoan',
     ];

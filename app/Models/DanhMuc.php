@@ -17,6 +17,14 @@ class DanhMuc extends Model
         'ma_danh_muc_cha',
     ];
 
+    /**
+     * Get the route key for the model.
+     */
+    public function getRouteKeyName()
+    {
+        return 'ma_danh_muc';
+    }
+
     // Relationships
     public function danhMucCha()
     {

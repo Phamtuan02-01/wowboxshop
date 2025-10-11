@@ -27,6 +27,11 @@ class RouteServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->configureRateLimiting();
+        
+        // Explicit model binding for KhuyenMai
+        Route::bind('promotion', function ($value) {
+            return \App\Models\KhuyenMai::where('ma_khuyen_mai', $value)->firstOrFail();
+        });
 
         $this->routes(function () {
             Route::middleware('api')

@@ -1,0 +1,94 @@
+/* Placeholder images for homepage */
+
+/* Tạo ảnh placeholder cho slider */
+.slide-image img[src*="salad-1.jpg"],
+.slide-image img[src*="salad-2.jpg"],
+.slide-image img[src*="salad-3.jpg"],
+.slide-image img[src*="salad-4.jpg"] {
+    background: linear-gradient(135deg, #4CAF50, #8BC34A);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    position: relative;
+}
+
+.slide-image img[src*="salad-1.jpg"]::before {
+    content: "Salad 1";
+}
+
+.slide-image img[src*="salad-2.jpg"]::before {
+    content: "Salad 2";
+}
+
+.slide-image img[src*="salad-3.jpg"]::before {
+    content: "Salad 3";
+}
+
+.slide-image img[src*="salad-4.jpg"]::before {
+    content: "Salad 4";
+}
+
+/* Placeholder cho ảnh orange slice */
+img[src*="orange-slice.png"] {
+    background: radial-gradient(circle, #FF9800, #FF5722);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+}
+
+/* Placeholder cho ảnh nutrition */
+img[src*="nutrition-salad.jpg"] {
+    background: linear-gradient(45deg, #4CAF50, #81C784);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    position: relative;
+}
+
+img[src*="nutrition-salad.jpg"]::before {
+    content: "Nutrition Salad";
+}
+
+/* Placeholder cho ảnh contact */
+img[src*="contact-1.jpg"]::before {
+    content: "Contact 1";
+}
+
+img[src*="contact-2.jpg"]::before {
+    content: "Contact 2";
+}
+
+img[src*="contact-3.jpg"]::before {
+    content: "Contact 3";
+}
+
+img[src*="contact-1.jpg"],
+img[src*="contact-2.jpg"],
+img[src*="contact-3.jpg"] {
+    background: linear-gradient(135deg, #2196F3, #03A9F4);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    position: relative;
+}
+
+/* Placeholder cho default salad */
+img[src*="default-salad.jpg"] {
+    background: linear-gradient(135deg, #4CAF50, #66BB6A);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    position: relative;
+}
+
+img[src*="default-salad.jpg"]::before {
+    content: "Salad";
+}

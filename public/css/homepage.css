@@ -1,0 +1,665 @@
+/* Global Styles */
+html, body {
+    height: 100%;
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+}
+
+/* Trang chủ WowBox Salad */
+.homepage {
+    background: linear-gradient(135deg, #FFE135, #FFF7A0);
+    position: relative;
+    width: 100%;
+    padding: 2rem 0;
+}
+
+.homepage-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    width: 100%;
+}
+
+/* Orange slices decoration */
+.orange-decoration {
+    position: absolute;
+    opacity: 0.3;
+    z-index: 1;
+}
+
+.orange-slice-1 {
+    top: 50px;
+    left: -50px;
+    width: 150px;
+    height: 150px;
+}
+
+.orange-slice-2 {
+    top: 200px;
+    right: -80px;
+    width: 200px;
+    height: 200px;
+}
+
+.orange-slice-3 {
+    bottom: 100px;
+    left: -30px;
+    width: 120px;
+    height: 120px;
+}
+
+.orange-slice-4 {
+    bottom: 200px;
+    right: -60px;
+    width: 180px;
+    height: 180px;
+}
+
+/* Hero Section */
+.hero-section {
+    display: flex;
+    align-items: center;
+    min-height: 70vh;
+    padding: 3rem 0;
+    position: relative;
+    z-index: 2;
+}
+
+.hero-content {
+    flex: 1;
+    padding-right: 3rem;
+}
+
+.hero-title {
+    font-size: 4rem;
+    font-weight: 800;
+    color: #2E7D32;
+    line-height: 1.1;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+}
+
+.hero-description {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 3rem;
+    line-height: 1.6;
+}
+
+.order-btn {
+    background: #2E7D32;
+    color: white;
+    padding: 1.2rem 3rem;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(46, 125, 50, 0.3);
+}
+
+.order-btn:hover {
+    background: #1B5E20;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(46, 125, 50, 0.4);
+}
+
+/* Circular Image Slider */
+.hero-image-section {
+    flex: 1;
+    position: relative;
+    height: 600px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.circular-slider {
+    position: relative;
+    width: 500px;
+    height: 500px;
+}
+
+.slider-track {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 3px dashed rgba(46, 125, 50, 0.3);
+}
+
+.slide-image {
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    transition: all 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    cursor: pointer;
+}
+
+.slide-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.slide-image.active {
+    width: 300px;
+    height: 300px;
+    z-index: 10;
+    transform: scale(1.1);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+}
+
+/* Slide positions on circle */
+.slide-image:nth-child(1) { 
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.slide-image:nth-child(2) { 
+    top: 25%;
+    right: 0;
+    transform: translateY(-50%);
+}
+
+.slide-image:nth-child(3) { 
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.slide-image:nth-child(4) { 
+    top: 25%;
+    left: 0;
+    transform: translateY(-50%);
+}
+
+/* Slider controls */
+.slider-controls {
+    position: absolute;
+    bottom: -50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+}
+
+.slider-btn {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: white;
+    border: 2px solid #2E7D32;
+    color: #2E7D32;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.slider-btn:hover {
+    background: #2E7D32;
+    color: white;
+    transform: scale(1.1);
+}
+
+/* Slide indicators */
+.slide-indicators {
+    position: absolute;
+    bottom: -100px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 1rem;
+}
+
+.indicator {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: rgba(46, 125, 50, 0.3);
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.indicator.active {
+    background: #2E7D32;
+    transform: scale(1.3);
+}
+
+/* Nutrition Section */
+.nutrition-section {
+    background: rgba(255, 255, 255, 0.9);
+    margin: 5rem 0;
+    padding: 4rem;
+    border-radius: 30px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 4rem;
+}
+
+.nutrition-image {
+    flex: 1;
+}
+
+.nutrition-image img {
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+}
+
+.nutrition-content {
+    flex: 1;
+}
+
+.nutrition-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #2E7D32;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+}
+
+.nutrition-description {
+    font-size: 1.1rem;
+    color: #666;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+}
+
+.nutrition-highlight {
+    background: linear-gradient(135deg, #FFE135, #FFF7A0);
+    padding: 1.5rem;
+    border-radius: 15px;
+    border-left: 5px solid #2E7D32;
+    font-weight: 600;
+    color: #2E7D32;
+}
+
+/* Featured Products Section */
+.featured-section {
+    text-align: center;
+    margin: 5rem 0;
+}
+
+.featured-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #2E7D32;
+    margin-bottom: 3rem;
+    text-transform: uppercase;
+}
+
+.featured-products {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    margin-bottom: 3rem;
+}
+
+.product-card {
+    background: #2E7D32;
+    border-radius: 30px;
+    padding: 2rem;
+    width: 280px;
+    color: white;
+    text-align: center;
+    transform: translateY(0);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.product-card::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transform: rotate(45deg);
+    transition: all 0.6s ease;
+    opacity: 0;
+}
+
+.product-card:hover::before {
+    opacity: 1;
+    animation: shimmer 1.5s ease-in-out;
+}
+
+.product-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 25px 50px rgba(46, 125, 50, 0.4);
+}
+
+.product-image {
+    width: 200px;
+    height: 200px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin: 0 auto 1.5rem;
+    border: 5px solid rgba(255, 255, 255, 0.2);
+}
+
+.product-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.product-name {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+}
+
+.product-price {
+    font-size: 1.2rem;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.2);
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    display: inline-block;
+}
+
+.price-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #FFE135;
+    color: #2E7D32;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+/* Slider navigation */
+.featured-nav {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 3rem;
+}
+
+.nav-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #2E7D32;
+    color: #2E7D32;
+    font-size: 1.5rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.nav-btn:hover {
+    background: #2E7D32;
+    color: white;
+    transform: scale(1.1);
+}
+
+.view-menu-btn {
+    background: #2E7D32;
+    color: white;
+    padding: 1.2rem 3rem;
+    border: none;
+    border-radius: 30px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 10px 30px rgba(46, 125, 50, 0.3);
+}
+
+.view-menu-btn:hover {
+    background: #1B5E20;
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px rgba(46, 125, 50, 0.4);
+}
+
+/* Contact Section */
+.contact-section {
+    background: rgba(255, 255, 255, 0.9);
+    padding: 4rem;
+    border-radius: 30px;
+    margin: 5rem 0;
+    text-align: center;
+}
+
+.contact-title {
+    font-size: 3rem;
+    font-weight: 800;
+    color: #2E7D32;
+    margin-bottom: 3rem;
+    text-transform: uppercase;
+}
+
+.contact-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2.5rem;
+    margin-bottom: 3rem;
+    max-width: 1000px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.contact-item {
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+    border-radius: 20px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.contact-item:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+.contact-item img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    border-radius: 20px;
+    transition: all 0.3s ease;
+    cursor: pointer;
+}
+
+.contact-item img:hover {
+    transform: scale(1.08);
+}
+
+.contact-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.8));
+    color: white;
+    padding: 2rem 1rem 1.5rem;
+    transform: translateY(100%);
+    transition: all 0.3s ease;
+    border-radius: 0 0 20px 20px;
+}
+
+.contact-item:hover .contact-overlay {
+    transform: translateY(0);
+}
+
+.contact-overlay h4 {
+    margin: 0 0 0.5rem 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.contact-overlay p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.contact-btn {
+    background: #2E7D32;
+    color: white;
+    padding: 1rem 2.5rem;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.contact-btn:hover {
+    background: #1B5E20;
+    transform: translateY(-2px);
+}
+
+/* Map Section */
+.map-section {
+    margin: 5rem 0;
+    text-align: center;
+}
+
+.map-container {
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    height: 400px;
+}
+
+.map-container iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+}
+
+/* Animations */
+@keyframes shimmer {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) rotate(45deg); }
+}
+
+@keyframes slideIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes rotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.rotating {
+    animation: rotate 20s linear infinite;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .hero-section {
+        flex-direction: column;
+        text-align: center;
+        min-height: 70vh;
+        padding: 1rem 0;
+    }
+    
+    .hero-content {
+        padding-right: 0;
+        margin-bottom: 2rem;
+    }
+    
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .circular-slider {
+        width: 350px;
+        height: 350px;
+    }
+    
+    .slide-image {
+        width: 150px;
+        height: 150px;
+    }
+    
+    .slide-image.active {
+        width: 180px;
+        height: 180px;
+    }
+    
+    .featured-products {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .nutrition-section {
+        flex-direction: column;
+        text-align: center;
+        padding: 2rem;
+        margin: 3rem 0;
+    }
+    
+    .contact-content {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        max-width: 400px;
+    }
+
+    .contact-item img {
+        height: 200px;
+    }
+
+    .contact-overlay {
+        transform: translateY(0);
+        position: relative;
+        background: rgba(46, 125, 50, 0.9);
+        padding: 1rem;
+        margin-top: -60px;
+        border-radius: 0 0 20px 20px;
+    }
+
+    .contact-overlay h4 {
+        font-size: 1rem;
+    }
+
+    .contact-overlay p {
+        font-size: 0.85rem;
+    }
+
+    .contact-section {
+        margin: 3rem 0;
+        padding: 2rem;
+    }
+}
