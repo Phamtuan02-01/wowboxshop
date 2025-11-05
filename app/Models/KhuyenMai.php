@@ -56,18 +56,71 @@ class KhuyenMai extends Model
         return $this->hasMany(LichSuKhuyenMai::class, 'ma_khuyen_mai', 'ma_khuyen_mai');
     }
 
+    /**
+     * Many-to-Many relationship với SanPham qua bảng trung gian
+     */
+    public function sanPhams()
+    {
+        return $this->belongsToMany(
+            SanPham::class,
+            'khuyen_mai_san_pham',
+            'ma_khuyen_mai',
+            'ma_san_pham'
+        )->withPivot('gia_tri_giam_cu_the', 'so_lan_ap_dung', 'ngay_them')
+         ->withTimestamps();
+    }
+
+    /**
+     * Many-to-Many relationship với DanhMuc qua bảng trung gian
+     */
+    public function danhMucs()
+    {
+        return $this->belongsToMany(
+            DanhMuc::class,
+            'khuyen_mai_danh_muc',
+            'ma_khuyen_mai',
+            'ma_danh_muc'
+        )->withPivot('gia_tri_giam_cu_the', 'so_lan_ap_dung', 'ngay_them')
+         ->withTimestamps();
+    }
+
+    /**
+     * Query builder để lấy sản phẩm áp dụng
+     * Hỗ trợ cả cách cũ (JSON) và cách mới (bảng trung gian)
+     */
     public function sanPhamApDung()
     {
         if ($this->ap_dung_tat_ca) {
             return SanPham::where('trang_thai', true);
         }
         
-        if ($this->san_pham_ap_dung) {
-            return SanPham::whereIn('ma_san_pham', $this->san_pham_ap_dung);
+        // Ưu tiên sử dụng bảng trung gian
+        $sanPhamIds = $this->sanPhams()->pluck('ma_san_pham')->toArray();
+        
+        // Fallback sang JSON nếu chưa có dữ liệu trong bảng trung gian
+        if (empty($sanPhamIds) && $this->san_pham_ap_dung) {
+            $sanPhamIds = $this->san_pham_ap_dung;
         }
         
-        if ($this->danh_muc_ap_dung) {
-            return SanPham::whereIn('ma_danh_muc', $this->danh_muc_ap_dung);
+        // Lấy từ danh mục
+        $danhMucIds = $this->danhMucs()->pluck('ma_danh_muc')->toArray();
+        if (empty($danhMucIds) && $this->danh_muc_ap_dung) {
+            $danhMucIds = $this->danh_muc_ap_dung;
+        }
+        
+        if (!empty($sanPhamIds) && !empty($danhMucIds)) {
+            return SanPham::where(function($query) use ($sanPhamIds, $danhMucIds) {
+                $query->whereIn('ma_san_pham', $sanPhamIds)
+                      ->orWhereIn('ma_danh_muc', $danhMucIds);
+            });
+        }
+        
+        if (!empty($sanPhamIds)) {
+            return SanPham::whereIn('ma_san_pham', $sanPhamIds);
+        }
+        
+        if (!empty($danhMucIds)) {
+            return SanPham::whereIn('ma_danh_muc', $danhMucIds);
         }
         
         return SanPham::whereRaw('1 = 0'); // No products

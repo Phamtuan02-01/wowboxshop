@@ -45,13 +45,13 @@
                         <img src="{{ asset('images/trangchu/salad-1.png') }}" alt="WowBox Salad 1">
                     </div>
                     <div class="slide-image">
-                        <img src="{{ asset('images/trangchu/salad-1.png') }}" alt="WowBox Salad 2">
+                        <img src="{{ asset('images/trangchu/salad-2.png') }}" alt="WowBox Salad 2">
                     </div>
                     <div class="slide-image">
-                        <img src="{{ asset('images/trangchu/salad-1.png') }}" alt="WowBox Salad 3">
+                        <img src="{{ asset('images/trangchu/salad-3.png') }}" alt="WowBox Salad 3">
                     </div>
                     <div class="slide-image">
-                        <img src="{{ asset('images/trangchu/salad-1.png') }}" alt="WowBox Salad 4">
+                        <img src="{{ asset('images/trangchu/salad-4.png') }}" alt="WowBox Salad 4">
                     </div>
 
                     <div class="slider-controls">
@@ -104,11 +104,16 @@
             
             <div class="featured-products" id="productsContainer">
                 @foreach($sanPhamNoiBat as $index => $sanPham)
-                    <div class="product-card" data-product="{{ $sanPham->ma_san_pham }}">
+                    <a href="{{ route('dat-mon.chitiet', $sanPham->ma_san_pham) }}" class="product-card" data-product="{{ $sanPham->ma_san_pham }}">
                         <div class="price-badge">{{ $index + 1 }}</div>
                         <div class="product-image">
-                            <img src="{{ $sanPham->hinh_anh_url ?: asset('images/default-salad.jpg') }}" 
-                                 alt="{{ $sanPham->ten_san_pham }}">
+                            @if($sanPham->hinh_anh)
+                                <img src="{{ asset('images/products/' . $sanPham->hinh_anh) }}" 
+                                     alt="{{ $sanPham->ten_san_pham }}">
+                            @else
+                                <img src="{{ asset('images/default-salad.jpg') }}" 
+                                     alt="{{ $sanPham->ten_san_pham }}">
+                            @endif
                         </div>
                         <h3 class="product-name">{{ strtoupper($sanPham->ten_san_pham) }}</h3>
                         <div class="product-price">
@@ -118,7 +123,7 @@
                                 Liên hệ
                             @endif
                         </div>
-                    </div>
+                    </a>
                 @endforeach
             </div>
 
@@ -131,7 +136,7 @@
                 </button>
             </div>
 
-            <button class="view-menu-btn" onclick="viewFullMenu()">XEM TOÀN BỘ MENU</button>
+            <a href="{{ route('dat-mon.index') }}" class="view-menu-btn">XEM TOÀN BỘ MENU</a>
         </section>
 
         <!-- Contact Section -->
@@ -247,29 +252,10 @@ function scrollProducts(direction) {
     }
 }
 
-// View full menu
-function viewFullMenu() {
-    // Redirect to menu page or show modal
-    alert('Chức năng xem toàn bộ menu sẽ được phát triển!');
-}
-
 // Call now function
 function callNow() {
     window.open('tel:02866859055');
 }
-
-// Add hover effects to product cards
-document.addEventListener('DOMContentLoaded', function() {
-    const productCards = document.querySelectorAll('.product-card');
-    
-    productCards.forEach(card => {
-        card.addEventListener('click', function() {
-            const productId = this.getAttribute('data-product');
-            // Redirect to product detail or add to cart
-            alert('Chức năng xem chi tiết sản phẩm sẽ được phát triển!');
-        });
-    });
-});
 
 // Parallax effect for orange decorations
 window.addEventListener('scroll', function() {

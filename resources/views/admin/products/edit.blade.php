@@ -28,6 +28,7 @@
                         @csrf
                         @method('PUT')
                         
+                        <!-- Basic Information -->
                         <div class="form-group">
                             <label for="ten_san_pham">Tên sản phẩm <span class="text-danger">*</span></label>
                             <input type="text" class="form-control @error('ten_san_pham') is-invalid @enderror" 
@@ -38,21 +39,43 @@
                             @enderror
                         </div>
 
-                        <div class="form-group">
-                            <label for="ma_danh_muc">Danh mục <span class="text-danger">*</span></label>
-                            <select class="form-control @error('ma_danh_muc') is-invalid @enderror" 
-                                    id="ma_danh_muc" name="ma_danh_muc" required>
-                                <option value="">-- Chọn danh mục --</option>
-                                @foreach($categories as $category)
-                                    <option value="{{ $category->ma_danh_muc }}" 
-                                            {{ old('ma_danh_muc', $product->ma_danh_muc) == $category->ma_danh_muc ? 'selected' : '' }}>
-                                        {{ $category->ten_danh_muc }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('ma_danh_muc')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="ma_danh_muc">Danh mục <span class="text-danger">*</span></label>
+                                    <select class="form-control @error('ma_danh_muc') is-invalid @enderror" 
+                                            id="ma_danh_muc" name="ma_danh_muc" required>
+                                        <option value="">-- Chọn danh mục --</option>
+                                        @foreach($categories as $category)
+                                            <option value="{{ $category->ma_danh_muc }}" 
+                                                    {{ old('ma_danh_muc', $product->ma_danh_muc) == $category->ma_danh_muc ? 'selected' : '' }}>
+                                                {{ $category->ten_danh_muc }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    @error('ma_danh_muc')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="loai_san_pham">Loại sản phẩm <span class="text-danger">*</span></label>
+                                    <select class="form-control @error('loai_san_pham') is-invalid @enderror" 
+                                            id="loai_san_pham" name="loai_san_pham" required>
+                                        <option value="">-- Chọn loại --</option>
+                                        <option value="product" {{ old('loai_san_pham', $product->loai_san_pham) == 'product' ? 'selected' : '' }}>
+                                            Sản phẩm thường
+                                        </option>
+                                        <option value="ingredient" {{ old('loai_san_pham', $product->loai_san_pham) == 'ingredient' ? 'selected' : '' }}>
+                                            Nguyên liệu
+                                        </option>
+                                    </select>
+                                    @error('loai_san_pham')
+                                        <div class="invalid-feedback">{{ $message }}</div>
+                                    @enderror
+                                </div>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -67,51 +90,26 @@
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="gia">Giá sản phẩm <span class="text-danger">*</span></label>
+                                    <label for="gia_display">Giá sản phẩm (nghìn VNĐ) <span class="text-danger">*</span></label>
                                     <div class="input-group">
-                                        <input type="number" class="form-control @error('gia') is-invalid @enderror" 
-                                               id="gia" name="gia" 
-                                               value="{{ old('gia', $product->gia) }}" 
-                                               step="1000" min="0" required>
+                                        <input type="text" class="form-control @error('gia') is-invalid @enderror" 
+                                               id="gia_display" 
+                                               value="{{ old('gia') ? old('gia') / 1000 : $product->gia / 1000 }}" 
+                                               placeholder="Nhập số nghìn" required>
                                         <div class="input-group-append">
-                                            <span class="input-group-text">đ</span>
+                                            <span class="input-group-text">x 1.000 VNĐ</span>
                                         </div>
-                                        @error('gia')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
                                     </div>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label for="gia_khuyen_mai">Giá khuyến mãi</label>
-                                    <div class="input-group">
-                                        <input type="number" class="form-control @error('gia_khuyen_mai') is-invalid @enderror" 
-                                               id="gia_khuyen_mai" name="gia_khuyen_mai" 
-                                               value="{{ old('gia_khuyen_mai', $product->gia_khuyen_mai) }}" 
-                                               step="1000" min="0">
-                                        <div class="input-group-append">
-                                            <span class="input-group-text">đ</span>
-                                        </div>
-                                        @error('gia_khuyen_mai')
-                                            <div class="invalid-feedback">{{ $message }}</div>
-                                        @enderror
-                                    </div>
+                                    <input type="hidden" name="gia" id="gia" value="{{ old('gia', $product->gia) }}">
+                                    <small class="text-muted">Nhập số ngàn: VD nhập 10 sẽ thành 10.000đ</small>
+                                    @error('gia')
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
+                                    @enderror
                                 </div>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="so_luong_ton_kho">Số lượng tồn kho <span class="text-danger">*</span></label>
-                            <input type="number" class="form-control @error('so_luong_ton_kho') is-invalid @enderror" 
-                                   id="so_luong_ton_kho" name="so_luong_ton_kho" 
-                                   value="{{ old('so_luong_ton_kho', $product->so_luong_ton_kho) }}" 
-                                   min="0" required>
-                            @error('so_luong_ton_kho')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
+                        <!-- Brand & Origin -->
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="form-group">
@@ -137,30 +135,93 @@
                             </div>
                         </div>
 
+                        <!-- Images -->
+                        <h6 class="mt-4 mb-3"><i class="fas fa-images text-primary"></i> Hình ảnh</h6>
+
                         <div class="form-group">
-                            <label for="hinh_anh">Hình ảnh sản phẩm</label>
+                            <label for="hinh_anh">Hình ảnh chính</label>
                             @if($product->hinh_anh)
                                 <div class="current-image mb-3">
                                     <p class="mb-2">Hình ảnh hiện tại:</p>
                                     <img src="{{ asset('images/products/' . $product->hinh_anh) }}" 
                                          alt="{{ $product->ten_san_pham }}" 
-                                         style="width: 100px; height: 100px; object-fit: cover; border-radius: 8px;">
+                                         class="img-thumbnail"
+                                         style="max-height: 150px;">
                                 </div>
                             @endif
-                            <input type="file" class="form-control-file @error('hinh_anh') is-invalid @enderror" 
+                            
+                            <div class="upload-area border-2 border-dashed rounded p-4 text-center" 
+                                 style="cursor: pointer; transition: all 0.3s ease; border: 2px dashed #dee2e6;" 
+                                 id="main-upload-area">
+                                <div class="upload-content">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                    <h6 class="mb-2">Nhấn để {{ $product->hinh_anh ? 'thay đổi' : 'chọn' }} hình ảnh chính</h6>
+                                    <p class="text-muted mb-0">hoặc kéo thả file vào đây</p>
+                                    <small class="text-muted">Hỗ trợ: JPG, PNG, GIF, WEBP (tối đa 10MB)</small>
+                                </div>
+                            </div>
+                            <input type="file" class="d-none @error('hinh_anh') is-invalid @enderror" 
                                    id="hinh_anh" name="hinh_anh" accept="image/*">
                             @error('hinh_anh')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
                             @enderror
-                            <small class="form-text text-muted">
-                                Chọn hình ảnh mới nếu muốn thay đổi. Định dạng: JPG, PNG, GIF. Kích thước tối đa: 2MB.
-                            </small>
+                            <div id="main-image-preview" class="mt-3" style="display: none;">
+                                <div class="position-relative d-inline-block">
+                                    <img id="main-preview-img" src="" alt="Preview" class="img-thumbnail" style="max-height: 200px;">
+                                    <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" 
+                                            style="transform: translate(50%, -50%);" onclick="removeMainImage()">
+                                        <i class="fas fa-times"></i>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="form-group">
+                            <label for="hinh_anh_phu">Hình ảnh phụ</label>
+                            @if($product->hinh_anh_phu)
+                                @php
+                                    $additionalImages = json_decode($product->hinh_anh_phu, true);
+                                @endphp
+                                @if(is_array($additionalImages) && count($additionalImages) > 0)
+                                    <div class="current-additional-images mb-3">
+                                        <p class="mb-2">Hình ảnh phụ hiện tại:</p>
+                                        <div class="d-flex flex-wrap gap-2">
+                                            @foreach($additionalImages as $image)
+                                                <img src="{{ asset('images/products/' . $image) }}" 
+                                                     alt="Additional image" 
+                                                     class="img-thumbnail"
+                                                     style="max-height: 100px; margin-right: 8px; margin-bottom: 8px;">
+                                            @endforeach
+                                        </div>
+                                    </div>
+                                @endif
+                            @endif
+                            
+                            <div class="upload-area border-2 border-dashed rounded p-4 text-center" 
+                                 style="cursor: pointer; transition: all 0.3s ease; border: 2px dashed #dee2e6;" 
+                                 id="additional-upload-area">
+                                <div class="upload-content">
+                                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
+                                    <h6 class="mb-2">Nhấn để {{ $product->hinh_anh_phu ? 'thay đổi' : 'chọn' }} hình ảnh phụ</h6>
+                                    <p class="text-muted mb-0">hoặc kéo thả file vào đây (nhiều file)</p>
+                                    <small class="text-muted">Hỗ trợ: JPG, PNG, GIF, WEBP (mỗi file tối đa 10MB)</small>
+                                </div>
+                            </div>
+                            <input type="file" class="d-none @error('hinh_anh_phu') is-invalid @enderror" 
+                                   id="hinh_anh_phu" name="hinh_anh_phu[]" accept="image/*" multiple>
+                            @error('hinh_anh_phu')
+                                <div class="invalid-feedback d-block">{{ $message }}</div>
+                            @enderror
+                            <div id="additional-images-preview" class="mt-3" style="display: none;"></div>
+                        </div>
+
+                        <!-- Settings -->
+                        <h6 class="mt-4 mb-3"><i class="fas fa-cogs text-secondary"></i> Cài đặt</h6>
 
                         <div class="form-group">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input" id="trang_thai" name="trang_thai" 
-                                       {{ old('trang_thai', $product->trang_thai) ? 'checked' : '' }}>
+                                       value="1" {{ old('trang_thai', $product->trang_thai) ? 'checked' : '' }}>
                                 <label class="custom-control-label" for="trang_thai">
                                     Kích hoạt sản phẩm
                                 </label>
@@ -170,7 +231,7 @@
                         <div class="form-group">
                             <div class="custom-control custom-checkbox">
                                 <input type="checkbox" class="custom-control-input" id="la_noi_bat" name="la_noi_bat" 
-                                       {{ old('la_noi_bat', $product->la_noi_bat) ? 'checked' : '' }}>
+                                       value="1" {{ old('la_noi_bat', $product->la_noi_bat) ? 'checked' : '' }}>
                                 <label class="custom-control-label" for="la_noi_bat">
                                     Sản phẩm nổi bật
                                 </label>
@@ -258,49 +319,251 @@
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-#imagePreview {
+.current-additional-images {
+    background-color: #f8f9fa;
+    padding: 15px;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+.image-preview {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    margin-bottom: 10px;
+}
+
+#additionalImagesPreview {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+#additionalImagesPreview img {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    border: 2px solid #ddd;
+}
+
+#nutrition-section {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border-left: 4px solid #28a745;
 }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     // Image preview functionality
-    const imageInput = document.getElementById('hinh_anh');
-    const imagePreview = document.getElementById('imagePreview');
+    const mainImageInput = document.getElementById('hinh_anh');
+    const additionalImagesInput = document.getElementById('hinh_anh_phu');
     const imagePreviewCard = document.getElementById('imagePreviewCard');
+    const mainImagePreview = document.getElementById('mainImagePreview');
+    const additionalImagesPreview = document.getElementById('additionalImagesPreview');
 
-    imageInput.addEventListener('change', function(e) {
+    // Main image preview
+    mainImageInput.addEventListener('change', function(e) {
         const file = e.target.files[0];
         if (file) {
             const reader = new FileReader();
             reader.onload = function(e) {
-                imagePreview.src = e.target.result;
-                imagePreviewCard.style.display = 'block';
+                if (mainImagePreview) {
+                    mainImagePreview.innerHTML = `<img src="${e.target.result}" alt="Main Preview" class="image-preview">`;
+                } else {
+                    // Fallback for simple preview
+                    const previewImg = document.getElementById('imagePreview');
+                    if (previewImg) {
+                        previewImg.src = e.target.result;
+                        imagePreviewCard.style.display = 'block';
+                    }
+                }
             };
             reader.readAsDataURL(file);
-        } else {
-            imagePreviewCard.style.display = 'none';
         }
     });
 
-    // Price validation
-    const giaInput = document.getElementById('gia');
-    const giaKhuyenMaiInput = document.getElementById('gia_khuyen_mai');
-
-    function validatePrices() {
-        const gia = parseFloat(giaInput.value) || 0;
-        const giaKhuyenMai = parseFloat(giaKhuyenMaiInput.value) || 0;
-
-        if (giaKhuyenMai > 0 && giaKhuyenMai >= gia) {
-            giaKhuyenMaiInput.setCustomValidity('Giá khuyến mãi phải nhỏ hơn giá gốc');
-        } else {
-            giaKhuyenMaiInput.setCustomValidity('');
-        }
+    // Additional images preview
+    if (additionalImagesInput) {
+        additionalImagesInput.addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (additionalImagesPreview) {
+                additionalImagesPreview.innerHTML = '';
+                
+                if (files.length > 0) {
+                    Array.from(files).forEach(file => {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = document.createElement('img');
+                            img.src = e.target.result;
+                            img.alt = 'Additional Preview';
+                            additionalImagesPreview.appendChild(img);
+                        };
+                        reader.readAsDataURL(file);
+                    });
+                }
+            }
+        });
     }
 
-    giaInput.addEventListener('input', validatePrices);
-    giaKhuyenMaiInput.addEventListener('input', validatePrices);
+    // Auto-format price input (multiply by 1000)
+    const giaDisplayInput = document.getElementById('gia_display');
+    const giaInput = document.getElementById('gia');
+    
+    giaDisplayInput.addEventListener('input', function(e) {
+        let value = e.target.value.replace(/[^0-9]/g, '');
+        e.target.value = value;
+        
+        // Convert to actual price (multiply by 1000)
+        if (value) {
+            giaInput.value = value * 1000;
+        } else {
+            giaInput.value = '';
+        }
+    });
+
+    // Drag and drop for main image
+    const mainUploadArea = document.getElementById('main-upload-area');
+    const mainImageInput = document.getElementById('hinh_anh');
+    const mainImagePreviewDiv = document.getElementById('main-image-preview');
+    const mainPreviewImg = document.getElementById('main-preview-img');
+    
+    mainUploadArea.addEventListener('click', function() {
+        mainImageInput.click();
+    });
+
+    mainUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#0d6efd';
+        this.style.backgroundColor = '#e7f1ff';
+    });
+
+    mainUploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#dee2e6';
+        this.style.backgroundColor = '';
+    });
+
+    mainUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#dee2e6';
+        this.style.backgroundColor = '';
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            mainImageInput.files = files;
+            mainImageInput.dispatchEvent(new Event('change'));
+        }
+    });
+
+    mainImageInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            if (file.size > 10 * 1024 * 1024) {
+                alert('Kích thước file không được vượt quá 10MB');
+                this.value = '';
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                mainPreviewImg.src = e.target.result;
+                mainImagePreviewDiv.style.display = 'block';
+                mainUploadArea.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+    });
+
+    // Drag and drop for additional images
+    const additionalUploadArea = document.getElementById('additional-upload-area');
+    const additionalImagesInput = document.getElementById('hinh_anh_phu');
+    const additionalImagesPreviewDiv = document.getElementById('additional-images-preview');
+    
+    additionalUploadArea.addEventListener('click', function() {
+        additionalImagesInput.click();
+    });
+
+    additionalUploadArea.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#0d6efd';
+        this.style.backgroundColor = '#e7f1ff';
+    });
+
+    additionalUploadArea.addEventListener('dragleave', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#dee2e6';
+        this.style.backgroundColor = '';
+    });
+
+    additionalUploadArea.addEventListener('drop', function(e) {
+        e.preventDefault();
+        this.style.borderColor = '#dee2e6';
+        this.style.backgroundColor = '';
+        
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            additionalImagesInput.files = files;
+            additionalImagesInput.dispatchEvent(new Event('change'));
+        }
+    });
+
+    additionalImagesInput.addEventListener('change', function(e) {
+        const files = e.target.files;
+        additionalImagesPreviewDiv.innerHTML = '';
+        
+        if (files.length > 0) {
+            Array.from(files).forEach((file, index) => {
+                if (file.size > 10 * 1024 * 1024) {
+                    alert(`File ${file.name} vượt quá 10MB`);
+                    return;
+                }
+                
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const wrapper = document.createElement('div');
+                    wrapper.className = 'position-relative d-inline-block me-2 mb-2';
+                    wrapper.innerHTML = `
+                        <img src="${e.target.result}" alt="Preview" class="img-thumbnail" style="max-height: 150px;">
+                        <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" 
+                                style="transform: translate(50%, -50%);" onclick="removeAdditionalImage(${index})">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    `;
+                    additionalImagesPreviewDiv.appendChild(wrapper);
+                };
+                reader.readAsDataURL(file);
+            });
+            additionalImagesPreviewDiv.style.display = 'block';
+            additionalUploadArea.style.display = 'none';
+        }
+    });
+
+    // Remove functions
+    window.removeMainImage = function() {
+        mainImageInput.value = '';
+        mainImagePreviewDiv.style.display = 'none';
+        mainUploadArea.style.display = 'block';
+    };
+
+    window.removeAdditionalImage = function(index) {
+        additionalImagesInput.value = '';
+        additionalImagesPreviewDiv.innerHTML = '';
+        additionalImagesPreviewDiv.style.display = 'none';
+        additionalUploadArea.style.display = 'block';
+    };
+
+    // Form submission - ensure gia is set
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function() {
+        const displayValue = giaDisplayInput.value.replace(/[^0-9]/g, '');
+        if (displayValue) {
+            giaInput.value = displayValue * 1000;
+        }
+    });
 });
 </script>
 @endsection

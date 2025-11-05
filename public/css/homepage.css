@@ -311,13 +311,35 @@ html, body {
     border-radius: 30px;
     padding: 2rem;
     width: 280px;
-    color: white;
+    color: white !important;
     text-align: center;
     transform: translateY(0);
     transition: all 0.3s ease;
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    text-decoration: none !important;
+    display: block;
+}
+
+a.product-card,
+a.product-card:link,
+a.product-card:visited,
+a.product-card:hover,
+a.product-card:focus,
+a.product-card:active {
+    color: white !important;
+    text-decoration: none !important;
+    outline: none !important;
+}
+
+.product-card *,
+.product-card:hover *,
+.product-card:focus *,
+.product-card:visited *,
+.product-card:active * {
+    color: white !important;
+    text-decoration: none !important;
 }
 
 .product-card::before {
@@ -363,6 +385,8 @@ html, body {
     font-weight: 700;
     margin-bottom: 1rem;
     text-transform: uppercase;
+    color: white !important;
+    text-decoration: none !important;
 }
 
 .product-price {
@@ -372,6 +396,8 @@ html, body {
     padding: 0.5rem 1rem;
     border-radius: 20px;
     display: inline-block;
+    color: white !important;
+    text-decoration: none !important;
 }
 
 .price-badge {
@@ -421,7 +447,7 @@ html, body {
 
 .view-menu-btn {
     background: #2E7D32;
-    color: white;
+    color: white !important;
     padding: 1.2rem 3rem;
     border: none;
     border-radius: 30px;
@@ -431,10 +457,25 @@ html, body {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 10px 30px rgba(46, 125, 50, 0.3);
+    text-decoration: none !important;
+    display: inline-block;
 }
 
-.view-menu-btn:hover {
+a.view-menu-btn,
+a.view-menu-btn:link,
+a.view-menu-btn:visited {
+    color: white !important;
+    text-decoration: none !important;
+    outline: none !important;
+}
+
+a.view-menu-btn:hover,
+a.view-menu-btn:focus,
+a.view-menu-btn:active {
     background: #1B5E20;
+    color: white !important;
+    text-decoration: none !important;
+    outline: none !important;
     transform: translateY(-3px);
     box-shadow: 0 15px 40px rgba(46, 125, 50, 0.4);
 }

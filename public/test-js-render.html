@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test JS Render</title>
+</head>
+<body>
+    <h1>Test JavaScript Render</h1>
+    
+    <h2>Test 1: onclick attribute</h2>
+    <button onclick="alert('ID: ' + 1)">Test Button 1</button>
+    <button onclick="deletePromotion(1)">Test Button 2</button>
+    
+    <h2>Test 2: checkbox onchange</h2>
+    <input type="checkbox" onchange="alert('Changed'); toggleStatus(1, this)">
+    
+    <script>
+        function deletePromotion(id) {
+            console.log('Delete promotion ID:', id);
+            alert('Delete promotion ID: ' + id);
+        }
+        
+        function toggleStatus(id, checkbox) {
+            console.log('Toggle status for ID:', id, 'Checked:', checkbox.checked);
+            alert('Toggle status for ID: ' + id + ', Checked: ' + checkbox.checked);
+        }
+    </script>
+</body>
+</html>

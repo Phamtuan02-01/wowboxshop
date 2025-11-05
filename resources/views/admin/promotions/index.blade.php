@@ -271,6 +271,7 @@
                             <br>
                             <div class="form-check form-switch mt-1">
                                 <input class="form-check-input" type="checkbox" 
+                                       data-promotion-id="{{ $promotion->ma_khuyen_mai }}"
                                        {{ $promotion->trang_thai ? 'checked' : '' }}
                                        onchange="toggleStatus({{ $promotion->ma_khuyen_mai }}, this)">
                             </div>
@@ -286,6 +287,7 @@
                                     <i class="fas fa-edit"></i>
                                 </a>
                                 <button type="button" class="btn btn-sm btn-outline-danger" 
+                                        data-promotion-id="{{ $promotion->ma_khuyen_mai }}"
                                         onclick="deletePromotion({{ $promotion->ma_khuyen_mai }})" title="Xóa">
                                     <i class="fas fa-trash"></i>
                                 </button>
@@ -321,6 +323,7 @@
 <script>
 $(document).ready(function() {
     console.log('Promotions index page loaded');
+    console.log('CSRF Token:', $('meta[name="csrf-token"]').attr('content'));
     
     // Select all checkbox
     $('#select-all').change(function() {
@@ -341,6 +344,9 @@ $(document).ready(function() {
     // Test if jQuery and Bootstrap are available
     console.log('jQuery version:', $.fn.jquery);
     console.log('Bootstrap available:', typeof bootstrap !== 'undefined');
+    
+    // Test AJAX setup
+    console.log('AJAX headers:', $.ajaxSettings.headers);
 });
 
 function submitFilter() {
@@ -431,28 +437,134 @@ function executeBulkAction() {
 }
 
 function toggleStatus(promotionId, checkbox) {
+    console.log('=== Toggle Status Function Called ===');
+    console.log('Promotion ID:', promotionId);
+    console.log('Checkbox element:', checkbox);
+    console.log('Current checked state:', checkbox.checked);
+    
+    // Check if jQuery is available
+    if (typeof $ === 'undefined') {
+        alert('jQuery chưa được load!');
+        checkbox.checked = !checkbox.checked;
+        return;
+    }
+    
+    // Get CSRF token
+    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+    console.log('CSRF Token:', csrfToken ? 'Found' : 'NOT FOUND');
+    
+    if (!csrfToken) {
+        alert('Không tìm thấy CSRF token!');
+        checkbox.checked = !checkbox.checked;
+        return;
+    }
+    
+    // Disable checkbox during request
+    checkbox.disabled = true;
+    
+    const baseUrl = '{{ url("/") }}';
+    const url = `${baseUrl}/admin/promotions/${promotionId}/toggle-status`;
+    console.log('Toggle status URL:', url);
+    console.log('Request method: POST (with _method=PATCH)');
+    
     $.ajax({
-        url: `/admin/promotions/${promotionId}/toggle-status`,
-        method: 'PATCH',
+        url: url,
+        method: 'POST',
         data: {
-            _token: '{{ csrf_token() }}'
+            _method: 'PATCH'
+        },
+        headers: {
+            'X-CSRF-TOKEN': csrfToken
+        },
+        timeout: 10000,
+        beforeSend: function(xhr) {
+            console.log('Sending AJAX request...');
+            console.log('Headers:', xhr.getAllResponseHeaders());
         },
         success: function(response) {
-            if (response.success) {
-                // Show success message
+            console.log('Toggle status SUCCESS response:', response);
+            
+            if (response && response.success) {
                 showToast('success', response.message);
+                
+                // Reload page after 1 second
+                setTimeout(() => {
+                    window.location.reload();
+                }, 1000);
+            } else {
+                console.warn('Response success is false');
+                // Revert checkbox state
+                checkbox.checked = !checkbox.checked;
+                checkbox.disabled = false;
+                showToast('error', 'Có lỗi xảy ra khi cập nhật trạng thái!');
             }
         },
-        error: function(xhr) {
+        error: function(xhr, status, error) {
+            console.error('=== Toggle status ERROR ===');
+            console.error('XHR Status:', xhr.status);
+            console.error('XHR Status Text:', xhr.statusText);
+            console.error('Status:', status);
+            console.error('Error:', error);
+            console.error('Response Text:', xhr.responseText);
+            console.error('Response JSON:', xhr.responseJSON);
+            
             // Revert checkbox state
             checkbox.checked = !checkbox.checked;
-            alert('Có lỗi xảy ra. Vui lòng thử lại!');
+            checkbox.disabled = false;
+            
+            let errorMessage = 'Có lỗi xảy ra khi cập nhật trạng thái!';
+            let debugInfo = `\nStatus Code: ${xhr.status}\nStatus: ${status}\nError: ${error}`;
+            
+            if (xhr.status === 419) {
+                errorMessage = 'Phiên làm việc đã hết hạn (419 CSRF). Vui lòng tải lại trang!';
+            } else if (xhr.status === 404) {
+                errorMessage = 'Không tìm thấy khuyến mãi (404)!';
+            } else if (xhr.status === 500) {
+                errorMessage = 'Lỗi server (500) khi cập nhật trạng thái!';
+            } else if (xhr.status === 405) {
+                errorMessage = 'Method không được phép (405). Route có thể chưa đúng!';
+            } else if (xhr.responseJSON && xhr.responseJSON.message) {
+                errorMessage = xhr.responseJSON.message;
+            } else if (status === 'timeout') {
+                errorMessage = 'Yêu cầu bị hết thời gian. Vui lòng thử lại!';
+            } else if (status === 'error' && xhr.status === 0) {
+                errorMessage = 'Không thể kết nối đến server. Kiểm tra URL hoặc CORS!';
+            } else if (xhr.responseText) {
+                debugInfo += `\nResponse: ${xhr.responseText.substring(0, 200)}`;
+            }
+            
+            // Show detailed error in console
+            console.error('Full error details:', {
+                status: xhr.status,
+                statusText: xhr.statusText,
+                responseText: xhr.responseText,
+                responseJSON: xhr.responseJSON,
+                url: `/admin/promotions/${promotionId}/toggle-status`
+            });
+            
+            alert('❌ ' + errorMessage + debugInfo);
         }
     });
 }
 
 function deletePromotion(promotionId) {
-    console.log('Attempting to delete promotion with ID:', promotionId);
+    console.log('=== Delete Promotion Function Called ===');
+    console.log('Promotion ID:', promotionId);
+    
+    // Check if jQuery is available
+    if (typeof $ === 'undefined') {
+        alert('jQuery chưa được load!');
+        return;
+    }
+    
+    // Get CSRF token
+    const csrfToken = $('meta[name="csrf-token"]').attr('content');
+    console.log('CSRF Token:', csrfToken ? 'Found' : 'NOT FOUND');
+    
+    if (!csrfToken) {
+        alert('Không tìm thấy CSRF token!');
+        return;
+    }
     
     if (confirm('Bạn có chắc chắn muốn xóa khuyến mãi này? Hành động này không thể hoàn tác!')) {
         // Disable button to prevent double click
@@ -464,21 +576,26 @@ function deletePromotion(promotionId) {
             button.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         }
         
-        const url = `/admin/promotions/${promotionId}`;
+        const baseUrl = '{{ url("/") }}';
+        const url = `${baseUrl}/admin/promotions/${promotionId}`;
         console.log('DELETE URL:', url);
+        console.log('Request method: POST (with _method=DELETE)');
         
         $.ajax({
             url: url,
-            method: 'DELETE',
+            method: 'POST',
             data: {
-                _token: '{{ csrf_token() }}'
+                _method: 'DELETE'
+            },
+            headers: {
+                'X-CSRF-TOKEN': csrfToken
             },
             timeout: 10000, // 10 second timeout
             beforeSend: function(xhr) {
                 console.log('Sending DELETE request...');
             },
             success: function(response) {
-                console.log('Delete success response:', response);
+                console.log('Delete SUCCESS response:', response);
                 
                 if (response && response.success) {
                     showToast('success', response.message || 'Khuyến mãi đã được xóa thành công!');
@@ -492,38 +609,53 @@ function deletePromotion(promotionId) {
                 }, 1500);
             },
             error: function(xhr, status, error) {
-                console.error('Delete error details:', {
-                    xhr: xhr,
-                    status: status, 
-                    error: error,
-                    responseText: xhr.responseText,
-                    statusCode: xhr.status
-                });
+                console.error('=== Delete Promotion ERROR ===');
+                console.error('XHR Status:', xhr.status);
+                console.error('XHR Status Text:', xhr.statusText);
+                console.error('Status:', status);
+                console.error('Error:', error);
+                console.error('Response Text:', xhr.responseText);
+                console.error('Response JSON:', xhr.responseJSON);
                 
                 let errorMessage = 'Có lỗi xảy ra khi xóa khuyến mãi!';
+                let debugInfo = `\nStatus Code: ${xhr.status}\nStatus: ${status}\nError: ${error}`;
                 
-                if (xhr.status === 404) {
-                    errorMessage = 'Không tìm thấy khuyến mãi cần xóa!';
+                if (xhr.status === 419) {
+                    errorMessage = 'Phiên làm việc đã hết hạn (419 CSRF). Vui lòng tải lại trang!';
+                } else if (xhr.status === 404) {
+                    errorMessage = 'Không tìm thấy khuyến mãi cần xóa (404)!';
                 } else if (xhr.status === 500) {
-                    errorMessage = 'Lỗi server khi xóa khuyến mãi!';
+                    errorMessage = 'Lỗi server (500) khi xóa khuyến mãi!';
+                } else if (xhr.status === 405) {
+                    errorMessage = 'Method không được phép (405). Route có thể chưa đúng!';
                 } else if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
+                } else if (status === 'timeout') {
+                    errorMessage = 'Yêu cầu bị hết thời gian. Vui lòng thử lại!';
+                } else if (status === 'error' && xhr.status === 0) {
+                    errorMessage = 'Không thể kết nối đến server. Kiểm tra URL hoặc CORS!';
                 } else if (xhr.responseText) {
                     try {
                         const response = JSON.parse(xhr.responseText);
                         if (response.message) {
                             errorMessage = response.message;
+                            debugInfo += `\nMessage: ${response.message}`;
                         }
                     } catch (e) {
-                        console.error('Error parsing response:', e);
+                        debugInfo += `\nResponse: ${xhr.responseText.substring(0, 200)}`;
                     }
-                } else if (status === 'timeout') {
-                    errorMessage = 'Yêu cầu bị hết thời gian. Vui lòng thử lại!';
-                } else if (status === 'error') {
-                    errorMessage = 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng!';
                 }
                 
-                showToast('error', errorMessage);
+                // Show detailed error in console
+                console.error('Full error details:', {
+                    status: xhr.status,
+                    statusText: xhr.statusText,
+                    responseText: xhr.responseText,
+                    responseJSON: xhr.responseJSON,
+                    url: `/admin/promotions/${promotionId}`
+                });
+                
+                alert('❌ ' + errorMessage + debugInfo);
                 
                 // Re-enable button
                 if (button) {

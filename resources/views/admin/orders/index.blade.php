@@ -58,21 +58,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="stat-card">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="stat-label">Đang xử lý</p>
-                            <h3 class="stat-value text-info">{{ number_format($stats['processing']) }}</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-cogs fa-2x text-info"></i>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
         <div class="col-md-2">
             <div class="stat-card">
                 <div class="stat-card-body">
@@ -141,11 +127,9 @@
                         <label class="form-label">Trạng thái</label>
                         <select name="status" class="form-select">
                             <option value="">Tất cả trạng thái</option>
-                            <option value="Chờ xử lý" {{ request('status') === 'Chờ xử lý' ? 'selected' : '' }}>Chờ xử lý</option>
-                            <option value="Đang xử lý" {{ request('status') === 'Đang xử lý' ? 'selected' : '' }}>Đang xử lý</option>
-                            <option value="Đang giao" {{ request('status') === 'Đang giao' ? 'selected' : '' }}>Đang giao</option>
-                            <option value="Đã giao" {{ request('status') === 'Đã giao' ? 'selected' : '' }}>Đã giao</option>
-                            <option value="Đã hủy" {{ request('status') === 'Đã hủy' ? 'selected' : '' }}>Đã hủy</option>
+                            <option value="cho_xu_ly" {{ request('status') === 'cho_xu_ly' ? 'selected' : '' }}>Chờ xử lý</option>
+                            <option value="da_giao" {{ request('status') === 'da_giao' ? 'selected' : '' }}>Đã giao</option>
+                            <option value="da_huy" {{ request('status') === 'da_huy' ? 'selected' : '' }}>Đã hủy</option>
                         </select>
                     </div>
                     <div class="col-md-2">
@@ -261,27 +245,9 @@
                             <strong class="text-success">{{ number_format($order->tong_tien) }}đ</strong>
                         </td>
                         <td>
-                            @php
-                                $statusClass = 'secondary';
-                                switch ($order->trang_thai) {
-                                    case 'Chờ xử lý':
-                                        $statusClass = 'warning';
-                                        break;
-                                    case 'Đang xử lý':
-                                        $statusClass = 'info';
-                                        break;
-                                    case 'Đang giao':
-                                        $statusClass = 'primary';
-                                        break;
-                                    case 'Đã giao':
-                                        $statusClass = 'success';
-                                        break;
-                                    case 'Đã hủy':
-                                        $statusClass = 'danger';
-                                        break;
-                                }
-                            @endphp
-                            <span class="badge bg-{{ $statusClass }}">{{ $order->trang_thai }}</span>
+                            <span class="badge bg-{{ $order->getStatusBadgeClass() }}">
+                                {{ $order->trang_thai_text }}
+                            </span>
                             <br>
                             <small class="text-muted">
                                 {{ $order->ngay_cap_nhat ? $order->ngay_cap_nhat->diffForHumans() : 'Chưa cập nhật' }}
@@ -299,31 +265,19 @@
                                    class="btn btn-sm btn-outline-info" title="Xem chi tiết">
                                     <i class="fas fa-eye"></i>
                                 </a>
-                                @if(!in_array($order->trang_thai, ['Đã giao', 'Đã hủy']))
+                                @if(!in_array($order->trang_thai, ['da_giao', 'Đã giao', 'da_huy', 'Đã hủy']))
                                 <div class="dropdown">
                                     <button class="btn btn-sm btn-outline-primary dropdown-toggle" 
                                             type="button" data-bs-toggle="dropdown">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <ul class="dropdown-menu">
-                                        @if($order->trang_thai === 'Chờ xử lý')
-                                            <li><a class="dropdown-item" href="#" onclick="updateOrderStatus({{ $order->ma_don_hang }}, 'Đang xử lý')">
-                                                <i class="fas fa-cogs text-info"></i> Đang xử lý
-                                            </a></li>
-                                        @endif
-                                        @if(in_array($order->trang_thai, ['Chờ xử lý', 'Đang xử lý']))
-                                            <li><a class="dropdown-item" href="#" onclick="updateOrderStatus({{ $order->ma_don_hang }}, 'Đang giao')">
-                                                <i class="fas fa-truck text-primary"></i> Đang giao
-                                            </a></li>
-                                        @endif
-                                        @if(in_array($order->trang_thai, ['Đang giao']))
-                                            <li><a class="dropdown-item" href="#" onclick="updateOrderStatus({{ $order->ma_don_hang }}, 'Đã giao')">
-                                                <i class="fas fa-check text-success"></i> Đã giao
-                                            </a></li>
-                                        @endif
+                                        <li><a class="dropdown-item" href="#" onclick="updateOrderStatus({{ $order->ma_don_hang }}, 'da_giao')">
+                                            <i class="fas fa-check-circle text-success"></i> Đã giao
+                                        </a></li>
                                         <li><hr class="dropdown-divider"></li>
                                         <li><a class="dropdown-item text-danger" href="#" onclick="cancelOrder({{ $order->ma_don_hang }})">
-                                            <i class="fas fa-times"></i> Hủy đơn
+                                            <i class="fas fa-times-circle"></i> Hủy đơn
                                         </a></li>
                                     </ul>
                                 </div>
@@ -367,11 +321,9 @@
                     <div class="mb-3">
                         <label class="form-label">Trạng thái mới</label>
                         <select name="trang_thai" id="newStatus" class="form-select" required>
-                            <option value="Chờ xử lý">Chờ xử lý</option>
-                            <option value="Đang xử lý">Đang xử lý</option>
-                            <option value="Đang giao">Đang giao</option>
-                            <option value="Đã giao">Đã giao</option>
-                            <option value="Đã hủy">Đã hủy</option>
+                            <option value="cho_xu_ly">Chờ xử lý</option>
+                            <option value="da_giao">Đã giao</option>
+                            <option value="da_huy">Đã hủy</option>
                         </select>
                     </div>
                     <div class="mb-3">
@@ -450,13 +402,15 @@ function toggleBulkActions() {
 }
 
 function updateOrderStatus(orderId, status) {
-    $('#updateStatusForm').attr('action', `/admin/orders/${orderId}/update-status`);
+    const baseUrl = '{{ url("/admin/orders") }}';
+    $('#updateStatusForm').attr('action', `${baseUrl}/${orderId}/status`);
     $('#newStatus').val(status);
     $('#updateStatusModal').modal('show');
 }
 
 function cancelOrder(orderId) {
-    $('#cancelOrderForm').attr('action', `/admin/orders/${orderId}/cancel`);
+    const baseUrl = '{{ url("/admin/orders") }}';
+    $('#cancelOrderForm').attr('action', `${baseUrl}/${orderId}/cancel`);
     $('#cancelOrderModal').modal('show');
 }
 

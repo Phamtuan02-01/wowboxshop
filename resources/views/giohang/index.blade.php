@@ -28,16 +28,39 @@
                         </div>
                         
                         <div class="item-image">
-                            <img src="{{ $item->sanPham->hinh_anh_url ?: 'https://via.placeholder.com/100x100?text=No+Image' }}" 
-                                 alt="{{ $item->sanPham->ten_san_pham }}">
+                            <img src="{{ $item->sanPham && $item->sanPham->hinh_anh ? asset('images/products/' . $item->sanPham->hinh_anh) : asset('images/default-product.png') }}" 
+                                 alt="{{ $item->sanPham ? $item->sanPham->ten_san_pham : 'Sản phẩm' }}"
+                                 onerror="this.src='{{ asset('images/default-product.png') }}'">
                         </div>
                         
                         <div class="item-details">
                             <h4 class="item-name">{{ strtoupper($item->sanPham->ten_san_pham) }}</h4>
+                            
                             <div class="item-price">
-                                {{ number_format($item->bienThe->gia ?? 0, 0, ',', '.') }} VND 
-                                - ({{ $item->bienThe->calo ?? 0 }} CAL)
+                                @if(isset($item->promotion_info) && $item->promotion_info['has_promotion'])
+                                    <!-- Có khuyến mãi -->
+                                    <span class="original-price">{{ number_format($item->gia_goc, 0, ',', '.') }} VND</span>
+                                    <span class="discounted-price">{{ number_format($item->gia_khuyen_mai, 0, ',', '.') }} VND</span>
+                                    <span class="promotion-badge">
+                                        <i class="fas fa-tag"></i>
+                                        @if($item->promotion_info['promotion_type'] == 'percent')
+                                            -{{ $item->promotion_info['discount_percentage'] }}%
+                                        @else
+                                            -{{ number_format($item->gia_goc - $item->gia_khuyen_mai, 0, ',', '.') }}đ
+                                        @endif
+                                    </span>
+                                @else
+                                    <!-- Không có khuyến mãi -->
+                                    <span class="current-price">{{ number_format($item->gia_goc, 0, ',', '.') }} VND</span>
+                                @endif
+                                <span class="calories"> - ({{ $item->bienThe->calo ?? 0 }} CAL)</span>
                             </div>
+                            
+                            @if(isset($item->promotion_info) && $item->promotion_info['has_promotion'])
+                                <div class="promotion-name">
+                                    <i class="fas fa-gift"></i> {{ $item->promotion_info['promotion_name'] }}
+                                </div>
+                            @endif
                             
                             @if($item->bienThe && $item->bienThe->kich_thuoc)
                                 <div class="item-size">
@@ -67,8 +90,13 @@
                             </button>
                             
                             <div class="item-total">
+                                @if(isset($item->tiet_kiem) && $item->tiet_kiem > 0)
+                                    <div class="item-savings">
+                                        Tiết kiệm: {{ number_format($item->tiet_kiem, 0, ',', '.') }} VND
+                                    </div>
+                                @endif
                                 <span class="item-total-price" id="total-{{ $item->ma_chi_tiet_gio_hang }}">
-                                    Tổng tiền: {{ number_format(($item->bienThe->gia ?? 0) * $item->so_luong, 0, ',', '.') }} VND
+                                    Tổng tiền: {{ number_format($item->gia_khuyen_mai * $item->so_luong, 0, ',', '.') }} VND
                                 </span>
                             </div>
                         </div>
@@ -83,6 +111,18 @@
                         <span>TỔNG SỐ MÓN</span>
                         <span class="summary-value" id="total-items">{{ $chiTietGioHang->sum('so_luong') }} MÓN</span>
                     </div>
+                    
+                    @if($tongTietKiem > 0)
+                        <div class="summary-item">
+                            <span>Tổng tiền gốc:</span>
+                            <span class="summary-value original-amount">{{ number_format($tongTienGoc, 0, ',', '.') }} VND</span>
+                        </div>
+                        
+                        <div class="summary-item promotion-savings">
+                            <span><i class="fas fa-gift"></i> Tiết kiệm khuyến mãi:</span>
+                            <span class="summary-value savings-amount">-{{ number_format($tongTietKiem, 0, ',', '.') }} VND</span>
+                        </div>
+                    @endif
                     
                     <div class="summary-item">
                         <span>Tổng tiền:</span>
@@ -180,7 +220,24 @@ function updateQuantityAjax(id, qty) {
     .then(data => {
         if (data.success) {
             // Cập nhật tổng tiền của item
-            totalElement.innerHTML = `Tổng tiền: ${data.tong_tien_item}`;
+            let totalHTML = `Tổng tiền: ${data.tong_tien_item}`;
+            
+            // Hiển thị tiết kiệm nếu có
+            if (data.has_promotion && data.tiet_kiem && data.tiet_kiem !== '0 VND') {
+                const savingsElement = cartItem.querySelector('.item-savings');
+                if (savingsElement) {
+                    savingsElement.innerHTML = `Tiết kiệm: ${data.tiet_kiem}`;
+                } else {
+                    // Tạo element tiết kiệm mới
+                    const itemTotal = cartItem.querySelector('.item-total');
+                    const savingsDiv = document.createElement('div');
+                    savingsDiv.className = 'item-savings';
+                    savingsDiv.innerHTML = `Tiết kiệm: ${data.tiet_kiem}`;
+                    itemTotal.insertBefore(savingsDiv, totalElement);
+                }
+            }
+            
+            totalElement.innerHTML = totalHTML;
             
             // Cập nhật tổng tiền giỏ hàng
             calculateTotal();
@@ -367,12 +424,8 @@ function checkout() {
     checkoutBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> ĐANG XỬ LÝ...';
     checkoutBtn.disabled = true;
     
-    // Simulate API call
-    setTimeout(() => {
-        checkoutBtn.textContent = originalText;
-        checkoutBtn.disabled = false;
-        showFlashMessage('info', 'Chức năng thanh toán đang được phát triển. Cảm ơn bạn!');
-    }, 2000);
+    // Redirect to checkout page
+    window.location.href = '{{ route("thanh-toan.index") }}';
 }
 
 // Select/Deselect all items

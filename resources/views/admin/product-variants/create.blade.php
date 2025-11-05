@@ -7,6 +7,12 @@
     <li class="breadcrumb-item active">Thêm mới</li>
 @endsection
 
+@push('styles')
+<!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.min.css" rel="stylesheet" />
+@endpush
+
 @section('content')
 <div class="admin-content">
     <!-- Header -->
@@ -91,14 +97,16 @@
                                         Giá <span class="text-danger">*</span>
                                     </label>
                                     <div class="input-group">
-                                        <input type="number" name="gia" id="gia" 
+                                        <input type="text" name="gia_display" id="gia_display" 
                                                class="form-control @error('gia') is-invalid @enderror" 
                                                value="{{ old('gia') }}" 
-                                               placeholder="0" min="0" step="0.01" required>
-                                        <span class="input-group-text">VNĐ</span>
+                                               placeholder="Nhập số ngàn (VD: 10 = 10.000đ)" required>
+                                        <span class="input-group-text">x 1.000 VNĐ</span>
+                                        <input type="hidden" name="gia" id="gia" value="{{ old('gia') }}">
                                     </div>
+                                    <small class="text-muted">Nhập số ngàn: VD nhập 10 sẽ thành 10.000đ</small>
                                     @error('gia')
-                                        <div class="invalid-feedback">{{ $message }}</div>
+                                        <div class="invalid-feedback d-block">{{ $message }}</div>
                                     @enderror
                                 </div>
                             </div>
@@ -139,55 +147,6 @@
                                     @error('so_luong_ton')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Description -->
-                        <div class="form-group mb-4">
-                            <label for="mo_ta" class="form-label fw-bold">
-                                <i class="fas fa-align-left text-muted me-2"></i>
-                                Mô tả biến thể
-                            </label>
-                            <textarea name="mo_ta" id="mo_ta" 
-                                      class="form-control @error('mo_ta') is-invalid @enderror" 
-                                      rows="4" placeholder="Mô tả chi tiết về biến thể sản phẩm...">{{ old('mo_ta') }}</textarea>
-                            @error('mo_ta')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-                        
-                        <!-- Image Upload -->
-                        <div class="form-group mb-4">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-image text-primary me-2"></i>
-                                Hình ảnh biến thể
-                            </label>
-                            <div class="upload-area border-2 border-dashed rounded p-4 text-center" 
-                                 style="cursor: pointer; transition: all 0.3s ease;" 
-                                 onclick="document.getElementById('hinh_anh').click()">
-                                <div class="upload-content">
-                                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
-                                    <h6 class="mb-2">Nhấn để chọn hình ảnh</h6>
-                                    <p class="text-muted mb-0">hoặc kéo thả file vào đây</p>
-                                    <small class="text-muted">Hỗ trợ: JPG, PNG, GIF (tối đa 2MB)</small>
-                                </div>
-                            </div>
-                            <input type="file" name="hinh_anh" id="hinh_anh" 
-                                   class="d-none @error('hinh_anh') is-invalid @enderror" 
-                                   accept="image/*">
-                            @error('hinh_anh')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                            
-                            <!-- Image Preview -->
-                            <div id="image-preview" class="mt-3" style="display: none;">
-                                <div class="position-relative d-inline-block">
-                                    <img id="preview-image" src="" alt="Preview" class="img-thumbnail" style="max-height: 200px;">
-                                    <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" 
-                                            style="transform: translate(50%, -50%);" onclick="removeImage()">
-                                        <i class="fas fa-times"></i>
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -315,37 +274,29 @@
 </div>
 @endsection
 
+@push('scripts')
+<!-- Select2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+@endpush
+
 @section('scripts')
 <script>
 $(document).ready(function() {
-    // Image upload functionality
-    $('#hinh_anh').change(function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file size (2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                alert('Kích thước file không được vượt quá 2MB');
-                this.value = '';
-                return;
+    // Initialize Select2 for product selection
+    $('#ma_san_pham').select2({
+        theme: 'bootstrap-5',
+        placeholder: 'Chọn sản phẩm',
+        allowClear: true,
+        language: {
+            noResults: function() {
+                return "Không tìm thấy sản phẩm";
+            },
+            searching: function() {
+                return "Đang tìm kiếm...";
             }
-            
-            // Validate file type
-            if (!file.type.match('image.*')) {
-                alert('Vui lòng chọn file hình ảnh');
-                this.value = '';
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                $('#preview-image').attr('src', e.target.result);
-                $('#image-preview').show();
-                $('.upload-area').hide();
-            };
-            reader.readAsDataURL(file);
         }
     });
-    
+
     // Product selection change
     $('#ma_san_pham').change(function() {
         const productId = $(this).val();
@@ -354,13 +305,32 @@ $(document).ready(function() {
             $('#product-info-card').fadeIn();
         } else {
             $('#product-info-card').fadeOut();
+            // Clear auto-filled values when product is deselected
+            $('#kich_thuoc').val('');
+            $('#gia_display').val('');
+            $('#gia').val('');
         }
     });
     
-    // Auto-format price input
-    $('#gia').on('input', function() {
+    // Auto-format price input (multiply by 1000)
+    $('#gia_display').on('input', function() {
         let value = $(this).val().replace(/[^0-9]/g, '');
         $(this).val(value);
+        
+        // Convert to actual price (multiply by 1000)
+        if (value) {
+            $('#gia').val(value * 1000);
+        } else {
+            $('#gia').val('');
+        }
+    });
+    
+    // Handle form submission to ensure gia is set
+    $('#variant-form').on('submit', function() {
+        const displayValue = $('#gia_display').val().replace(/[^0-9]/g, '');
+        if (displayValue) {
+            $('#gia').val(displayValue * 1000);
+        }
     });
     
     // Form validation
@@ -384,28 +354,6 @@ $(document).ready(function() {
         }
     });
     
-    // Drag and drop for image upload
-    $('.upload-area').on('dragover', function(e) {
-        e.preventDefault();
-        $(this).addClass('border-primary bg-light');
-    });
-    
-    $('.upload-area').on('dragleave', function(e) {
-        e.preventDefault();
-        $(this).removeClass('border-primary bg-light');
-    });
-    
-    $('.upload-area').on('drop', function(e) {
-        e.preventDefault();
-        $(this).removeClass('border-primary bg-light');
-        
-        const files = e.originalEvent.dataTransfer.files;
-        if (files.length > 0) {
-            $('#hinh_anh')[0].files = files;
-            $('#hinh_anh').trigger('change');
-        }
-    });
-    
     // Load product info on page load if selected
     const selectedProductId = $('#ma_san_pham').val();
     if (selectedProductId) {
@@ -414,17 +362,9 @@ $(document).ready(function() {
     }
 });
 
-function removeImage() {
-    $('#hinh_anh').val('');
-    $('#image-preview').hide();
-    $('.upload-area').show();
-}
-
 function resetForm() {
     if (confirm('Bạn có chắc chắn muốn reset form? Tất cả dữ liệu đã nhập sẽ bị mất.')) {
         document.getElementById('variant-form').reset();
-        $('#image-preview').hide();
-        $('.upload-area').show();
         $('#product-info-card').hide();
         $('.is-invalid').removeClass('is-invalid');
     }
@@ -440,16 +380,84 @@ function loadProductInfo(productId) {
         </div>
     `);
     
-    // Simulate AJAX call - replace with actual API call if needed
+    // Fetch product information via AJAX
+    $.ajax({
+        url: '{{ route("admin.products.get-info", ":id") }}'.replace(':id', productId),
+        method: 'GET',
+        success: function(response) {
+            const product = response.product;
+            const variantCount = response.variant_count;
+            
+            // Display product info
+            let productHtml = `
+                <div class="text-start">
+                    <h6 class="mb-3">${product.ten_san_pham}</h6>
+                    <div class="mb-2">
+                        <small class="text-muted">Giá gốc:</small>
+                        <div class="fw-bold text-success">${formatNumber(product.gia)} VNĐ</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Danh mục:</small>
+                        <div>${product.danh_muc ? product.danh_muc.ten_danh_muc : 'Chưa có'}</div>
+                    </div>
+                    <div class="mb-2">
+                        <small class="text-muted">Số biến thể hiện có:</small>
+                        <div class="badge bg-info">${variantCount}</div>
+                    </div>
+                </div>
+            `;
+            
+            $('#product-details').html(productHtml);
+            
+            // If this is the first variant, auto-fill size and price
+            if (variantCount === 0) {
+                $('#kich_thuoc').val('S');
+                const priceInThousands = Math.floor(product.gia / 1000);
+                $('#gia_display').val(priceInThousands);
+                $('#gia').val(product.gia);
+                
+                // Show notification
+                showNotification('Đây là biến thể đầu tiên! Đã tự động điền kích thước "S" và giá từ sản phẩm.', 'info');
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('AJAX Error:', status, error);
+            console.error('Response:', xhr.responseText);
+            $('#product-details').html(`
+                <div class="text-center py-3">
+                    <i class="fas fa-exclamation-triangle fa-3x text-warning mb-2"></i>
+                    <h6 class="mb-2">Không thể tải thông tin</h6>
+                    <p class="text-muted small mb-0">Vui lòng thử lại. ${error}</p>
+                </div>
+            `);
+        }
+    });
+}
+
+function formatNumber(num) {
+    return new Intl.NumberFormat('vi-VN').format(num);
+}
+
+function showNotification(message, type = 'success') {
+    const alertClass = type === 'success' ? 'alert-success' : 
+                      type === 'info' ? 'alert-info' : 
+                      type === 'warning' ? 'alert-warning' : 'alert-danger';
+    
+    const notification = $(`
+        <div class="alert ${alertClass} alert-dismissible fade show position-fixed" 
+             style="top: 80px; right: 20px; z-index: 9999; min-width: 300px;" role="alert">
+            ${message}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    `);
+    
+    $('body').append(notification);
+    
     setTimeout(function() {
-        $('#product-details').html(`
-            <div class="text-center py-3">
-                <i class="fas fa-check-circle fa-3x text-success mb-2"></i>
-                <h6 class="mb-2">Sản phẩm đã được chọn</h6>
-                <p class="text-muted small mb-0">Vui lòng điền thông tin biến thể.</p>
-            </div>
-        `);
-    }, 1000);
+        notification.fadeOut(function() {
+            $(this).remove();
+        });
+    }, 5000);
 }
 </script>
 @endsection

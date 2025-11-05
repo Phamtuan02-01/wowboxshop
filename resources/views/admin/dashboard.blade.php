@@ -6,6 +6,19 @@
 <li class="breadcrumb-item active">Dashboard</li>
 @endsection
 
+@push('styles')
+<style>
+.chart-container {
+    position: relative;
+    height: 400px;
+    width: 100%;
+}
+.chart-container.chart-small {
+    height: 300px;
+}
+</style>
+@endpush
+
 @section('content')
 <div class="container-fluid">
     <!-- Page Header -->
@@ -246,11 +259,23 @@
                                         </td>
                                         <td>
                                             @php
-                                                $statusClass = $order->trang_thai == 'đã giao' ? 'success' : 
-                                                              ($order->trang_thai == 'đang xử lý' ? 'warning' : 'secondary');
+                                                $statusTexts = [
+                                                    'cho_xac_nhan' => 'Chờ xác nhận',
+                                                    'cho_xu_ly' => 'Chờ xử lý',
+                                                    'da_giao' => 'Đã giao',
+                                                    'da_huy' => 'Đã hủy'
+                                                ];
+                                                $statusClasses = [
+                                                    'cho_xac_nhan' => 'warning',
+                                                    'cho_xu_ly' => 'info',
+                                                    'da_giao' => 'success',
+                                                    'da_huy' => 'danger'
+                                                ];
+                                                $statusText = $statusTexts[$order->trang_thai] ?? $order->trang_thai;
+                                                $statusClass = $statusClasses[$order->trang_thai] ?? 'secondary';
                                             @endphp
                                             <span class="badge bg-{{ $statusClass }}">
-                                                {{ ucfirst($order->trang_thai ?? 'Chưa xác định') }}
+                                                {{ $statusText }}
                                             </span>
                                         </td>
                                         <td>
@@ -283,15 +308,24 @@
 
 @section('scripts')
 <script>
-// Dữ liệu từ PHP
-const monthlyRevenue = @json($monthlyRevenue);
-const monthlyOrders = @json($monthlyOrders);
-const orderStatus = @json($orderStatus);
-const dailyStats = @json($dailyStats);
+document.addEventListener('DOMContentLoaded', function() {
+    // Dữ liệu từ PHP
+    const monthlyRevenue = @json($monthlyRevenue);
+    const monthlyOrders = @json($monthlyOrders);
+    const orderStatus = @json($orderStatus);
+    const dailyStats = @json($dailyStats);
 
-// Revenue Chart
-const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-new Chart(revenueCtx, {
+    // Kiểm tra Chart.js
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js chưa được load!');
+        return;
+    }
+
+    // Revenue Chart
+    const revenueCtx = document.getElementById('revenueChart');
+    if (!revenueCtx) return;
+    
+    new Chart(revenueCtx, {
     type: 'line',
     data: {
         labels: monthlyRevenue.map(item => item.month),
@@ -362,21 +396,28 @@ new Chart(revenueCtx, {
     }
 });
 
-// Order Status Chart
-const statusCtx = document.getElementById('orderStatusChart').getContext('2d');
-new Chart(statusCtx, {
+    // Order Status Chart
+    const statusCtx = document.getElementById('orderStatusChart');
+    if (!statusCtx) return;
+    
+    // Hàm để lấy màu theo tên trạng thái tiếng Việt
+    const getStatusColor = (status) => {
+        const colorMap = {
+            'Chờ xác nhận': '#ffc107',  // Vàng
+            'Chờ xử lý': '#ffc107',      // Vàng
+            'Đã giao': '#28a745',        // Xanh lá
+            'Đã hủy': '#dc3545'          // Đỏ
+        };
+        return colorMap[status] || '#6c757d'; // Mặc định xám
+    };
+    
+    new Chart(statusCtx, {
     type: 'doughnut',
     data: {
         labels: orderStatus.map(item => item.trang_thai || 'Chưa xác định'),
         datasets: [{
             data: orderStatus.map(item => item.count),
-            backgroundColor: [
-                '#28a745',
-                '#ffc107', 
-                '#dc3545',
-                '#6c757d',
-                '#17a2b8'
-            ],
+            backgroundColor: orderStatus.map(item => getStatusColor(item.trang_thai)),
             borderWidth: 2,
             borderColor: '#fff'
         }]
@@ -392,9 +433,11 @@ new Chart(statusCtx, {
     }
 });
 
-// Daily Stats Chart
-const dailyCtx = document.getElementById('dailyStatsChart').getContext('2d');
-new Chart(dailyCtx, {
+    // Daily Stats Chart
+    const dailyCtx = document.getElementById('dailyStatsChart');
+    if (!dailyCtx) return;
+    
+    new Chart(dailyCtx, {
     type: 'bar',
     data: {
         labels: dailyStats.map(item => item.date),
@@ -428,8 +471,7 @@ new Chart(dailyCtx, {
     }
 });
 
-// Add fade in animation
-document.addEventListener('DOMContentLoaded', function() {
+    // Add fade in animation
     const cards = document.querySelectorAll('.stats-card, .card');
     cards.forEach((card, index) => {
         setTimeout(() => {

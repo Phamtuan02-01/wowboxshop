@@ -14,17 +14,16 @@ class TrangChuController extends Controller
      */
     public function index()
     {
-        // Cách đơn giản hơn: lấy sản phẩm có biến thể có giá cao nhất (giả định là sản phẩm nổi bật)
+        // Lấy sản phẩm nổi bật (chỉ sản phẩm thường, không lấy nguyên liệu)
+        // Lọc theo cột la_noi_bat = true, loai_san_pham = 'product', trang_thai = true
         $sanPhamNoiBat = SanPham::with(['bienThes' => function($query) {
-                $query->orderBy('gia', 'DESC');
+                $query->orderBy('gia', 'ASC');
             }])
+            ->where('la_noi_bat', true)
+            ->where('loai_san_pham', 'product')
+            ->where('trang_thai', true)
             ->limit(5)
             ->get();
-
-        // Nếu không đủ sản phẩm, lấy tất cả sản phẩm có
-        if ($sanPhamNoiBat->count() < 5) {
-            $sanPhamNoiBat = SanPham::with('bienThes')->get();
-        }
 
         return view('trangchu', compact('sanPhamNoiBat'));
     }

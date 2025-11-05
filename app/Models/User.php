@@ -13,6 +13,22 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     /**
+     * Tên bảng trong database
+     */
+    protected $table = 'tai_khoan';
+    
+    /**
+     * Primary key của bảng
+     */
+    protected $primaryKey = 'ma_tai_khoan';
+
+    /**
+     * Tên cột timestamp trong database
+     */
+    const CREATED_AT = 'ngay_tao';
+    const UPDATED_AT = 'ngay_cap_nhat';
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>

@@ -106,12 +106,29 @@ class PromotionController extends Controller
         // Handle application scope
         $validated['ap_dung_tat_ca'] = $request->has('ap_dung_tat_ca') ? true : false;
         $validated['trang_thai'] = $request->has('trang_thai') ? true : false;
-        if ($validated['ap_dung_tat_ca']) {
+        
+        $sanPhamIds = [];
+        $danhMucIds = [];
+        
+        if (!$validated['ap_dung_tat_ca']) {
+            $sanPhamIds = $validated['san_pham_ap_dung'] ?? [];
+            $danhMucIds = $validated['danh_muc_ap_dung'] ?? [];
+        } else {
             $validated['san_pham_ap_dung'] = null;
             $validated['danh_muc_ap_dung'] = null;
         }
 
         $promotion = KhuyenMai::create($validated);
+        
+        // Sync vào bảng trung gian many-to-many
+        if (!$validated['ap_dung_tat_ca']) {
+            if (!empty($sanPhamIds)) {
+                $promotion->sanPhams()->sync($sanPhamIds);
+            }
+            if (!empty($danhMucIds)) {
+                $promotion->danhMucs()->sync($danhMucIds);
+            }
+        }
 
         return redirect()->route('admin.promotions.index')
                         ->with('success', 'Khuyến mãi đã được tạo thành công!');
@@ -177,12 +194,38 @@ class PromotionController extends Controller
         // Handle application scope
         $validated['ap_dung_tat_ca'] = $request->has('ap_dung_tat_ca') ? true : false;
         $validated['trang_thai'] = $request->has('trang_thai') ? true : false;
-        if ($validated['ap_dung_tat_ca']) {
+        
+        $sanPhamIds = [];
+        $danhMucIds = [];
+        
+        if (!$validated['ap_dung_tat_ca']) {
+            $sanPhamIds = $validated['san_pham_ap_dung'] ?? [];
+            $danhMucIds = $validated['danh_muc_ap_dung'] ?? [];
+        } else {
             $validated['san_pham_ap_dung'] = null;
             $validated['danh_muc_ap_dung'] = null;
         }
 
         $promotion->update($validated);
+        
+        // Sync vào bảng trung gian many-to-many
+        if (!$validated['ap_dung_tat_ca']) {
+            if (!empty($sanPhamIds)) {
+                $promotion->sanPhams()->sync($sanPhamIds);
+            } else {
+                $promotion->sanPhams()->detach();
+            }
+            
+            if (!empty($danhMucIds)) {
+                $promotion->danhMucs()->sync($danhMucIds);
+            } else {
+                $promotion->danhMucs()->detach();
+            }
+        } else {
+            // Nếu áp dụng tất cả, xóa hết trong bảng trung gian
+            $promotion->sanPhams()->detach();
+            $promotion->danhMucs()->detach();
+        }
 
         return redirect()->route('admin.promotions.index')
                         ->with('success', 'Khuyến mãi đã được cập nhật thành công!');
@@ -239,14 +282,37 @@ class PromotionController extends Controller
 
     public function toggleStatus(KhuyenMai $promotion)
     {
-        $promotion->update(['trang_thai' => !$promotion->trang_thai]);
+        try {
+            \Log::info('Toggle status request', [
+                'promotion_id' => $promotion->ma_khuyen_mai,
+                'current_status' => $promotion->trang_thai
+            ]);
 
-        $status = $promotion->trang_thai ? 'kích hoạt' : 'tắt';
-        return response()->json([
-            'success' => true,
-            'message' => "Khuyến mãi đã được {$status} thành công!",
-            'status' => $promotion->trang_thai
-        ]);
+            $newStatus = !$promotion->trang_thai;
+            $promotion->update(['trang_thai' => $newStatus]);
+
+            \Log::info('Toggle status success', [
+                'promotion_id' => $promotion->ma_khuyen_mai,
+                'new_status' => $newStatus
+            ]);
+
+            $status = $newStatus ? 'kích hoạt' : 'tắt';
+            return response()->json([
+                'success' => true,
+                'message' => "Khuyến mãi đã được {$status} thành công!",
+                'status' => $newStatus
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Toggle status error', [
+                'error' => $e->getMessage(),
+                'promotion_id' => $promotion->ma_khuyen_mai ?? 'unknown'
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Có lỗi xảy ra khi cập nhật trạng thái: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     public function bulkAction(Request $request)
@@ -290,6 +356,8 @@ class PromotionController extends Controller
     public function checkCode(Request $request)
     {
         $code = $request->input('code');
+        $orderValue = $request->input('order_value', 0); // Tổng giá trị đơn hàng
+        
         $promotion = KhuyenMai::byCode($code)->first();
 
         if (!$promotion) {
@@ -299,10 +367,64 @@ class PromotionController extends Controller
             ]);
         }
 
-        if (!$promotion->canUse()) {
+        // Kiểm tra trạng thái
+        if (!$promotion->trang_thai) {
             return response()->json([
                 'valid' => false,
-                'message' => 'Mã khuyến mãi không hợp lệ hoặc đã hết hạn!'
+                'message' => 'Mã khuyến mãi đã bị vô hiệu hóa!'
+            ]);
+        }
+
+        // Kiểm tra thời gian
+        $now = \Carbon\Carbon::now();
+        if ($promotion->ngay_bat_dau > $now) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Mã khuyến mãi chưa có hiệu lực!'
+            ]);
+        }
+
+        if ($promotion->ngay_ket_thuc < $now) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Mã khuyến mãi đã hết hạn!'
+            ]);
+        }
+
+        // Kiểm tra giới hạn sử dụng tổng
+        if ($promotion->gioi_han_su_dung && $promotion->so_luong_su_dung >= $promotion->gioi_han_su_dung) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Mã khuyến mãi đã hết lượt sử dụng!'
+            ]);
+        }
+
+        // Kiểm tra giới hạn sử dụng của khách hàng
+        if (\Auth::check() && $promotion->gioi_han_moi_khach) {
+            $userUsage = \App\Models\LichSuKhuyenMai::where('ma_khuyen_mai', $promotion->ma_khuyen_mai)
+                                      ->where('ma_tai_khoan', \Auth::id())
+                                      ->count();
+            if ($userUsage >= $promotion->gioi_han_moi_khach) {
+                return response()->json([
+                    'valid' => false,
+                    'message' => 'Bạn đã sử dụng mã này ' . $userUsage . '/' . $promotion->gioi_han_moi_khach . ' lần. Không thể sử dụng thêm!'
+                ]);
+            }
+        }
+
+        // Kiểm tra giá trị đơn hàng tối thiểu
+        if ($promotion->don_hang_toi_thieu && $orderValue < $promotion->don_hang_toi_thieu) {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Đơn hàng tối thiểu phải từ ' . number_format($promotion->don_hang_toi_thieu, 0, ',', '.') . '₫ để áp dụng mã này!'
+            ]);
+        }
+
+        // Chỉ cho phép mã khuyến mãi loại 'fixed' (giảm giá cố định cho hóa đơn)
+        if ($promotion->loai_khuyen_mai !== 'fixed') {
+            return response()->json([
+                'valid' => false,
+                'message' => 'Chỉ áp dụng được mã giảm giá cố định cho hóa đơn!'
             ]);
         }
 

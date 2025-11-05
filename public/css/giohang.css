@@ -430,3 +430,82 @@
         font-size: 2rem;
     }
 }
+
+/* Promotion styles for cart */
+.original-price {
+    text-decoration: line-through;
+    color: #999;
+    font-size: 0.95rem;
+    margin-right: 8px;
+}
+
+.discounted-price {
+    color: #e74c3c;
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+.current-price {
+    color: #2E7D32;
+    font-weight: 600;
+}
+
+.promotion-badge {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.8rem;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+}
+
+.promotion-name {
+    color: #e74c3c;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.promotion-name i {
+    font-size: 0.8rem;
+}
+
+.calories {
+    color: #888;
+    font-size: 0.9rem;
+}
+
+.item-savings {
+    color: #e74c3c;
+    font-size: 0.85rem;
+    font-weight: 500;
+    margin-bottom: 0.3rem;
+}
+
+.promotion-savings {
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    border: 2px solid #4caf50;
+    border-radius: 8px;
+    padding: 0.8rem !important;
+    margin: 0.5rem 0;
+}
+
+.promotion-savings span {
+    color: #2e7d32 !important;
+    font-weight: 600;
+}
+
+.savings-amount {
+    font-size: 1.1rem !important;
+}
+
+.original-amount {
+    text-decoration: line-through;
+    color: #999 !important;
+}

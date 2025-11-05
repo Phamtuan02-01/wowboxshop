@@ -34,18 +34,46 @@ class GioHangController extends Controller
             ->where('ma_gio_hang', $gioHang->ma_gio_hang)
             ->get();
 
-        // Tính tổng tiền
+        // Tính tổng tiền với khuyến mãi
         $tongTien = 0;
+        $tongTienGoc = 0;
+        $tongTietKiem = 0;
         $phiVanChuyen = 10000; // Phí vận chuyển cố định
         
         foreach ($chiTietGioHang as $item) {
-            $gia = $item->bienThe ? $item->bienThe->gia : 0;
-            $tongTien += $gia * $item->so_luong;
+            $giaGoc = $item->bienThe ? $item->bienThe->gia : 0;
+            $tongTienGoc += $giaGoc * $item->so_luong;
+            
+            // Áp dụng khuyến mãi nếu có
+            if ($item->sanPham) {
+                $giaKhuyenMai = $item->sanPham->getDiscountedPriceForVariant($giaGoc);
+                $tongTien += $giaKhuyenMai * $item->so_luong;
+                $tongTietKiem += ($giaGoc - $giaKhuyenMai) * $item->so_luong;
+                
+                // Lưu thông tin khuyến mãi vào item để hiển thị
+                $item->gia_goc = $giaGoc;
+                $item->gia_khuyen_mai = $giaKhuyenMai;
+                $item->tiet_kiem = ($giaGoc - $giaKhuyenMai) * $item->so_luong;
+                $item->promotion_info = $item->sanPham->promotion_info;
+            } else {
+                $tongTien += $giaGoc * $item->so_luong;
+                $item->gia_goc = $giaGoc;
+                $item->gia_khuyen_mai = $giaGoc;
+                $item->tiet_kiem = 0;
+                $item->promotion_info = ['has_promotion' => false];
+            }
         }
 
         $tongHoaDon = $tongTien + $phiVanChuyen;
 
-        return view('giohang.index', compact('chiTietGioHang', 'tongTien', 'phiVanChuyen', 'tongHoaDon'));
+        return view('giohang.index', compact(
+            'chiTietGioHang', 
+            'tongTien', 
+            'tongTienGoc',
+            'tongTietKiem',
+            'phiVanChuyen', 
+            'tongHoaDon'
+        ));
     }
 
     /**
@@ -110,13 +138,25 @@ class GioHangController extends Controller
         $chiTietGioHang->so_luong = $soLuong;
         $chiTietGioHang->save();
 
-        // Tính lại tổng tiền cho item này
-        $gia = $chiTietGioHang->bienThe ? $chiTietGioHang->bienThe->gia : 0;
-        $tongTienItem = $gia * $soLuong;
+        // Tính lại tổng tiền cho item này với khuyến mãi
+        $giaGoc = $chiTietGioHang->bienThe ? $chiTietGioHang->bienThe->gia : 0;
+        $giaKhuyenMai = $giaGoc;
+        
+        // Áp dụng khuyến mãi nếu có
+        if ($chiTietGioHang->sanPham) {
+            $giaKhuyenMai = $chiTietGioHang->sanPham->getDiscountedPriceForVariant($giaGoc);
+        }
+        
+        $tongTienItem = $giaKhuyenMai * $soLuong;
+        $tietKiem = ($giaGoc - $giaKhuyenMai) * $soLuong;
 
         return response()->json([
             'success' => true,
-            'tong_tien_item' => number_format($tongTienItem, 0, ',', '.') . ' VND'
+            'gia_goc' => number_format($giaGoc, 0, ',', '.'),
+            'gia_khuyen_mai' => number_format($giaKhuyenMai, 0, ',', '.'),
+            'tong_tien_item' => number_format($tongTienItem, 0, ',', '.') . ' VND',
+            'tiet_kiem' => number_format($tietKiem, 0, ',', '.') . ' VND',
+            'has_promotion' => $giaKhuyenMai < $giaGoc
         ]);
     }
 

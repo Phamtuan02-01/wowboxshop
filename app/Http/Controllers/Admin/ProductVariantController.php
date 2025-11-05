@@ -25,7 +25,6 @@ class ProductVariantController extends Controller
             $search = $request->get('search');
             $query->where(function($q) use ($search) {
                 $q->where('kich_thuoc', 'like', "%{$search}%")
-                  ->orWhere('mo_ta', 'like', "%{$search}%")
                   ->orWhereHas('sanPham', function($productQuery) use ($search) {
                       $productQuery->where('ten_san_pham', 'like', "%{$search}%");
                   });
@@ -109,8 +108,6 @@ class ProductVariantController extends Controller
             'calo' => 'required|integer|min:0',
             'so_luong_ton' => 'required|integer|min:0',
             'trang_thai' => 'boolean',
-            'mo_ta' => 'nullable|string',
-            'hinh_anh' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'ma_san_pham.required' => 'Vui lòng chọn sản phẩm',
             'ma_san_pham.exists' => 'Sản phẩm không tồn tại',
@@ -125,9 +122,6 @@ class ProductVariantController extends Controller
             'so_luong_ton.required' => 'Vui lòng nhập số lượng tồn',
             'so_luong_ton.integer' => 'Số lượng tồn phải là số nguyên',
             'so_luong_ton.min' => 'Số lượng tồn phải lớn hơn hoặc bằng 0',
-            'hinh_anh.image' => 'File phải là hình ảnh',
-            'hinh_anh.mimes' => 'Hình ảnh phải có định dạng: jpeg, png, jpg, gif',
-            'hinh_anh.max' => 'Kích thước hình ảnh không được vượt quá 2MB',
         ]);
         
         // Check for duplicate variant
@@ -142,14 +136,6 @@ class ProductVariantController extends Controller
         
         $data = $request->all();
         $data['trang_thai'] = $request->has('trang_thai');
-        
-        // Handle image upload
-        if ($request->hasFile('hinh_anh')) {
-            $image = $request->file('hinh_anh');
-            $filename = 'variant_' . time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images/variants'), $filename);
-            $data['hinh_anh'] = $filename;
-        }
         
         BienTheSanPham::create($data);
         
@@ -206,8 +192,6 @@ class ProductVariantController extends Controller
             'calo' => 'required|integer|min:0',
             'so_luong_ton' => 'required|integer|min:0',
             'trang_thai' => 'boolean',
-            'mo_ta' => 'nullable|string',
-            'hinh_anh' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
         ], [
             'ma_san_pham.required' => 'Vui lòng chọn sản phẩm',
             'ma_san_pham.exists' => 'Sản phẩm không tồn tại',
@@ -222,9 +206,6 @@ class ProductVariantController extends Controller
             'so_luong_ton.required' => 'Vui lòng nhập số lượng tồn',
             'so_luong_ton.integer' => 'Số lượng tồn phải là số nguyên',
             'so_luong_ton.min' => 'Số lượng tồn phải lớn hơn hoặc bằng 0',
-            'hinh_anh.image' => 'File phải là hình ảnh',
-            'hinh_anh.mimes' => 'Hình ảnh phải có định dạng: jpeg, png, jpg, gif',
-            'hinh_anh.max' => 'Kích thước hình ảnh không được vượt quá 2MB',
         ]);
         
         // Check for duplicate variant (excluding current variant)
@@ -240,19 +221,6 @@ class ProductVariantController extends Controller
         
         $data = $request->all();
         $data['trang_thai'] = $request->has('trang_thai');
-        
-        // Handle image upload
-        if ($request->hasFile('hinh_anh')) {
-            // Delete old image
-            if ($variant->hinh_anh && file_exists(public_path('images/variants/' . $variant->hinh_anh))) {
-                unlink(public_path('images/variants/' . $variant->hinh_anh));
-            }
-            
-            $image = $request->file('hinh_anh');
-            $filename = 'variant_' . time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images/variants'), $filename);
-            $data['hinh_anh'] = $filename;
-        }
         
         $variant->update($data);
         
@@ -276,11 +244,6 @@ class ProductVariantController extends Controller
                 'success' => false,
                 'message' => 'Không thể xóa biến thể này vì đã có đơn hàng hoặc giỏ hàng sử dụng.'
             ]);
-        }
-        
-        // Delete image file
-        if ($variant->hinh_anh && file_exists(public_path('images/variants/' . $variant->hinh_anh))) {
-            unlink(public_path('images/variants/' . $variant->hinh_anh));
         }
         
         $variant->delete();
@@ -344,13 +307,6 @@ class ProductVariantController extends Controller
                         'message' => "Không thể xóa {$usedVariants} biến thể vì đã có đơn hàng hoặc giỏ hàng sử dụng."
                     ]);
                 }
-                
-                // Delete image files
-                $variants->each(function ($variant) {
-                    if ($variant->hinh_anh && file_exists(public_path('images/variants/' . $variant->hinh_anh))) {
-                        unlink(public_path('images/variants/' . $variant->hinh_anh));
-                    }
-                });
                 
                 $variants->delete();
                 $message = "Đã xóa {$count} biến thể sản phẩm.";

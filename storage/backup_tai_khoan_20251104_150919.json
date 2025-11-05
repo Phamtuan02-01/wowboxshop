@@ -1,0 +1,32 @@
+{
+    "timestamp": "2025-11-04 15:09:19",
+    "count": 2,
+    "data": [
+        {
+            "ma_tai_khoan": 1,
+            "ten_dang_nhap": "admin",
+            "email": "admin@wowboxshop.com",
+            "ho_ten": "Administrator",
+            "so_dien_thoai": "0123456789",
+            "mat_khau_hash": "$2y$10$fjxVm5kI.Toe.U.\/eJflx..qnu8aMurLbjy3kamfwRIzwD6GrB3DS",
+            "ma_vai_tro": 1,
+            "ma_dia_chi_mac_dinh": null,
+            "ngay_tao": "2025-10-11 09:38:26",
+            "ngay_cap_nhat": "2025-10-11 09:38:26",
+            "deleted_at": null
+        },
+        {
+            "ma_tai_khoan": 2,
+            "ten_dang_nhap": "tuan",
+            "email": "tuan12345yahoo@gmail.com",
+            "ho_ten": "Phamtuan",
+            "so_dien_thoai": "09798129812",
+            "mat_khau_hash": "$2y$10$Wagnx52jPWsK8IDVui4LCePbiwwH7KAu1WlszjSMUG0zqbhjbrZUi",
+            "ma_vai_tro": 2,
+            "ma_dia_chi_mac_dinh": null,
+            "ngay_tao": "2025-10-11 09:41:31",
+            "ngay_cap_nhat": "2025-10-11 09:41:31",
+            "deleted_at": null
+        }
+    ]
+}

@@ -24,7 +24,6 @@ class TaiKhoan extends Authenticatable
         'email',
         'ho_ten',
         'so_dien_thoai',
-        'mat_khau',
         'mat_khau_hash',
         'ma_vai_tro',
         'ma_dia_chi_mac_dinh',
@@ -42,15 +41,15 @@ class TaiKhoan extends Authenticatable
         return $this->mat_khau_hash;
     }
 
-    // Laravel Auth yêu cầu username field
+    // Laravel Auth yêu cầu username field cho login
     public function getAuthIdentifierName()
     {
-        return 'ten_dang_nhap';
+        return 'ma_tai_khoan';
     }
 
     public function getAuthIdentifier()
     {
-        return $this->ten_dang_nhap;
+        return $this->ma_tai_khoan;
     }
 
     protected $casts = [

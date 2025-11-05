@@ -454,6 +454,86 @@ main {
     color: white;
 }
 
+/* User Dropdown Styles */
+.dropdown-toggle::after {
+    display: none; /* Ẩn mũi tên mặc định của Bootstrap */
+}
+
+.dropdown-menu {
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+    padding: 0.5rem 0;
+    margin-top: 0.5rem !important;
+    min-width: 220px;
+    animation: dropdownSlideIn 0.3s ease-out;
+}
+
+@keyframes dropdownSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-header {
+    padding: 0.8rem 1.2rem;
+    font-size: 0.95rem;
+    color: #2E7D32;
+    font-weight: 600;
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+    border-radius: 12px 12px 0 0;
+    margin-bottom: 0.5rem;
+}
+
+.dropdown-divider {
+    margin: 0.5rem 0;
+    border-top: 1px solid #e9ecef;
+}
+
+.dropdown-item {
+    padding: 0.7rem 1.2rem;
+    font-size: 0.9rem;
+    color: #333;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+}
+
+.dropdown-item i {
+    width: 20px;
+    font-size: 0.95rem;
+    color: #2E7D32;
+}
+
+.dropdown-item:hover {
+    background: linear-gradient(135deg, #f0f8f0, #e8f5e9);
+    color: #2E7D32;
+    padding-left: 1.5rem;
+}
+
+.dropdown-item:active {
+    background: linear-gradient(135deg, #e8f5e9, #c8e6c9);
+    color: #1B5E20;
+}
+
+.dropdown-item.text-danger {
+    color: #dc3545 !important;
+}
+
+.dropdown-item.text-danger i {
+    color: #dc3545;
+}
+
+.dropdown-item.text-danger:hover {
+    background: linear-gradient(135deg, #fff5f5, #ffe8e8);
+    color: #c82333 !important;
+}
+
 /* Mobile responsive */
 @media (max-width: 768px) {
     .header-container {

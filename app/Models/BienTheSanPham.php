@@ -23,8 +23,6 @@ class BienTheSanPham extends Model
         'calo',
         'so_luong_ton',
         'trang_thai',
-        'mo_ta',
-        'hinh_anh',
     ];
 
     protected $casts = [

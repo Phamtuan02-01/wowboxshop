@@ -38,6 +38,9 @@
                     <a class="nav-link {{ Request::is('dat-mon*') ? 'active' : '' }}" href="{{ route('dat-mon.index') }}">Đặt món</a>
                 </div>
                 <div class="nav-item">
+                    <a class="nav-link {{ Request::is('tu-chon*') ? 'active' : '' }}" href="{{ route('tu-chon.index') }}">Tự chọn</a>
+                </div>
+                <div class="nav-item">
                     <a class="nav-link" href="#">Blog</a>
                 </div>
             </nav>
@@ -84,12 +87,12 @@
                                 <li><hr class="dropdown-divider"></li>
                             @endif
                             <li>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="{{ route('profile.index') }}">
                                     <i class="fas fa-user-cog me-2"></i>Thông tin cá nhân
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="{{ route('orders.history') }}">
                                     <i class="fas fa-history me-2"></i>Lịch sử đơn hàng
                                 </a>
                             </li>
@@ -265,6 +268,9 @@
                 closeToast(toastDiv.querySelector('.btn-close'));
             }, 3000);
         }
+
+        // Make showToast globally available
+        window.showToast = showToast;
 
         // Alias functions để dễ sử dụng
         function showSuccess(message, title) { showToast('success', title, message); }

@@ -42,7 +42,8 @@ class DangNhapController extends Controller
                            ->first();
 
         if ($taiKhoan && Hash::check($matKhau, $taiKhoan->mat_khau_hash)) {
-            Auth::login($taiKhoan);
+            // Đăng nhập bằng ID tài khoản
+            Auth::loginUsingId($taiKhoan->ma_tai_khoan);
             
             // Chuyển hướng theo vai trò
             if ($taiKhoan->vaiTro->ten_vai_tro === 'Admin') {

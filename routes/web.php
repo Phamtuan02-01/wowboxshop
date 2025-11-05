@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\Admin\RoleController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\PromotionController;
+use App\Http\Controllers\TuChonController;
 
 /*
 |--------------------------------------------------------------------------
@@ -31,18 +32,109 @@ Route::get('/trangchu', [TrangChuController::class, 'index'])->name('trangchu.vi
 
 // Trang đặt món
 Route::get('/dat-mon', [DatMonController::class, 'index'])->name('dat-mon.index');
+Route::get('/dat-mon/san-pham/{id}', [DatMonController::class, 'chitiet'])->name('dat-mon.chitiet');
 Route::post('/dat-mon/add-to-cart', [DatMonController::class, 'addToCart'])->name('dat-mon.add-to-cart');
-Route::get('/dat-mon/ingredients/{category}', [DatMonController::class, 'getIngredientsByCategory'])->name('dat-mon.ingredients');
+
+// Trang tự chọn
+Route::get('/tu-chon', [TuChonController::class, 'index'])->name('tu-chon.index');
+Route::post('/tu-chon/update-session', [TuChonController::class, 'updateSession'])->name('tu-chon.update-session');
+Route::post('/tu-chon/add-to-cart', [TuChonController::class, 'addToCart'])->name('tu-chon.add-to-cart');
+Route::post('/tu-chon/clear-session', [TuChonController::class, 'clearSession'])->name('tu-chon.clear-session');
+
+// Debug page
+Route::get('/debug-data', function () {
+    return view('debug-data');
+})->name('debug-data');
+
+Route::get('/debug-stock', function () {
+    return view('debug-stock');
+})->name('debug-stock');
 
 // Test route
 Route::get('/test-add-to-cart', function () {
     return view('test-add-to-cart');
 })->name('test-add-to-cart');
 
-// Trang thanh toán (tạm thời redirect về giỏ hàng)
-Route::get('/thanh-toan', function() {
-    return redirect()->route('giohang');
-})->name('checkout');
+// Trang thanh toán
+Route::get('/thanh-toan', [App\Http\Controllers\ThanhToanController::class, 'index'])->name('thanh-toan.index');
+Route::post('/thanh-toan/tim-cua-hang', [App\Http\Controllers\ThanhToanController::class, 'timCuaHangGanNhat'])->name('thanh-toan.tim-cua-hang');
+Route::post('/thanh-toan/dat-hang', [App\Http\Controllers\ThanhToanController::class, 'datHang'])->name('thanh-toan.dat-hang');
+Route::get('/thanh-toan/demo/{ma_don_hang}', [App\Http\Controllers\ThanhToanController::class, 'demo'])->name('thanh-toan.demo');
+Route::post('/thanh-toan/demo-complete/{ma_don_hang}', [App\Http\Controllers\ThanhToanController::class, 'demoComplete'])->name('thanh-toan.demo-complete');
+Route::get('/thanh-toan/thanh-cong/{ma_don_hang}', [App\Http\Controllers\ThanhToanController::class, 'success'])->name('thanh-toan.thanh-cong');
+
+// MoMo Payment routes
+Route::get('/thanh-toan/momo-return', [App\Http\Controllers\ThanhToanController::class, 'momoReturn'])->name('momo.return');
+Route::post('/thanh-toan/momo-notify', [App\Http\Controllers\ThanhToanController::class, 'momoNotify'])->name('momo.notify');
+
+Route::get('/momo/payment/{ma_don_hang}', function($ma_don_hang) {
+    // Simulate MoMo payment - redirect to success page
+    return redirect()->route('thanh-toan.thanh-cong', $ma_don_hang)->with('payment_success', true);
+})->name('momo.payment');
+
+// Chi tiết đơn hàng
+Route::get('/don-hang/{ma_don_hang}', function($ma_don_hang) {
+    // Redirect to order success page for now
+    return redirect()->route('thanh-toan.thanh-cong', $ma_don_hang);
+})->name('don-hang.chi-tiet');
+
+// Test MoMo Payment
+Route::get('/test-momo', function() {
+    return view('test-momo');
+})->name('test-momo');
+
+Route::post('/test-momo-payment', function(Illuminate\Http\Request $request) {
+    try {
+        $momoService = new App\Services\MoMoPaymentService();
+        
+        $orderId = $request->input('orderId');
+        $amount = (int) $request->input('amount');
+        $orderInfo = $request->input('orderInfo');
+        
+        $result = $momoService->createPayment($orderId, $amount, $orderInfo);
+        
+        return response()->json($result);
+        
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Có lỗi xảy ra',
+            'error' => $e->getMessage()
+        ]);
+    }
+})->name('test-momo.payment');
+
+// Test Checkout Flow
+Route::get('/test-checkout', function() {
+    return view('test-checkout');
+})->name('test-checkout');
+
+// Test Payment Features
+Route::get('/test-payment-features', function() {
+    return view('test-payment-features');
+})->name('test-payment-features');
+
+Route::post('/check-database', function() {
+    try {
+        return response()->json([
+            'success' => true,
+            'products' => App\Models\SanPham::count(),
+            'variants' => App\Models\BienTheSanPham::count(),
+            'orders' => App\Models\DonHang::count(),
+            'carts' => App\Models\GioHang::count()
+        ]);
+    } catch (Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage()
+        ]);
+    }
+});
+
+// Test Promotion Cart
+Route::get('/test-promotion-cart', function() {
+    return view('test-promotion-cart');
+})->name('test-promotion-cart');
 
 // Trang về chúng tôi
 Route::get('/ve-chung-toi', function () {
@@ -64,6 +156,16 @@ Route::middleware('guest')->group(function () {
 Route::middleware('auth')->group(function () {
     // Đăng xuất
     Route::post('/dang-xuat', [DangNhapController::class, 'dangXuat'])->name('dangxuat');
+    
+    // Thông tin cá nhân
+    Route::get('/thong-tin-ca-nhan', [App\Http\Controllers\ProfileController::class, 'index'])->name('profile.index');
+    Route::post('/thong-tin-ca-nhan', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/doi-mat-khau', [App\Http\Controllers\ProfileController::class, 'updatePassword'])->name('profile.update-password');
+    
+    // Lịch sử đơn hàng
+    Route::get('/lich-su-don-hang', [App\Http\Controllers\OrderHistoryController::class, 'index'])->name('orders.history');
+    Route::get('/don-hang/{id}', [App\Http\Controllers\OrderHistoryController::class, 'show'])->name('orders.show');
+    Route::post('/don-hang/{id}/huy', [App\Http\Controllers\OrderHistoryController::class, 'cancel'])->name('orders.cancel');
     
     // Giỏ hàng
     Route::get('/gio-hang', [App\Http\Controllers\GioHangController::class, 'index'])->name('giohang');
@@ -106,6 +208,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     ]);
     
     // Các route bổ sung cho quản lý sản phẩm
+    Route::get('/products/{id}/get-info', [ProductController::class, 'getProductInfo'])->name('admin.products.get-info');
     Route::patch('/products/{id}/toggle-status', [ProductController::class, 'toggleStatus'])->name('admin.products.toggle-status');
     Route::post('/products/bulk-action', [ProductController::class, 'bulkAction'])->name('admin.products.bulk-action');
     
@@ -167,7 +270,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     ]);
     
     // Các route bổ sung cho khuyến mãi
-    Route::patch('/promotions/{promotion}/toggle-status', [PromotionController::class, 'toggleStatus'])->name('admin.promotions.toggle-status');
-    Route::post('/promotions/bulk-action', [PromotionController::class, 'bulkAction'])->name('admin.promotions.bulk-action');
-    Route::post('/promotions/check-code', [PromotionController::class, 'checkCode'])->name('admin.promotions.check-code');
+    Route::patch('promotions/{promotion}/toggle-status', [PromotionController::class, 'toggleStatus'])->name('admin.promotions.toggle-status');
+    Route::post('promotions/bulk-action', [PromotionController::class, 'bulkAction'])->name('admin.promotions.bulk-action');
+    Route::post('promotions/check-code', [PromotionController::class, 'checkCode'])->name('admin.promotions.check-code');
 });

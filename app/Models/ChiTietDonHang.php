@@ -12,6 +12,9 @@ class ChiTietDonHang extends Model
     protected $table = 'chi_tiet_don_hang';
     protected $primaryKey = 'ma_chi_tiet_don_hang';
     
+    // Sử dụng timestamp mặc định Laravel (created_at, updated_at)
+    public $timestamps = true;
+    
     protected $fillable = [
         'ma_don_hang',
         'ma_san_pham',

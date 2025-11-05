@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\DonHang;
 use App\Models\ChiTietDonHang;
 use App\Models\TaiKhoan;
@@ -52,16 +53,16 @@ class OrderController extends Controller
         // Statistics
         $stats = [
             'total' => DonHang::count(),
-            'pending' => DonHang::where('trang_thai', 'Chờ xử lý')->count(),
-            'processing' => DonHang::where('trang_thai', 'Đang xử lý')->count(),
-            'completed' => DonHang::where('trang_thai', 'Đã giao')->count(),
-            'cancelled' => DonHang::where('trang_thai', 'Đã hủy')->count(),
+            'pending' => DonHang::where('trang_thai', 'cho_xu_ly')->count(),
+            'processing' => 0, // Không dùng nữa
+            'completed' => DonHang::where('trang_thai', 'da_giao')->count(),
+            'cancelled' => DonHang::where('trang_thai', 'da_huy')->count(),
         ];
 
-        // Revenue statistics
-        $stats['total_revenue'] = DonHang::where('trang_thai', 'Đã giao')
+        // Revenue statistics (CHỈ tính đơn đã giao, KHÔNG tính đơn hủy)
+        $stats['total_revenue'] = DonHang::where('trang_thai', 'da_giao')
             ->sum('tong_tien');
-        $stats['monthly_revenue'] = DonHang::where('trang_thai', 'Đã giao')
+        $stats['monthly_revenue'] = DonHang::where('trang_thai', 'da_giao')
             ->whereMonth('ngay_dat_hang', now()->month)
             ->whereYear('ngay_dat_hang', now()->year)
             ->sum('tong_tien');
@@ -88,13 +89,18 @@ class OrderController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'trang_thai' => 'required|in:Chờ xử lý,Đang xử lý,Đang giao,Đã giao,Đã hủy',
+            'trang_thai' => 'required|in:cho_xu_ly,da_giao,da_huy',
             'ghi_chu' => 'nullable|string|max:500'
         ]);
 
         try {
             $order = DonHang::findOrFail($id);
-            $oldStatus = $order->trang_thai;
+            $oldStatus = $order->trang_thai_text;
+            
+            // Không cho phép cập nhật nếu đơn đã giao hoặc đã hủy
+            if (in_array($order->trang_thai, ['da_giao', 'da_huy'])) {
+                return back()->with('error', 'Không thể cập nhật đơn hàng đã giao hoặc đã hủy.');
+            }
             
             $order->update([
                 'trang_thai' => $request->trang_thai,
@@ -102,10 +108,10 @@ class OrderController extends Controller
                 'ngay_cap_nhat' => now()
             ]);
 
-            // Log status change (you can create a separate OrderStatusLog model for this)
+            $newStatus = $order->fresh()->trang_thai_text;
             
             return redirect()->route('admin.orders.show', $order->ma_don_hang)
-                ->with('success', "Cập nhật trạng thái đơn hàng từ '{$oldStatus}' thành '{$request->trang_thai}' thành công!");
+                ->with('success', "Cập nhật trạng thái đơn hàng từ '{$oldStatus}' thành '{$newStatus}' thành công!");
                 
         } catch (\Exception $e) {
             return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
@@ -124,18 +130,21 @@ class OrderController extends Controller
         try {
             $order = DonHang::findOrFail($id);
             
-            if (in_array($order->trang_thai, ['Đã giao', 'Đã hủy'])) {
+            if (in_array($order->trang_thai, ['da_giao', 'da_huy'])) {
                 return back()->with('error', 'Không thể hủy đơn hàng ở trạng thái hiện tại.');
             }
 
             $order->update([
-                'trang_thai' => 'Đã hủy',
-                'ghi_chu' => $request->ly_do_huy,
+                'trang_thai' => 'da_huy',
+                'ghi_chu' => 'Lý do hủy: ' . $request->ly_do_huy,
                 'ngay_cap_nhat' => now()
             ]);
 
+            // Lưu ý: Đơn hủy sẽ KHÔNG được tính vào doanh thu
+            // Revenue queries chỉ tính trang_thai = 'da_giao'
+
             return redirect()->route('admin.orders.show', $order->ma_don_hang)
-                ->with('success', 'Hủy đơn hàng thành công!');
+                ->with('success', 'Hủy đơn hàng thành công! Đơn hàng này sẽ không được tính vào doanh thu.');
                 
         } catch (\Exception $e) {
             return back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
@@ -172,9 +181,9 @@ class OrderController extends Controller
 
         $stats = [
             'total_orders' => $baseQuery->count(),
-            'total_revenue' => $baseQuery->where('trang_thai', 'Đã giao')->sum('tong_tien'),
-            'pending_orders' => $baseQuery->where('trang_thai', 'Chờ xử lý')->count(),
-            'completed_orders' => $baseQuery->where('trang_thai', 'Đã giao')->count(),
+            'total_revenue' => $baseQuery->where('trang_thai', 'da_giao')->sum('tong_tien'),
+            'pending_orders' => $baseQuery->where('trang_thai', 'cho_xu_ly')->count(),
+            'completed_orders' => $baseQuery->where('trang_thai', 'da_giao')->count(),
         ];
 
         return response()->json($stats);

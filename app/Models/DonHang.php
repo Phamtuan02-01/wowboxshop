@@ -12,17 +12,40 @@ class DonHang extends Model
     protected $table = 'don_hang';
     protected $primaryKey = 'ma_don_hang';
     
+    // Sử dụng tên cột timestamp tùy chỉnh
+    const CREATED_AT = 'ngay_tao';
+    const UPDATED_AT = 'ngay_cap_nhat';
+    
     protected $fillable = [
         'ma_tai_khoan',
         'ngay_dat_hang',
         'trang_thai',
         'tong_tien',
         'ma_dia_chi',
+        'phuong_thuc_giao_hang',
+        'phuong_thuc_thanh_toan',
+        'ho_ten',
+        'so_dien_thoai',
+        'dia_chi',
+        'tinh_thanh_pho',
+        'cua_hang_nhan',
+        'ghi_chu',
+        'ma_thanh_toan',
+        'url_thanh_toan',
+        'ma_khuyen_mai',
+        'giam_gia_khuyen_mai',
+        'ly_do_huy',
+        'ngay_huy',
     ];
+
+    // Tạo ID tự động cho ma_don_hang
+    public $incrementing = true;
 
     protected $casts = [
         'ngay_dat_hang' => 'datetime',
+        'ngay_huy' => 'datetime',
         'tong_tien' => 'decimal:2',
+        'giam_gia_khuyen_mai' => 'decimal:2',
         'ngay_tao' => 'datetime',
         'ngay_cap_nhat' => 'datetime',
     ];
@@ -41,5 +64,34 @@ class DonHang extends Model
     public function chiTietDonHangs()
     {
         return $this->hasMany(ChiTietDonHang::class, 'ma_don_hang', 'ma_don_hang');
+    }
+
+    public function khuyenMai()
+    {
+        return $this->belongsTo(KhuyenMai::class, 'ma_khuyen_mai', 'ma_khuyen_mai');
+    }
+
+    // Accessors
+    public function getTrangThaiTextAttribute()
+    {
+        $trangThaiTexts = [
+            'cho_xu_ly' => 'Chờ xử lý',
+            'da_giao' => 'Đã giao',
+            'da_huy' => 'Đã hủy'
+        ];
+        
+        return $trangThaiTexts[$this->trang_thai] ?? 'Chờ xử lý';
+    }
+
+    // Helper method to get status badge class
+    public function getStatusBadgeClass()
+    {
+        $statusClasses = [
+            'cho_xu_ly' => 'warning',
+            'da_giao' => 'success',
+            'da_huy' => 'danger'
+        ];
+        
+        return $statusClasses[$this->trang_thai] ?? 'secondary';
     }
 }

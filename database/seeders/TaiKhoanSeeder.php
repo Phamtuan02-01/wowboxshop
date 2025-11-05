@@ -17,6 +17,7 @@ class TaiKhoanSeeder extends Seeder
         DB::table('tai_khoan')->insert([
             [
                 'ten_dang_nhap' => 'admin',
+                'ho_ten' => 'Administrator',
                 'email' => 'admin@wowboxshop.com',
                 'so_dien_thoai' => '0123456789',
                 'mat_khau_hash' => Hash::make('123456'),
@@ -27,6 +28,7 @@ class TaiKhoanSeeder extends Seeder
             ],
             [
                 'ten_dang_nhap' => 'quanly1',
+                'ho_ten' => 'Quản Lý Hệ Thống',
                 'email' => 'quanly@wowboxshop.com',
                 'so_dien_thoai' => '0987654321',
                 'mat_khau_hash' => Hash::make('123456'),
@@ -37,6 +39,7 @@ class TaiKhoanSeeder extends Seeder
             ],
             [
                 'ten_dang_nhap' => 'khachhang1',
+                'ho_ten' => 'Nguyễn Văn A',
                 'email' => 'nguyenvana@gmail.com',
                 'so_dien_thoai' => '0901234567',
                 'mat_khau_hash' => Hash::make('123456'),
@@ -47,6 +50,7 @@ class TaiKhoanSeeder extends Seeder
             ],
             [
                 'ten_dang_nhap' => 'khachhang2',
+                'ho_ten' => 'Trần Thị B',
                 'email' => 'tranthib@gmail.com',
                 'so_dien_thoai' => '0912345678',
                 'mat_khau_hash' => Hash::make('123456'),
@@ -57,6 +61,7 @@ class TaiKhoanSeeder extends Seeder
             ],
             [
                 'ten_dang_nhap' => 'khachhang3',
+                'ho_ten' => 'Lê Thị C',
                 'email' => 'lethic@gmail.com',
                 'so_dien_thoai' => '0923456789',
                 'mat_khau_hash' => Hash::make('123456'),

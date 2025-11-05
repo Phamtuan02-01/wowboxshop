@@ -16,31 +16,21 @@
                 <h1 class="content-title">Đơn hàng #{{ $order->ma_don_hang }}</h1>
                 <p class="text-muted">
                     <i class="fas fa-calendar"></i> 
-                    Đặt lúc {{ $order->ngay_dat_hang->format('d/m/Y H:i:s') }}
+                    Đặt lúc {{ $order->ngay_dat_hang ? $order->ngay_dat_hang->format('d/m/Y H:i:s') : ($order->ngay_tao ? $order->ngay_tao->format('d/m/Y H:i:s') : 'Không có') }}
                     @if($order->ngay_cap_nhat)
                         • Cập nhật {{ $order->ngay_cap_nhat->diffForHumans() }}
                     @endif
                 </p>
             </div>
             <div class="header-actions">
-                @if(!in_array($order->trang_thai, ['Đã giao', 'Đã hủy']))
+                @if(!in_array($order->trang_thai, ['da_giao', 'da_huy']))
                 <div class="dropdown me-2">
                     <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown">
                         <i class="fas fa-edit"></i> Cập nhật trạng thái
                     </button>
                     <ul class="dropdown-menu">
-                        @if($order->trang_thai === 'Chờ xử lý')
-                            <li><a class="dropdown-item" href="#" onclick="updateOrderStatus('Đang xử lý')">
-                                <i class="fas fa-cogs text-info"></i> Đang xử lý
-                            </a></li>
-                        @endif
-                        @if(in_array($order->trang_thai, ['Chờ xử lý', 'Đang xử lý']))
-                            <li><a class="dropdown-item" href="#" onclick="updateOrderStatus('Đang giao')">
-                                <i class="fas fa-truck text-primary"></i> Đang giao
-                            </a></li>
-                        @endif
-                        @if($order->trang_thai === 'Đang giao')
-                            <li><a class="dropdown-item" href="#" onclick="updateOrderStatus('Đã giao')">
+                        @if($order->trang_thai === 'cho_xu_ly')
+                            <li><a class="dropdown-item" href="#" onclick="updateOrderStatus('da_giao')">
                                 <i class="fas fa-check text-success"></i> Đã giao
                             </a></li>
                         @endif
@@ -74,9 +64,11 @@
                 <div class="card-body">
                     <div class="order-status-timeline">
                         @php
-                            $statuses = ['Chờ xử lý', 'Đang xử lý', 'Đang giao', 'Đã giao'];
-                            $currentStatusIndex = array_search($order->trang_thai, $statuses);
-                            $isCancelled = $order->trang_thai === 'Đã hủy';
+                            $statuses = [
+                                'cho_xu_ly' => ['label' => 'Chờ xử lý', 'icon' => 'clock'],
+                                'da_giao' => ['label' => 'Đã giao', 'icon' => 'check-circle'],
+                            ];
+                            $isCancelled = $order->trang_thai === 'da_huy';
                         @endphp
                         
                         @if($isCancelled)
@@ -89,27 +81,22 @@
                             </div>
                         @else
                             <div class="status-timeline">
-                                @foreach($statuses as $index => $status)
-                                    <div class="status-item {{ $index <= $currentStatusIndex ? 'completed' : '' }}">
+                                @foreach($statuses as $statusCode => $statusInfo)
+                                    @php
+                                        $isCompleted = false;
+                                        if ($statusCode === 'cho_xu_ly') {
+                                            $isCompleted = true; // Always completed if order exists
+                                        } elseif ($statusCode === 'da_giao') {
+                                            $isCompleted = ($order->trang_thai === 'da_giao');
+                                        }
+                                    @endphp
+                                    <div class="status-item {{ $isCompleted ? 'completed' : '' }}">
                                         <div class="status-icon">
-                                            @switch($status)
-                                                @case('Chờ xử lý')
-                                                    <i class="fas fa-clock"></i>
-                                                    @break
-                                                @case('Đang xử lý')
-                                                    <i class="fas fa-cogs"></i>
-                                                    @break
-                                                @case('Đang giao')
-                                                    <i class="fas fa-truck"></i>
-                                                    @break
-                                                @case('Đã giao')
-                                                    <i class="fas fa-check-circle"></i>
-                                                    @break
-                                            @endswitch
+                                            <i class="fas fa-{{ $statusInfo['icon'] }}"></i>
                                         </div>
                                         <div class="status-content">
-                                            <h6>{{ $status }}</h6>
-                                            @if($index == $currentStatusIndex && $order->ngay_cap_nhat)
+                                            <h6>{{ $statusInfo['label'] }}</h6>
+                                            @if($statusCode === $order->trang_thai && $order->ngay_cap_nhat)
                                                 <small class="text-muted">{{ $order->ngay_cap_nhat->format('d/m/Y H:i') }}</small>
                                             @endif
                                         </div>
@@ -246,7 +233,9 @@
                             <p><strong>Ngày sinh:</strong> 
                                 {{ $order->taiKhoan->ngay_sinh ? $order->taiKhoan->ngay_sinh->format('d/m/Y') : 'Không có' }}
                             </p>
-                            <p><strong>Tham gia:</strong> {{ $order->taiKhoan->created_at->format('d/m/Y') }}</p>
+                            <p><strong>Tham gia:</strong> 
+                                {{ $order->taiKhoan->created_at ? $order->taiKhoan->created_at->format('d/m/Y') : 'Không có' }}
+                            </p>
                         </div>
                         <div class="customer-actions mt-3">
                             <a href="{{ route('admin.users.show', $order->taiKhoan->ma_tai_khoan) }}" 
@@ -336,10 +325,9 @@
                     <div class="mb-3">
                         <label class="form-label">Trạng thái mới</label>
                         <select name="trang_thai" id="newStatus" class="form-select" required>
-                            <option value="Chờ xử lý">Chờ xử lý</option>
-                            <option value="Đang xử lý">Đang xử lý</option>
-                            <option value="Đang giao">Đang giao</option>
-                            <option value="Đã giao">Đã giao</option>
+                            <option value="cho_xu_ly">Chờ xử lý</option>
+                            <option value="da_giao">Đã giao</option>
+                            <option value="da_huy">Đã hủy</option>
                         </select>
                     </div>
                     <div class="mb-3">

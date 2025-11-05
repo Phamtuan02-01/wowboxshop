@@ -12,9 +12,6 @@
     <link href="{{ asset('css/admin.css') }}" rel="stylesheet">
     <link href="{{ asset('css/admin-orders.css') }}" rel="stylesheet">
     
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    
     <!-- Custom Admin Theme -->
     <style>
         /* Màu vàng nhạt cho theme shop */
@@ -131,6 +128,7 @@
     </style>
     
     @yield('styles')
+    @stack('styles')
 </head>
 <body class="admin-layout">
     <!-- Sidebar -->
@@ -326,6 +324,15 @@
     <!-- jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     
+    <!-- Setup AJAX with CSRF Token -->
+    <script>
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+    </script>
+    
     <!-- Admin JS -->
     <script>
         // Sidebar toggle functionality
@@ -361,6 +368,10 @@
         });
     </script>
     
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    @yield('scripts')
     @stack('scripts')
 </body>
 </html>

@@ -13,7 +13,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        $query = SanPham::with(['danhMuc']);
+        $query = SanPham::with(['danhMuc', 'bienThes']);
 
         // Search functionality
         if ($request->filled('search')) {
@@ -21,13 +21,19 @@ class ProductController extends Controller
             $query->where(function($q) use ($search) {
                 $q->where('ten_san_pham', 'LIKE', "%{$search}%")
                   ->orWhere('mo_ta', 'LIKE', "%{$search}%")
-                  ->orWhere('thuong_hieu', 'LIKE', "%{$search}%");
+                  ->orWhere('thuong_hieu', 'LIKE', "%{$search}%")
+                  ->orWhere('xuat_xu', 'LIKE', "%{$search}%");
             });
         }
 
         // Category filter
         if ($request->filled('category')) {
             $query->where('ma_danh_muc', $request->category);
+        }
+
+        // Product type filter
+        if ($request->filled('type')) {
+            $query->where('loai_san_pham', $request->type);
         }
 
         // Status filter
@@ -47,8 +53,10 @@ class ProductController extends Controller
             $query->orderBy('ten_san_pham', $sortOrder);
         } elseif ($sortBy === 'price') {
             $query->orderBy('gia', $sortOrder);
-        } elseif ($sortBy === 'stock') {
-            $query->orderBy('so_luong_ton_kho', $sortOrder);
+        } elseif ($sortBy === 'rating') {
+            $query->orderBy('diem_danh_gia_trung_binh', $sortOrder);
+        } elseif ($sortBy === 'views') {
+            $query->orderBy('luot_xem', $sortOrder);
         } else {
             $query->orderBy('ngay_tao', $sortOrder);
         }
@@ -59,9 +67,11 @@ class ProductController extends Controller
         // Statistics
         $stats = [
             'total_products' => SanPham::count(),
+            'total_regular_products' => SanPham::where('loai_san_pham', 'product')->count(),
+            'total_ingredients' => SanPham::where('loai_san_pham', 'ingredient')->count(),
             'active_products' => SanPham::where('trang_thai', true)->count(),
             'inactive_products' => SanPham::where('trang_thai', false)->count(),
-            'out_of_stock' => SanPham::where('so_luong_ton_kho', '<=', 0)->count(),
+            'featured_products' => SanPham::where('la_noi_bat', true)->count(),
         ];
 
         return view('admin.products.index', compact('products', 'categories', 'stats'));
@@ -78,15 +88,14 @@ class ProductController extends Controller
         $validator = Validator::make($request->all(), [
             'ten_san_pham' => 'required|string|max:100',
             'ma_danh_muc' => 'required|exists:danh_muc,ma_danh_muc',
+            'loai_san_pham' => 'required|in:product,ingredient',
             'mo_ta' => 'nullable|string',
             'gia' => 'required|numeric|min:0',
-            'gia_khuyen_mai' => 'nullable|numeric|min:0|lt:gia',
-            'so_luong_ton_kho' => 'required|integer|min:0',
             'thuong_hieu' => 'nullable|string|max:100',
             'xuat_xu' => 'nullable|string|max:100',
-            'hinh_anh' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'trang_thai' => 'boolean',
-            'la_noi_bat' => 'boolean',
+            'hinh_anh' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
+            'hinh_anh_phu' => 'nullable|array',
+            'hinh_anh_phu.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -101,30 +110,51 @@ class ProductController extends Controller
             $productData = [
                 'ten_san_pham' => $request->ten_san_pham,
                 'ma_danh_muc' => $request->ma_danh_muc,
+                'loai_san_pham' => $request->loai_san_pham,
                 'mo_ta' => $request->mo_ta,
                 'gia' => $request->gia,
-                'gia_khuyen_mai' => $request->gia_khuyen_mai,
-                'so_luong_ton_kho' => $request->so_luong_ton_kho,
                 'thuong_hieu' => $request->thuong_hieu,
                 'xuat_xu' => $request->xuat_xu,
                 'trang_thai' => $request->has('trang_thai'),
                 'la_noi_bat' => $request->has('la_noi_bat'),
+                'luot_xem' => 0,
+                'diem_danh_gia_trung_binh' => 0,
+                'so_luot_danh_gia' => 0,
             ];
 
-            // Handle image upload
+            // Handle main image upload
             if ($request->hasFile('hinh_anh')) {
                 $image = $request->file('hinh_anh');
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('images/products'), $imageName);
+                
+                // Create directory if it doesn't exist
+                $uploadPath = public_path('images/products');
+                if (!file_exists($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+                
+                $image->move($uploadPath, $imageName);
                 $productData['hinh_anh'] = $imageName;
+            }
+
+            // Handle additional images
+            $additionalImages = [];
+            if ($request->hasFile('hinh_anh_phu')) {
+                foreach ($request->file('hinh_anh_phu') as $file) {
+                    $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('images/products'), $fileName);
+                    $additionalImages[] = $fileName;
+                }
+                $productData['hinh_anh_phu'] = json_encode($additionalImages);
             }
 
             $product = SanPham::create($productData);
 
             DB::commit();
 
+            $productType = $request->loai_san_pham === 'ingredient' ? 'nguyên liệu' : 'sản phẩm';
             return redirect()->route('admin.products.index')
-                ->with('success', 'Sản phẩm đã được tạo thành công!');
+                ->with('success', 'Đã tạo ' . $productType . ' thành công!');
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -154,15 +184,14 @@ class ProductController extends Controller
         $validator = Validator::make($request->all(), [
             'ten_san_pham' => 'required|string|max:100',
             'ma_danh_muc' => 'required|exists:danh_muc,ma_danh_muc',
+            'loai_san_pham' => 'required|in:product,ingredient',
             'mo_ta' => 'nullable|string',
             'gia' => 'required|numeric|min:0',
-            'gia_khuyen_mai' => 'nullable|numeric|min:0|lt:gia',
-            'so_luong_ton_kho' => 'required|integer|min:0',
             'thuong_hieu' => 'nullable|string|max:100',
             'xuat_xu' => 'nullable|string|max:100',
-            'hinh_anh' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-            'trang_thai' => 'boolean',
-            'la_noi_bat' => 'boolean',
+            'hinh_anh' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:10240',
+            'hinh_anh_phu' => 'nullable|array',
+            'hinh_anh_phu.*' => 'image|mimes:jpeg,png,jpg,gif,webp|max:10240',
         ]);
 
         if ($validator->fails()) {
@@ -177,17 +206,16 @@ class ProductController extends Controller
             $productData = [
                 'ten_san_pham' => $request->ten_san_pham,
                 'ma_danh_muc' => $request->ma_danh_muc,
+                'loai_san_pham' => $request->loai_san_pham,
                 'mo_ta' => $request->mo_ta,
                 'gia' => $request->gia,
-                'gia_khuyen_mai' => $request->gia_khuyen_mai,
-                'so_luong_ton_kho' => $request->so_luong_ton_kho,
                 'thuong_hieu' => $request->thuong_hieu,
                 'xuat_xu' => $request->xuat_xu,
                 'trang_thai' => $request->has('trang_thai'),
                 'la_noi_bat' => $request->has('la_noi_bat'),
             ];
 
-            // Handle image upload
+            // Handle main image upload
             if ($request->hasFile('hinh_anh')) {
                 // Delete old image
                 if ($product->hinh_anh && file_exists(public_path('images/products/' . $product->hinh_anh))) {
@@ -196,16 +224,47 @@ class ProductController extends Controller
                 
                 $image = $request->file('hinh_anh');
                 $imageName = time() . '_' . uniqid() . '.' . $image->getClientOriginalExtension();
-                $image->move(public_path('images/products'), $imageName);
+                
+                // Create directory if it doesn't exist
+                $uploadPath = public_path('images/products');
+                if (!file_exists($uploadPath)) {
+                    mkdir($uploadPath, 0755, true);
+                }
+                
+                $image->move($uploadPath, $imageName);
                 $productData['hinh_anh'] = $imageName;
+            }
+
+            // Handle additional images
+            if ($request->hasFile('hinh_anh_phu')) {
+                // Delete old additional images
+                if ($product->hinh_anh_phu) {
+                    $oldImages = json_decode($product->hinh_anh_phu, true);
+                    if (is_array($oldImages)) {
+                        foreach ($oldImages as $oldImage) {
+                            if (file_exists(public_path('images/products/' . $oldImage))) {
+                                unlink(public_path('images/products/' . $oldImage));
+                            }
+                        }
+                    }
+                }
+                
+                $additionalImages = [];
+                foreach ($request->file('hinh_anh_phu') as $file) {
+                    $fileName = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+                    $file->move(public_path('images/products'), $fileName);
+                    $additionalImages[] = $fileName;
+                }
+                $productData['hinh_anh_phu'] = json_encode($additionalImages);
             }
 
             $product->update($productData);
 
             DB::commit();
 
+            $productType = $request->loai_san_pham === 'ingredient' ? 'nguyên liệu' : 'sản phẩm';
             return redirect()->route('admin.products.index')
-                ->with('success', 'Sản phẩm đã được cập nhật thành công!');
+                ->with('success', 'Đã cập nhật ' . $productType . ' thành công!');
 
         } catch (\Exception $e) {
             DB::rollback();
@@ -297,5 +356,28 @@ class ProductController extends Controller
             DB::rollback();
             return redirect()->back()->with('error', 'Có lỗi xảy ra: ' . $e->getMessage());
         }
+    }
+
+    /**
+     * Get product information for variant creation
+     */
+    public function getProductInfo($id)
+    {
+        $product = SanPham::with('danhMuc')->findOrFail($id);
+        $variantCount = $product->bienThes()->count();
+
+        return response()->json([
+            'success' => true,
+            'product' => [
+                'ma_san_pham' => $product->ma_san_pham,
+                'ten_san_pham' => $product->ten_san_pham,
+                'gia' => $product->gia,
+                'danh_muc' => $product->danhMuc ? [
+                    'ma_danh_muc' => $product->danhMuc->ma_danh_muc,
+                    'ten_danh_muc' => $product->danhMuc->ten_danh_muc,
+                ] : null,
+            ],
+            'variant_count' => $variantCount,
+        ]);
     }
 }
