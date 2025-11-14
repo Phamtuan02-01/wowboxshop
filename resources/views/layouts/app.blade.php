@@ -118,6 +118,9 @@
 
     <!-- Flash Messages -->
     @include('components.flash-messages')
+    
+    <!-- Custom Alert Component -->
+    @include('components.custom-alert')
 
     <!-- Main Content -->
     <main>

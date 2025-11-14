@@ -53,7 +53,7 @@
                         Tôi là <strong>Trợ Lý Chat</strong> của WowBox Shop với khả năng:<br><br>
                         🎯 <strong>Hiểu ngữ cảnh</strong> - Nhớ lịch sử chat<br>
                         🔍 <strong>Tìm kiếm thông minh</strong> - Gợi ý chính xác<br>
-                        🛒 <strong>Thêm giỏ nhanh</strong> - 1 click từ chat<br>
+                        �️ <strong>Xem chi tiết nhanh</strong> - Click vào sản phẩm<br>
                         📦 <strong>Tra đơn hàng</strong> - Realtime tracking<br>
                         🎁 <strong>Ưu đãi cá nhân</strong> - Dựa trên sở thích<br><br>
                         Hỏi tôi bất cứ điều gì! 💬
@@ -474,6 +474,8 @@
         cursor: pointer;
         margin-bottom: 1rem;
         border: 2px solid transparent;
+        text-decoration: none;
+        display: block;
     }
 
     .chatbot-product-card:hover {
@@ -503,42 +505,6 @@
         color: #2E7D32;
         font-weight: 700;
         font-size: 1.1rem;
-    }
-
-    .chatbot-product-actions {
-        display: flex;
-        gap: 0.5rem;
-        margin-top: 0.8rem;
-    }
-
-    .chatbot-card-btn {
-        flex: 1;
-        padding: 0.6rem;
-        border: none;
-        border-radius: 10px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.3s ease;
-        font-size: 0.85rem;
-    }
-
-    .chatbot-btn-add-cart {
-        background: linear-gradient(135deg, #2E7D32 0%, #388E3C 100%);
-        color: white;
-    }
-
-    .chatbot-btn-add-cart:hover {
-        transform: scale(1.05);
-        box-shadow: 0 4px 15px rgba(46, 125, 50, 0.4);
-    }
-
-    .chatbot-btn-view-detail {
-        background: #f0f2f5;
-        color: #2E7D32;
-    }
-
-    .chatbot-btn-view-detail:hover {
-        background: #e4e6eb;
     }
 
     .smart-suggestions {
@@ -906,7 +872,7 @@
 
             recognition.onerror = function(event) {
                 console.error('Speech recognition error:', event.error);
-                showToast('error', 'Lỗi nhận diện giọng nói', 'Vui lòng thử lại!');
+                showCustomAlert('Lỗi nhận diện giọng nói. Vui lòng thử lại!', 'error');
             };
 
             recognition.onend = function() {
@@ -993,22 +959,24 @@
 
     // Clear chat history
     function clearChatHistory() {
-        if (confirm('Bạn muốn xóa toàn bộ lịch sử chat?')) {
-            const messagesDiv = document.getElementById('chatbot-messages');
-            // Keep only welcome message
-            const welcomeMsg = messagesDiv.querySelector('[data-message-id="welcome"]');
-            messagesDiv.innerHTML = '';
-            if (welcomeMsg) {
-                messagesDiv.appendChild(welcomeMsg);
+        showCustomConfirm('Bạn muốn xóa toàn bộ lịch sử chat?', function(result) {
+            if (result) {
+                const messagesDiv = document.getElementById('chatbot-messages');
+                // Keep only welcome message
+                const welcomeMsg = messagesDiv.querySelector('[data-message-id="welcome"]');
+                messagesDiv.innerHTML = '';
+                if (welcomeMsg) {
+                    messagesDiv.appendChild(welcomeMsg);
+                }
+                chatContext = [];
+                
+                // Clear localStorage
+                localStorage.removeItem('chatbot_context');
+                localStorage.removeItem('chatbot_messages');
+                
+                showCustomAlert('Đã xóa lịch sử chat!', 'success');
             }
-            chatContext = [];
-            
-            // Clear localStorage
-            localStorage.removeItem('chatbot_context');
-            localStorage.removeItem('chatbot_messages');
-            
-            showToast('success', 'Đã xóa lịch sử chat!');
-        }
+        });
     }
 
     // Send message to chatbot
@@ -1078,12 +1046,6 @@
                     setTimeout(() => {
                         window.location.href = '{{ route("dangnhap") }}';
                     }, 2000);
-                } else if (data.action === 'added_to_cart') {
-                    // Update cart count
-                    if (typeof updateCartCount === 'function') {
-                        updateCartCount();
-                    }
-                    playSuccessSound();
                 }
             } else if (data.type === 'products') {
                 addChatMessage(data.message, 'bot');
@@ -1129,7 +1091,7 @@
         }
     }
 
-    // Add product cards with quick actions
+    // Add product cards
     function addProductCards(products, shouldScroll = true) {
         const messagesDiv = document.getElementById('chatbot-messages');
         
@@ -1141,22 +1103,14 @@
                     <i class="fas fa-headset"></i>
                 </div>
                 <div class="message-content" style="max-width: 85%;">
-                    <div class="chatbot-product-card">
+                    <a href="${product.url}" class="chatbot-product-card">
                         <img src="${product.image}" alt="${product.name}" class="chatbot-product-image" 
                              onerror="this.src='{{ asset('images/products/default-product.png') }}'">
                         <div class="chatbot-product-info">
                             <div class="chatbot-product-name">${product.name}</div>
                             <div class="chatbot-product-price">${product.price_range}</div>
-                            <div class="chatbot-product-actions">
-                                <button class="chatbot-card-btn chatbot-btn-add-cart" onclick="quickAddToCart(${product.id})">
-                                    <i class="fas fa-cart-plus"></i> Thêm giỏ
-                                </button>
-                                <button class="chatbot-card-btn chatbot-btn-view-detail" onclick="window.location.href='${product.url}'">
-                                    <i class="fas fa-eye"></i> Chi tiết
-                                </button>
-                            </div>
                         </div>
-                    </div>
+                    </a>
                 </div>
             `;
             messagesDiv.appendChild(cardDiv);
@@ -1165,20 +1119,6 @@
         if (shouldScroll) {
             messagesDiv.scrollTop = messagesDiv.scrollHeight;
         }
-    }
-
-    // Quick add to cart from chat
-    async function quickAddToCart(productId) {
-        @guest
-            showToast('warning', 'Vui lòng đăng nhập!', 'Để thêm vào giỏ hàng');
-            setTimeout(() => {
-                window.location.href = '{{ route("dangnhap") }}';
-            }, 1500);
-            return;
-        @endguest
-
-        const message = `thêm sản phẩm ${productId}`;
-        await sendChatbotMessage(message);
     }
 
     // Show typing indicator

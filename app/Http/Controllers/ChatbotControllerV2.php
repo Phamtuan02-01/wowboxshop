@@ -94,25 +94,26 @@ class ChatbotControllerV2 extends Controller
      */
     private function getDatabaseContext()
     {
-        // Get products with FULL details (limit 80 for better coverage)
-        $products = SanPham::with(['bienThes', 'danhMuc', 'khuyenMaisRelation'])
+        // Get products with FULL details (limit 100 for better coverage)
+        $products = SanPham::with(['bienThes', 'danhMuc', 'khuyenMaisRelation', 'danhGias'])
             ->where('trang_thai', true)
-            ->take(80)
+            ->take(100)
             ->get()
             ->map(function($p) {
                 $variants = $p->bienThes;
                 $minPrice = $variants->min('gia') ?? 0;
                 $maxPrice = $variants->max('gia') ?? 0;
                 
-                // Get ALL variants with details
+                // Get ALL variants with FULL details including size (kich_thuoc)
                 $variantDetails = $variants->map(function($v) {
                     return [
-                        'size' => $v->kich_co ?? 'Standard',
+                        'id' => $v->ma_bien_the,
+                        'size' => $v->kich_thuoc ?? 'Standard',
                         'price' => $v->gia,
                         'calo' => $v->calo ?? 'N/A',
-                        'protein' => $v->protein ?? 'N/A',
-                        'carb' => $v->carb ?? 'N/A',
-                        'fat' => $v->fat ?? 'N/A',
+                        'stock' => $v->so_luong_ton ?? 0,
+                        'stock_status' => $v->so_luong_ton > 10 ? 'Còn hàng' : ($v->so_luong_ton > 0 ? 'Sắp hết' : 'Hết hàng'),
+                        'active' => $v->trang_thai ? 'Đang bán' : 'Ngưng bán',
                     ];
                 })->toArray();
                 
@@ -133,6 +134,15 @@ class ChatbotControllerV2 extends Controller
                         ];
                     })->toArray();
                 
+                // Get recent reviews for this product
+                $recentReviews = $p->danhGias->take(3)->map(function($review) {
+                    return [
+                        'rating' => $review->sao,
+                        'comment' => $review->noi_dung ?? '',
+                        'date' => $review->ngay_tao ? $review->ngay_tao->format('d/m/Y') : 'N/A',
+                    ];
+                })->toArray();
+                
                 return [
                     'id' => $p->ma_san_pham,
                     'name' => $p->ten_san_pham,
@@ -141,11 +151,15 @@ class ChatbotControllerV2 extends Controller
                     'price_min' => $minPrice,
                     'price_max' => $maxPrice,
                     'description' => $p->mo_ta ?? '',
+                    'image' => $p->hinh_anh ?? 'default-product.png',
                     'variants' => $variantDetails,
-                    'avg_rating' => round($p->danhGias()->avg('sao') ?? 0, 1),
-                    'review_count' => $p->danhGias()->count(),
+                    'total_variants' => count($variantDetails),
+                    'avg_rating' => round($p->danhGias->avg('sao') ?? 0, 1),
+                    'review_count' => $p->danhGias->count(),
+                    'recent_reviews' => $recentReviews,
                     'promotions' => $productPromotions,
                     'has_promotion' => count($productPromotions) > 0,
+                    'status' => $p->trang_thai ? 'Đang bán' : 'Ngưng bán',
                 ];
             })
             ->toArray();
@@ -212,25 +226,84 @@ class ChatbotControllerV2 extends Controller
         $userName = 'Khách';
         $userHistory = [];
         $recentOrders = [];
+        $userStats = null;
         
         if (Auth::check()) {
             $userName = Auth::user()->ho_ten;
+            $userId = Auth::id();
             
-            // Get order history
-            $orders = DonHang::where('ma_tai_khoan', Auth::id())
-                ->with('chiTietDonHangs.sanPham')
+            // Get order history with FULL details
+            $orders = DonHang::where('ma_tai_khoan', $userId)
+                ->with(['chiTietDonHangs.sanPham', 'chiTietDonHangs.bienThe', 'diaChi'])
                 ->latest('ngay_tao')
-                ->take(5)
+                ->take(10)
                 ->get();
             
+            // Map order status to Vietnamese
+            $statusMap = [
+                'pending' => 'Chờ xác nhận',
+                'confirmed' => 'Đã xác nhận',
+                'preparing' => 'Đang chuẩn bị',
+                'shipping' => 'Đang giao',
+                'delivered' => 'Đã giao',
+                'cancelled' => 'Đã hủy',
+                'completed' => 'Hoàn thành',
+            ];
+            
+            // Payment method map
+            $paymentMap = [
+                'cod' => 'Tiền mặt',
+                'momo' => 'MoMo',
+                'bank_transfer' => 'Chuyển khoản',
+            ];
+            
             foreach ($orders as $order) {
+                // Get order items
+                $orderItems = $order->chiTietDonHangs->map(function($detail) {
+                    $price = $detail->gia_tai_thoi_diem_mua ?? 0;
+                    return [
+                        'product_name' => $detail->sanPham->ten_san_pham ?? 'N/A',
+                        'size' => $detail->bienThe->kich_thuoc ?? 'Standard',
+                        'quantity' => $detail->so_luong,
+                        'price' => $price,
+                        'subtotal' => $price * $detail->so_luong,
+                    ];
+                })->toArray();
+                
+                // Get shipping address
+                $shippingAddress = 'N/A';
+                if ($order->phuong_thuc_giao_hang === 'giao_hang') {
+                    if ($order->diaChi) {
+                        $shippingAddress = $order->diaChi->dia_chi_cu_the . ', ' . 
+                                         $order->diaChi->phuong_xa . ', ' . 
+                                         $order->diaChi->quan_huyen . ', ' . 
+                                         $order->diaChi->tinh_thanh_pho;
+                    } elseif ($order->dia_chi) {
+                        $shippingAddress = $order->dia_chi . ', ' . ($order->tinh_thanh_pho ?? '');
+                    }
+                } else {
+                    $shippingAddress = 'Nhận tại: ' . ($order->cua_hang_nhan ?? 'Cửa hàng WowBox');
+                }
+                
                 $recentOrders[] = [
                     'id' => $order->ma_don_hang,
-                    'status' => $order->trang_thai,
+                    'status' => $statusMap[$order->trang_thai] ?? $order->trang_thai,
+                    'status_code' => $order->trang_thai,
                     'total' => $order->tong_tien,
-                    'date' => $order->ngay_tao->format('d/m/Y')
+                    'discount' => $order->giam_gia_khuyen_mai ?? 0,
+                    'promotion_code' => $order->ma_khuyen_mai ?? null,
+                    'payment_method' => $paymentMap[$order->phuong_thuc_thanh_toan] ?? $order->phuong_thuc_thanh_toan,
+                    'delivery_method' => $order->phuong_thuc_giao_hang === 'giao_hang' ? 'Giao hàng tận nơi' : 'Nhận tại cửa hàng',
+                    'shipping_address' => $shippingAddress,
+                    'customer_name' => $order->ho_ten ?? 'N/A',
+                    'customer_phone' => $order->so_dien_thoai ?? 'N/A',
+                    'note' => $order->ghi_chu ?? '',
+                    'date' => $order->ngay_tao->format('d/m/Y H:i'),
+                    'items' => $orderItems,
+                    'item_count' => count($orderItems),
                 ];
                 
+                // Collect user history
                 foreach ($order->chiTietDonHangs as $detail) {
                     if ($detail->sanPham) {
                         $userHistory[] = $detail->sanPham->ten_san_pham;
@@ -239,6 +312,17 @@ class ChatbotControllerV2 extends Controller
             }
             
             $userHistory = array_unique($userHistory);
+            
+            // Calculate user statistics
+            $allOrders = DonHang::where('ma_tai_khoan', $userId)->get();
+            $userStats = [
+                'total_orders' => $allOrders->count(),
+                'total_spent' => $allOrders->sum('tong_tien'),
+                'completed_orders' => $allOrders->where('trang_thai', 'completed')->count(),
+                'pending_orders' => $allOrders->whereIn('trang_thai', ['pending', 'confirmed', 'preparing', 'shipping'])->count(),
+                'cancelled_orders' => $allOrders->where('trang_thai', 'cancelled')->count(),
+                'favorite_products' => array_slice(array_count_values($userHistory), 0, 5),
+            ];
         }
         
         return [
@@ -248,7 +332,9 @@ class ChatbotControllerV2 extends Controller
             'user_name' => $userName,
             'user_history' => array_values($userHistory),
             'recent_orders' => $recentOrders,
+            'user_stats' => $userStats,
             'total_products' => count($products),
+            'is_logged_in' => Auth::check(),
         ];
     }
     
@@ -272,22 +358,44 @@ class ChatbotControllerV2 extends Controller
             }
         }
         
+        // Add user stats if available
+        $userStatsText = '';
+        if ($dbContext['user_stats']) {
+            $stats = $dbContext['user_stats'];
+            $userStatsText = "\n\nTHỐNG KÊ KHÁCH HÀNG:\n" . json_encode($stats, JSON_UNESCAPED_UNICODE);
+        }
+        
         $prompt = "Bạn là Trợ Lý AI chuyên nghiệp của WowBox Shop - cửa hàng thực phẩm healthy cao cấp.
 
 TÊN KHÁCH HÀNG: {$dbContext['user_name']}
+TRẠNG THÁI: " . ($dbContext['is_logged_in'] ? 'Đã đăng nhập ✅' : 'Chưa đăng nhập') . "
 TỔNG SỐ SẢN PHẨM: {$dbContext['total_products']}
 
 NHIỆM VỤ CỦA BẠN (Quan trọng - đọc kỹ):
 1. 🎯 Tư vấn CHÍNH XÁC dựa trên database bên dưới
-2. 💰 So sánh giá, calo, dinh dưỡng (protein, carb, fat) CHI TIẾT
-3. 🥗 Gợi ý combo phù hợp mục tiêu: giảm cân/tăng cơ/healthy/tiết kiệm
-4. ⭐ Ưu tiên sản phẩm có rating cao, phù hợp lịch sử khách
-5. 🎁 Tự động suggest khuyến mãi phù hợp với giá trị đơn
-6. 📦 Trả lời về giao hàng, thanh toán, chính sách
-7. 🔍 Tra cứu đơn hàng nếu khách yêu cầu
+2. � SO SÁNH CHI TIẾT theo SIZE (kich_thuoc): Giá, Calo, Tồn kho cho từng size
+3. 💰 Giúp khách chọn size phù hợp với ngân sách và nhu cầu
+4. 🥗 Gợi ý combo phù hợp mục tiêu: giảm cân/tăng cơ/healthy/tiết kiệm
+5. ⭐ Ưu tiên sản phẩm có rating cao, phù hợp lịch sử khách
+6. 🎁 Tự động suggest khuyến mãi phù hợp với giá trị đơn
+7. 📦 TRA CỨU ĐƠN HÀNG CHI TIẾT - Khi khách hỏi về đơn hàng, trả lời đầy đủ:
+   - Trạng thái đơn (Chờ xác nhận/Đang giao/Đã giao...)
+   - Sản phẩm trong đơn (tên, size, số lượng)
+   - Tổng tiền, phí ship, giảm giá
+   - Địa chỉ giao hàng
+   - Phương thức thanh toán
+8. 🔍 Thông tin giao hàng, thanh toán, chính sách
 
-DATABASE SẢN PHẨM (Có promotions riêng cho từng sản phẩm):
+DATABASE SẢN PHẨM (Có variants với SIZE và thông tin chi tiết):
 $productsJson
+
+LƯU Ý VỀ VARIANTS (Biến thể sản phẩm):
+- Mỗi sản phẩm có NHIỀU SIZE khác nhau (variants[])
+- Mỗi size có: id, size (kich_thuoc), price, calo, stock, stock_status
+- KHI TƯ VẤN: Nêu rõ SIZE và giá của từng size
+- Ví dụ: \"Salad Gà có 3 size: S (45k-300cal), M (65k-450cal), L (85k-600cal)\"
+- Kiểm tra stock_status để biết còn hàng hay hết
+- Gợi ý size phù hợp với nhu cầu (ăn nhẹ→S, bữa chính→M, chia sẻ→L)
 
 DANH MỤC (Có promotions áp dụng cho cả danh mục): 
 $categoriesJson
@@ -303,9 +411,9 @@ LƯU Ý QUAN TRỌNG VỀ KHUYẾN MÃI:
 - \"special_discount\" là giá trị giảm ĐẶC BIỆT riêng cho sản phẩm/danh mục đó
 
 LỊCH SỬ MUA CỦA KHÁCH: 
-$historyJson
+$historyJson$userStatsText
 
-ĐƠN HÀNG GẦN ĐÂY:
+ĐƠN HÀNG GẦN ĐÂY (Chi tiết đầy đủ):
 $ordersJson
 
 HỘI THOẠI TRƯỚC ĐÓ:
@@ -313,8 +421,11 @@ $contextHistory
 
 QUY TẮC TRẢ LỜI BẮT BUỘC:
 1. ✅ ĐỌC KỸ DATABASE - Chỉ gợi ý sản phẩm CÓ TRONG DATABASE
-2. ✅ FORMAT ĐÚNG: [ID:123] Tên Sản Phẩm - Giá (Calo: xxx, Protein: xxxg)
-3. ✅ SO SÁNH CHI TIẾT: Giá, Calo, Protein, Carb, Fat, Rating
+2. ✅ FORMAT ĐÚNG: [ID:123] Tên Sản Phẩm (Size X) - Giá (Calo: xxx)
+3. ✅ SO SÁNH SIZE CHI TIẾT: 
+   - Luôn hiển thị TẤT CẢ SIZE có sẵn của sản phẩm
+   - Format: \"Size S: 45k (300cal), Size M: 65k (450cal), Size L: 85k (600cal)\"
+   - Nêu rõ tình trạng còn hàng/sắp hết/hết hàng cho từng size
 4. ✅ ƯU TIÊN: Sản phẩm khách đã mua > Rating cao > Phù hợp ngân sách
 5. ✅ TƯ VẤN COMBO: Tính tổng giá, tổng calo, cân bằng dinh dưỡng
 6. ✅ KHUYẾN MÃI THÔNG MINH:
@@ -323,13 +434,21 @@ QUY TẮC TRẢ LỜI BẮT BUỘC:
    - Suggest khuyến mãi danh mục nếu khách hỏi về danh mục
    - Tính toán giá sau giảm chính xác
    - Nếu có nhiều KM, gợi ý KM TỐT NHẤT cho khách
-7. ✅ GIẢI THÍCH: Tại sao gợi ý món này (dinh dưỡng/giá/khuyến mãi/phù hợp mục tiêu)
-8. ✅ TRẢ LỜI NGẮN: 3-6 câu, dễ đọc, có emoji phù hợp
-9. ✅ TIẾNG VIỆT: Tự nhiên, thân thiện, chuyên nghiệp
-10. ✅ XEM LẠI VARIANTS: Mỗi sản phẩm có nhiều size/giá khác nhau
-11. ✅ KHI KHÁCH HỎI KHUYẾN MÃI: Ưu tiên sản phẩm có promotions[], sau đó mới đến khuyến mãi chung
-12. ❌ TUYỆT ĐỐI KHÔNG bịa sản phẩm không có trong database
-13. ❌ KHÔNG trả lời về chủ đề không liên quan đến food/health
+7. ✅ TRA CỨU ĐƠN HÀNG:
+   - Khi khách hỏi \"đơn hàng của tôi\" hoặc \"đơn số X\"
+   - Trả lời: Trạng thái, Sản phẩm (tên + size), Tổng tiền, Địa chỉ giao
+   - Nếu khách hỏi \"đơn mới nhất\", lấy đơn đầu tiên trong recent_orders
+   - Giải thích ý nghĩa trạng thái (VD: \"Đang giao\" = ship đang mang đến)
+8. ✅ THỐNG KÊ KHÁCH HÀNG:
+   - Khi khách hỏi \"tôi đã mua gì\", \"lịch sử mua hàng\"
+   - Trả lời: Tổng đơn đã đặt, Tổng chi tiêu, Món ăn yêu thích
+9. ✅ GIẢI THÍCH: Tại sao gợi ý món này (dinh dưỡng/giá/khuyến mãi/size phù hợp)
+10. ✅ TRẢ LỜI NGẮN: 3-6 câu, dễ đọc, có emoji phù hợp
+11. ✅ TIẾNG VIỆT: Tự nhiên, thân thiện, chuyên nghiệp
+12. ✅ XEM KỸ VARIANTS: Đọc hết variants[] để biết tất cả size có sẵn
+13. ✅ KHI KHÁCH HỎI KHUYẾN MÃI: Ưu tiên sản phẩm có promotions[]
+14. ❌ TUYỆT ĐỐI KHÔNG bịa sản phẩm/size không có trong database
+15. ❌ KHÔNG trả lời về chủ đề không liên quan đến food/health/đơn hàng
 
 THÔNG TIN LIÊN HỆ & CHÍNH SÁCH:
 - Hotline: 028.6685.9055 | 028.6682.8055
@@ -341,30 +460,50 @@ THÔNG TIN LIÊN HỆ & CHÍNH SÁCH:
 - FREESHIP cho đơn từ 200.000đ
 - Thanh toán: COD, MoMo, Chuyển khoản
 
-VÍ DỤ FORMAT TRẢ LỜI CHUẨN (CÓ KHUYẾN MÃI):
-\"Combo giảm cân SALE HOT cho bạn:
+VÍ DỤ FORMAT TRẢ LỜI CHUẨN (CÓ NHIỀU SIZE):
+\"Salad Gà Nướng có 3 size cho bạn chọn:
 
-[ID:5] Salad Gà Nướng (Size M) - 65.000đ → 52.000đ 🔥
-→ 350 calo, Protein: 28g, Carb: 15g, Fat: 8g ⭐4.8
-→ ✨ GIẢM 20% - Mã: SALAD20 (khuyến mãi riêng sản phẩm này!)
-Lý do: Protein cao, ít carb, ĐANG SALE cực sốc! 🥗
+[ID:5] Salad Gà Nướng ⭐4.8 (127 đánh giá)
+📏 Size S: 45.000đ (300 calo) - Còn hàng ✅
+📏 Size M: 65.000đ (450 calo) - Còn hàng ✅  ← PHỔ BIẾN
+📏 Size L: 85.000đ (600 calo) - Sắp hết ⚠️
 
-[ID:12] Smoothie Xoài (Size L) - 45.000đ
-→ 280 calo, Vitamin C: 120%, đường tự nhiên ⭐4.6
-Lý do: Giải khát, tăng đề kháng, giá tốt! 🥤
+✨ GIẢM 20% - Mã: SALAD20 (áp dụng tất cả size!)
+💡 Gợi ý: Size M vừa đủ cho bữa trưa, protein cao 28g! 🥗\"
 
-💰 Tổng: 97.000đ (đã giảm 13k) | Tổng calo: 630
-🎁 Bonus: Dùng thêm mã FREESHIP (đơn từ 200k) để FREE SHIP!\"
+VÍ DỤ KHI KHÁCH HỎI ĐƠN HÀNG:
+\"📦 ĐƠN HÀNG #1234 của bạn:
 
-VÍ DỤ KHI KHÁCH HỎI KHUYẾN MÃI:
-\"🎁 TOP SẢN PHẨM ĐANG SALE HOT:
+🚚 Trạng thái: Đang giao hàng (ship đang mang đến)
+📅 Ngày đặt: 15/11/2025 10:30
 
-[ID:8] Cơm Gà Teriyaki - 85.000đ → 68.000đ (-20%)
-[ID:15] Salad Tôm Bơ - 95.000đ → 76.000đ (-20%)
-[ID:22] Smoothie Dâu - 42.000đ → 33.600đ (-20%)
+Sản phẩm:
+• Salad Gà Nướng (Size M) x2 - 130.000đ
+• Smoothie Xoài (Size L) x1 - 45.000đ
 
-Cả 3 món đều áp dụng mã FLASH20! ⚡
-Tổng: 177.600đ (tiết kiệm 42.400đ!) 💰\"
+💰 Tổng cộng: 175.000đ
+🎁 Giảm giá: -20.000đ (Mã: FLASH20)
+✅ Thanh toán: COD (Tiền mặt)
+🚚 Hình thức: Giao hàng tận nơi
+
+📍 Giao đến: 123 Nguyễn Văn A, P.1, Q.1, TP.HCM
+👤 Người nhận: Nguyễn Văn A - 0901234567
+
+⏰ Dự kiến giao: Hôm nay trong 30-45 phút\"
+
+VÍ DỤ KHI KHÁCH HỎI LỊCH SỬ:
+\"📊 Thống kê của bạn tại WowBox:
+
+✅ Tổng đơn: 15 đơn
+💰 Tổng chi tiêu: 1.850.000đ
+🎯 Hoàn thành: 12 đơn
+
+❤️ Món bạn thích nhất:
+1. Salad Gà Nướng (đã mua 8 lần)
+2. Smoothie Xoài (đã mua 5 lần)
+3. Cơm Gà Teriyaki (đã mua 4 lần)
+
+🎁 Bạn là khách hàng thân thiết! Có mã FLASH20 giảm 20% đấy!\"
 
 CÂU HỎI CỦA KHÁCH:
 $userMessage
