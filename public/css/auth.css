@@ -37,16 +37,18 @@
 
 .auth-tabs {
     display: flex;
-    background: transparent;
-    border-bottom: none;
+    background: #f8f9fa;
+    border-radius: 25px 25px 0 0;
+    padding: 0.5rem;
+    gap: 0.5rem;
 }
 
 .auth-tab {
     flex: 1;
-    padding: 1.5rem 2rem;
-    background: rgba(255, 255, 255, 0.9);
-    border: 2px solid #e0e0e0;
-    border-bottom: none;
+    padding: 1.2rem 2rem;
+    background: transparent;
+    border: none;
+    border-radius: 15px;
     text-align: center;
     cursor: pointer;
     font-weight: 600;
@@ -55,30 +57,29 @@
     transition: all 0.3s ease;
     text-decoration: none;
     display: block;
+    position: relative;
 }
 
 .auth-tab:first-child {
-    border-radius: 25px 0 0 0;
-    border-right: 1px solid #e0e0e0;
+    border-radius: 15px;
 }
 
 .auth-tab:last-child {
-    border-radius: 0 25px 0 0;
-    border-left: 1px solid #e0e0e0;
+    border-radius: 15px;
 }
 
 .auth-tab.active {
-    background: white;
-    border-color: #228B22;
-    color: #228B22;
-    border-bottom: 2px solid white;
-    position: relative;
-    z-index: 2;
+    background: linear-gradient(135deg, #228B22, #32CD32);
+    color: white;
+    font-weight: 700;
+    box-shadow: 0 4px 15px rgba(34, 139, 34, 0.3);
+    transform: translateY(-2px);
 }
 
 .auth-tab:hover:not(.active) {
     background: rgba(34, 139, 34, 0.1);
     color: #228B22;
+    transform: translateY(-1px);
 }
 
 .auth-content {

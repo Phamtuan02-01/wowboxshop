@@ -53,7 +53,7 @@ class OrderController extends Controller
         // Statistics
         $stats = [
             'total' => DonHang::count(),
-            'pending' => DonHang::where('trang_thai', 'cho_xu_ly')->count(),
+            'pending' => DonHang::where('trang_thai', 'cho_xac_nhan')->count(),
             'processing' => 0, // Không dùng nữa
             'completed' => DonHang::where('trang_thai', 'da_giao')->count(),
             'cancelled' => DonHang::where('trang_thai', 'da_huy')->count(),
@@ -89,7 +89,7 @@ class OrderController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $request->validate([
-            'trang_thai' => 'required|in:cho_xu_ly,da_giao,da_huy',
+            'trang_thai' => 'required|in:cho_xac_nhan,da_giao,da_huy',
             'ghi_chu' => 'nullable|string|max:500'
         ]);
 
@@ -182,7 +182,7 @@ class OrderController extends Controller
         $stats = [
             'total_orders' => $baseQuery->count(),
             'total_revenue' => $baseQuery->where('trang_thai', 'da_giao')->sum('tong_tien'),
-            'pending_orders' => $baseQuery->where('trang_thai', 'cho_xu_ly')->count(),
+            'pending_orders' => $baseQuery->where('trang_thai', 'cho_xac_nhan')->count(),
             'completed_orders' => $baseQuery->where('trang_thai', 'da_giao')->count(),
         ];
 

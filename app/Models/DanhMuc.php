@@ -40,4 +40,17 @@ class DanhMuc extends Model
     {
         return $this->hasMany(SanPham::class, 'ma_danh_muc', 'ma_danh_muc');
     }
+
+    /**
+     * Many-to-Many relationship với KhuyenMai qua bảng trung gian
+     */
+    public function khuyenMais()
+    {
+        return $this->belongsToMany(
+            KhuyenMai::class,
+            'khuyen_mai_danh_muc',
+            'ma_danh_muc',
+            'ma_khuyen_mai'
+        )->withPivot('gia_tri_giam_cu_the', 'so_lan_ap_dung', 'ngay_them');
+    }
 }

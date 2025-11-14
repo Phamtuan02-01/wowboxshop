@@ -687,6 +687,8 @@
         </div>
     </div>
 </div>
+
+@include('components.custom-alert')
 @endsection
 
 @section('scripts')
@@ -746,7 +748,7 @@
         const diaChi = diaChiInput.value.trim();
         
         if (!diaChi) {
-            alert('Vui lòng nhập địa chỉ');
+            showCustomAlert('Vui lòng nhập địa chỉ', 'warning');
             return;
         }
         
@@ -841,7 +843,7 @@
         btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Đang kiểm tra...';
         messageDiv.innerHTML = '';
         
-        fetch('{{ route("admin.promotions.check-code") }}', {
+        fetch('{{ route("promotions.check-code") }}', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -922,12 +924,12 @@
         if (phuongThucGiaoHang === 'giao_hang') {
             if (!formData.get('ho_ten') || !formData.get('so_dien_thoai') || 
                 !formData.get('dia_chi') || !formData.get('tinh_thanh_pho')) {
-                alert('Vui lòng điền đầy đủ thông tin giao hàng');
+                showCustomAlert('Vui lòng điền đầy đủ thông tin giao hàng', 'warning');
                 return;
             }
         } else {
             if (!formData.get('cua_hang_chon')) {
-                alert('Vui lòng chọn cửa hàng để nhận hàng');
+                showCustomAlert('Vui lòng chọn cửa hàng để nhận hàng', 'warning');
                 return;
             }
         }
@@ -962,13 +964,13 @@
                     window.location.href = data.redirect_url;
                 }
             } else {
-                alert(data.message);
+                showCustomAlert(data.message, 'error');
                 submitBtn.disabled = false;
                 submitBtn.innerHTML = 'Hoàn Tất Đơn Hàng';
             }
         })
         .catch(error => {
-            alert('Có lỗi xảy ra, vui lòng thử lại');
+            showCustomAlert('Có lỗi xảy ra, vui lòng thử lại', 'error');
             submitBtn.disabled = false;
             submitBtn.innerHTML = 'Hoàn Tất Đơn Hàng';
         });

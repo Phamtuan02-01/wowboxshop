@@ -90,8 +90,7 @@ class SanPham extends Model
             'khuyen_mai_san_pham',
             'ma_san_pham',
             'ma_khuyen_mai'
-        )->withPivot('gia_tri_giam_cu_the', 'so_lan_ap_dung', 'ngay_them')
-         ->withTimestamps();
+        )->withPivot('gia_tri_giam_cu_the', 'so_lan_ap_dung', 'ngay_them');
     }
 
     /**

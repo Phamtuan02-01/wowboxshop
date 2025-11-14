@@ -78,13 +78,6 @@
                                     @enderror
                                 </div>
 
-                                <!-- Remember & Forgot -->
-                                <div class="form-check">
-                                    <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                                    <label class="form-check-label" for="remember">Ghi nhớ mật khẩu</label>
-                                    <a href="#" class="forgot-password">Quên mật khẩu?</a>
-                                </div>
-
                                 <!-- Submit Button -->
                                 <button type="submit" class="btn-submit">
                                     ĐĂNG NHẬP

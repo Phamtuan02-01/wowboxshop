@@ -77,16 +77,18 @@
     <div class="filters-section">
         <form method="GET" action="{{ route('admin.products.index') }}" class="filter-form">
             <div class="row">
-                <div class="col-md-2">
+                <div class="col-search">
                     <div class="form-group">
+                        <label class="form-label">Tìm kiếm</label>
                         <input type="text" name="search" class="form-control" placeholder="Tìm kiếm sản phẩm..." 
                                value="{{ request('search') }}">
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-select">
                     <div class="form-group">
-                        <select name="category" class="form-control">
-                            <option value="">Tất cả danh mục</option>
+                        <label class="form-label">Danh mục</label>
+                        <select name="category" class="form-select">
+                            <option value="">Tất cả</option>
                             @foreach($categories as $category)
                                 <option value="{{ $category->ma_danh_muc }}" 
                                         {{ request('category') == $category->ma_danh_muc ? 'selected' : '' }}>
@@ -96,52 +98,62 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-1">
+                <div class="col-select-small">
                     <div class="form-group">
-                        <select name="type" class="form-control">
-                            <option value="">Tất cả loại</option>
-                            <option value="product" {{ request('type') == 'product' ? 'selected' : '' }}>Sản phẩm</option>
-                            <option value="ingredient" {{ request('type') == 'ingredient' ? 'selected' : '' }}>Nguyên liệu</option>
+                        <label class="form-label">Loại</label>
+                        <select name="type" class="form-select">
+                            <option value="">Tất cả</option>
+                            <option value="product" {{ request('type') == 'product' ? 'selected' : '' }}>SP</option>
+                            <option value="ingredient" {{ request('type') == 'ingredient' ? 'selected' : '' }}>NL</option>
                         </select>
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-select">
                     <div class="form-group">
-                        <select name="status" class="form-control">
-                            <option value="">Tất cả trạng thái</option>
+                        <label class="form-label">Trạng thái</label>
+                        <select name="status" class="form-select">
+                            <option value="">Tất cả</option>
                             <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Hoạt động</option>
                             <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Tạm ngưng</option>
                         </select>
                     </div>
                 </div>
-                <div class="col-md-2">
+                <div class="col-select">
                     <div class="form-group">
-                        <select name="sort_by" class="form-control">
+                        <label class="form-label">Sắp xếp</label>
+                        <select name="sort_by" class="form-select">
                             <option value="ngay_tao" {{ request('sort_by') == 'ngay_tao' ? 'selected' : '' }}>Ngày tạo</option>
-                            <option value="name" {{ request('sort_by') == 'name' ? 'selected' : '' }}>Tên sản phẩm</option>
+                            <option value="name" {{ request('sort_by') == 'name' ? 'selected' : '' }}>Tên</option>
                             <option value="price" {{ request('sort_by') == 'price' ? 'selected' : '' }}>Giá</option>
                             <option value="rating" {{ request('sort_by') == 'rating' ? 'selected' : '' }}>Đánh giá</option>
-                            <option value="views" {{ request('sort_by') == 'views' ? 'selected' : '' }}>Lượt xem</option>
+                            <option value="views" {{ request('sort_by') == 'views' ? 'selected' : '' }}>Xem</option>
                         </select>
                     </div>
                 </div>
-                <div class="col-md-1">
+                <div class="col-select-small">
                     <div class="form-group">
-                        <select name="sort_order" class="form-control">
-                            <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Giảm dần</option>
-                            <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Tăng dần</option>
+                        <label class="form-label">Thứ tự</label>
+                        <select name="sort_order" class="form-select">
+                            <option value="desc" {{ request('sort_order') == 'desc' ? 'selected' : '' }}>Giảm</option>
+                            <option value="asc" {{ request('sort_order') == 'asc' ? 'selected' : '' }}>Tăng</option>
                         </select>
                     </div>
                 </div>
-                <div class="col-md-1">
-                    <button type="submit" class="btn btn-secondary">
-                        <i class="fas fa-search"></i>
-                    </button>
+                <div class="col-button">
+                    <div class="form-group">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary" title="Tìm kiếm">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
                 </div>
-                <div class="col-md-1">
-                    <a href="{{ route('admin.products.index') }}" class="btn btn-light" title="Đặt lại bộ lọc">
-                        <i class="fas fa-undo"></i>
-                    </a>
+                <div class="col-button">
+                    <div class="form-group">
+                        <label class="form-label">&nbsp;</label>
+                        <a href="{{ route('admin.products.index') }}" class="btn btn-light" title="Đặt lại bộ lọc">
+                            <i class="fas fa-redo"></i>
+                        </a>
+                    </div>
                 </div>
             </div>
         </form>
@@ -162,7 +174,7 @@
                     <th>Giá</th>
                     <th>Đánh giá</th>
                     <th>Trạng thái</th>
-                    <th style="width: 200px;">Thao tác</th>
+                    <th width="150">Thao tác</th>
                 </tr>
             </thead>
             <tbody>
@@ -263,7 +275,7 @@
                     </td>
                     <td>
                         <div class="d-flex align-items-center">
-                            <span class="badge {{ $product->trang_thai ? 'badge-success' : 'badge-danger' }} me-2">
+                            <span class="badge {{ $product->trang_thai ? 'bg-success' : 'bg-secondary' }} text-white me-2" style="padding: 0.35em 0.65em;">
                                 {{ $product->trang_thai ? 'Hoạt động' : 'Tạm ngưng' }}
                             </span>
                             <form method="POST" action="{{ route('admin.products.toggle-status', $product->ma_san_pham) }}" 
@@ -281,16 +293,16 @@
                     <td>
                         <div class="action-buttons">
                             <a href="{{ route('admin.products.show', $product->ma_san_pham) }}" 
-                               class="btn btn-sm btn-info" title="Xem chi tiết">
+                               class="btn btn-outline-info btn-action" title="Xem chi tiết">
                                 <i class="fas fa-eye"></i>
                             </a>
                             <a href="{{ route('admin.products.edit', $product->ma_san_pham) }}" 
-                               class="btn btn-sm btn-primary" title="Chỉnh sửa">
+                               class="btn btn-outline-warning btn-action" title="Chỉnh sửa">
                                 <i class="fas fa-edit"></i>
                             </a>
                             @if($product->bienThes->count() > 0)
                                 <a href="{{ route('admin.product-variants.index', ['product' => $product->ma_san_pham]) }}" 
-                                   class="btn btn-sm btn-secondary" title="Quản lý biến thể">
+                                   class="btn btn-outline-secondary btn-action" title="Quản lý biến thể">
                                     <i class="fas fa-list"></i>
                                 </a>
                             @endif
@@ -299,7 +311,7 @@
                                   onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')">
                                 @csrf
                                 @method('DELETE')
-                                <button type="submit" class="btn btn-sm btn-danger" title="Xóa">
+                                <button type="submit" class="btn btn-outline-danger btn-action" title="Xóa">
                                     <i class="fas fa-trash"></i>
                                 </button>
                             </form>
@@ -471,16 +483,7 @@
     font-size: 11px;
 }
 
-.action-buttons {
-    display: flex;
-    gap: 4px;
-    flex-wrap: wrap;
-}
-
-.action-buttons .btn {
-    padding: 4px 8px;
-    font-size: 12px;
-}
+/* Action buttons styles now in admin.css */
 
 .bulk-actions {
     margin-bottom: 20px;
@@ -539,9 +542,7 @@
 }
 
 @media (max-width: 768px) {
-    .action-buttons {
-        flex-direction: column;
-    }
+    /* Action buttons responsive styles now in admin.css */
     
     .filters-section .row > div {
         margin-bottom: 10px;

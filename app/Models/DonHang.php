@@ -75,19 +75,19 @@ class DonHang extends Model
     public function getTrangThaiTextAttribute()
     {
         $trangThaiTexts = [
-            'cho_xu_ly' => 'Chờ xử lý',
+            'cho_xac_nhan' => 'Chờ xác nhận',
             'da_giao' => 'Đã giao',
             'da_huy' => 'Đã hủy'
         ];
         
-        return $trangThaiTexts[$this->trang_thai] ?? 'Chờ xử lý';
+        return $trangThaiTexts[$this->trang_thai] ?? 'Chờ xác nhận';
     }
 
     // Helper method to get status badge class
     public function getStatusBadgeClass()
     {
         $statusClasses = [
-            'cho_xu_ly' => 'warning',
+            'cho_xac_nhan' => 'warning',
             'da_giao' => 'success',
             'da_huy' => 'danger'
         ];

@@ -171,12 +171,10 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        // Tự động format họ tên - viết hoa chữ cái đầu
+        // Tự động format họ tên - viết hoa chữ cái đầu (không làm gì cả, để người dùng tự nhập)
+        // Bỏ auto-format để tránh lỗi với chữ có dấu
         document.getElementById('ho_ten').addEventListener('input', function(e) {
-            let value = e.target.value;
-            // Viết hoa chữ cái đầu mỗi từ
-            value = value.toLowerCase().replace(/\b\w/g, l => l.toUpperCase());
-            e.target.value = value;
+            // Không format tự động nữa, để người dùng tự nhập đúng
         });
 
         // Validation số điện thoại chỉ cho phép số

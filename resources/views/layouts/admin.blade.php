@@ -318,6 +318,12 @@
     <!-- Overlay for mobile -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
     
+    <!-- Flash Messages Component -->
+    @include('components.flash-messages')
+    
+    <!-- Custom Alert Component -->
+    @include('components.custom-alert')
+    
     <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     
@@ -370,6 +376,73 @@
     
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js"></script>
+    
+    <!-- Custom Confirm Helper -->
+    <script>
+        // Helper function to replace default confirm with custom confirm
+        function customConfirm(message) {
+            return new Promise((resolve) => {
+                if (typeof showCustomConfirm === 'function') {
+                    showCustomConfirm(message, resolve);
+                } else {
+                    resolve(confirm(message));
+                }
+            });
+        }
+        
+        // Replace all form onsubmit confirms with custom confirm
+        document.addEventListener('DOMContentLoaded', function() {
+            // Handle form submissions with confirm
+            document.querySelectorAll('form[onsubmit*="confirm"]').forEach(form => {
+                const originalOnsubmit = form.getAttribute('onsubmit');
+                const confirmMatch = originalOnsubmit.match(/confirm\('([^']+)'\)/);
+                
+                if (confirmMatch) {
+                    const message = confirmMatch[1];
+                    form.removeAttribute('onsubmit');
+                    
+                    form.addEventListener('submit', function(e) {
+                        e.preventDefault();
+                        customConfirm(message).then(result => {
+                            if (result) {
+                                // Remove the event listener to avoid infinite loop
+                                form.removeEventListener('submit', arguments.callee);
+                                form.submit();
+                            }
+                        });
+                    });
+                }
+            });
+            
+            // Handle links/buttons with onclick confirm
+            document.querySelectorAll('[onclick*="confirm"]').forEach(element => {
+                const originalOnclick = element.getAttribute('onclick');
+                const confirmMatch = originalOnclick.match(/confirm\('([^']+)'\)/);
+                
+                if (confirmMatch) {
+                    const message = confirmMatch[1];
+                    element.removeAttribute('onclick');
+                    
+                    element.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        customConfirm(message).then(result => {
+                            if (result) {
+                                // Execute original action after removing confirm
+                                const action = originalOnclick.replace(/return\s+confirm\([^)]+\);?\s*/, '');
+                                if (action && action.trim()) {
+                                    eval(action);
+                                }
+                                // If it's a link, follow it
+                                if (element.tagName === 'A' && element.href) {
+                                    window.location.href = element.href;
+                                }
+                            }
+                        });
+                    });
+                }
+            });
+        });
+    </script>
     
     @yield('scripts')
     @stack('scripts')

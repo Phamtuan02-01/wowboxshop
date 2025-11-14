@@ -24,65 +24,41 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="stat-label">Tổng khuyến mãi</p>
-                            <h3 class="stat-value text-primary">{{ $stats['total'] }}</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-tags fa-2x text-primary"></i>
-                        </div>
-                    </div>
-                </div>
+    <div class="stats-grid mb-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <i class="fas fa-tags"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ $stats['total'] }}</h3>
+                <p>Tổng khuyến mãi</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="stat-label">Đang hoạt động</p>
-                            <h3 class="stat-value text-success">{{ $stats['active'] }}</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-check-circle fa-2x text-success"></i>
-                        </div>
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ $stats['active'] }}</h3>
+                <p>Đang hoạt động</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="stat-label">Đã hết hạn</p>
-                            <h3 class="stat-value text-danger">{{ $stats['expired'] }}</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-times-circle fa-2x text-danger"></i>
-                        </div>
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ $stats['expired'] }}</h3>
+                <p>Đã hết hạn</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="stat-label">Sắp diễn ra</p>
-                            <h3 class="stat-value text-warning">{{ $stats['upcoming'] }}</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-clock fa-2x text-warning"></i>
-                        </div>
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ $stats['upcoming'] }}</h3>
+                <p>Sắp diễn ra</p>
             </div>
         </div>
     </div>
@@ -96,43 +72,52 @@
             </h6>
         </div>
         <div class="p-4">
-            <form method="GET" action="{{ route('admin.promotions.index') }}" id="filter-form">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label class="form-label">Trạng thái</label>
-                        <select name="status" class="form-select" onchange="submitFilter()">
-                            <option value="">Tất cả trạng thái</option>
-                            <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Đang hoạt động</option>
-                            <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Đã tắt</option>
-                            <option value="expired" {{ request('status') === 'expired' ? 'selected' : '' }}>Đã hết hạn</option>
-                            <option value="upcoming" {{ request('status') === 'upcoming' ? 'selected' : '' }}>Sắp diễn ra</option>
-                        </select>
-                    </div>
-                    <div class="col-md-3">
-                        <label class="form-label">Loại khuyến mãi</label>
-                        <select name="type" class="form-select" onchange="submitFilter()">
-                            <option value="">Tất cả loại</option>
-                            <option value="percent" {{ request('type') === 'percent' ? 'selected' : '' }}>Giảm theo %</option>
-                            <option value="fixed" {{ request('type') === 'fixed' ? 'selected' : '' }}>Giảm số tiền cố định</option>
-                            <option value="product_discount" {{ request('type') === 'product_discount' ? 'selected' : '' }}>Giảm giá sản phẩm</option>
-                        </select>
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Tìm kiếm</label>
-                        <div class="input-group">
+            <form method="GET" action="{{ route('admin.promotions.index') }}" class="filter-form">
+                <div class="row">
+                    <div class="col-search">
+                        <div class="form-group">
+                            <label class="form-label">Tìm kiếm</label>
                             <input type="text" name="search" class="form-control" 
                                    placeholder="Tên khuyến mãi, mã code..." 
                                    value="{{ request('search') }}">
-                            <button type="submit" class="btn btn-outline-secondary">
+                        </div>
+                    </div>
+                    <div class="col-select">
+                        <div class="form-group">
+                            <label class="form-label">Trạng thái</label>
+                            <select name="status" class="form-select">
+                                <option value="">Tất cả</option>
+                                <option value="active" {{ request('status') === 'active' ? 'selected' : '' }}>Hoạt động</option>
+                                <option value="inactive" {{ request('status') === 'inactive' ? 'selected' : '' }}>Đã tắt</option>
+                                <option value="expired" {{ request('status') === 'expired' ? 'selected' : '' }}>Hết hạn</option>
+                                <option value="upcoming" {{ request('status') === 'upcoming' ? 'selected' : '' }}>Sắp diễn ra</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-select">
+                        <div class="form-group">
+                            <label class="form-label">Loại KM</label>
+                            <select name="type" class="form-select">
+                                <option value="">Tất cả</option>
+                                <option value="percent" {{ request('type') === 'percent' ? 'selected' : '' }}>Giảm %</option>
+                                <option value="fixed" {{ request('type') === 'fixed' ? 'selected' : '' }}>Giảm cố định</option>
+                                <option value="product_discount" {{ request('type') === 'product_discount' ? 'selected' : '' }}>Giảm SP</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-button">
+                        <div class="form-group">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="submit" class="btn btn-primary" title="Tìm kiếm">
                                 <i class="fas fa-search"></i>
                             </button>
                         </div>
                     </div>
-                    <div class="col-md-2">
-                        <label class="form-label">&nbsp;</label>
-                        <div class="d-grid">
-                            <a href="{{ route('admin.promotions.index') }}" class="btn btn-outline-secondary">
-                                <i class="fas fa-undo"></i> Reset
+                    <div class="col-button">
+                        <div class="form-group">
+                            <label class="form-label">&nbsp;</label>
+                            <a href="{{ route('admin.promotions.index') }}" class="btn btn-light" title="Đặt lại bộ lọc">
+                                <i class="fas fa-redo"></i>
                             </a>
                         </div>
                     </div>
@@ -277,16 +262,16 @@
                             </div>
                         </td>
                         <td>
-                            <div class="btn-group" role="group">
+                            <div class="action-buttons">
                                 <a href="{{ route('admin.promotions.show', $promotion) }}" 
-                                   class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                   class="btn btn-outline-info btn-action" title="Xem chi tiết">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 <a href="{{ route('admin.promotions.edit', $promotion) }}" 
-                                   class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                                   class="btn btn-outline-warning btn-action" title="Chỉnh sửa">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <button type="button" class="btn btn-sm btn-outline-danger" 
+                                <button type="button" class="btn btn-outline-danger btn-action" 
                                         data-promotion-id="{{ $promotion->ma_khuyen_mai }}"
                                         onclick="deletePromotion({{ $promotion->ma_khuyen_mai }})" title="Xóa">
                                     <i class="fas fa-trash"></i>

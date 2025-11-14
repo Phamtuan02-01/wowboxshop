@@ -385,6 +385,36 @@
             </div>
 
             <div class="order-body">
+                @if($order->trang_thai === 'da_huy')
+                    <div class="alert" style="background: linear-gradient(135deg, #f8d7da, #f5c6cb); border-left: 4px solid #dc3545; padding: 1rem; margin-bottom: 1rem; border-radius: 10px;">
+                        <div style="display: flex; align-items: start; gap: 0.8rem;">
+                            <i class="fas fa-exclamation-circle" style="color: #721c24; font-size: 1.5rem; margin-top: 0.2rem;"></i>
+                            <div style="flex: 1;">
+                                @if($order->ly_do_huy)
+                                    <strong style="color: #721c24; display: block; margin-bottom: 0.3rem;">
+                                        <i class="fas fa-user"></i> Lý do khách hàng hủy đơn:
+                                    </strong>
+                                    <p style="color: #721c24; margin: 0;">{{ $order->ly_do_huy }}</p>
+                                @elseif($order->ghi_chu)
+                                    <strong style="color: #721c24; display: block; margin-bottom: 0.3rem;">
+                                        <i class="fas fa-store"></i> Lý do quán hủy đơn:
+                                    </strong>
+                                    <p style="color: #721c24; margin: 0;">{{ $order->ghi_chu }}</p>
+                                @else
+                                    <strong style="color: #721c24;">
+                                        <i class="fas fa-ban"></i> Đơn hàng đã bị hủy
+                                    </strong>
+                                @endif
+                                @if($order->ngay_huy)
+                                    <small style="color: #721c24; opacity: 0.8; display: block; margin-top: 0.5rem;">
+                                        <i class="fas fa-clock"></i> Thời gian hủy: {{ $order->ngay_huy->format('d/m/Y H:i') }}
+                                    </small>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                @endif
+
                 <div class="order-items">
                     @foreach($order->chiTietDonHangs->take(3) as $item)
                     <div class="order-item">
@@ -518,7 +548,8 @@
     function showCancelModal(orderId) {
         const modal = document.getElementById('cancelModal');
         const form = document.getElementById('cancelForm');
-        form.action = `/don-hang/${orderId}/huy`;
+        const baseUrl = '{{ route("orders.cancel", ":id") }}';
+        form.action = baseUrl.replace(':id', orderId);
         modal.style.display = 'flex';
     }
 

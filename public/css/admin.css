@@ -272,6 +272,219 @@
     padding: 2rem 1.5rem;
 }
 
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.page-header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+}
+
+.page-header h1 i {
+    color: #2E7D32;
+}
+
+.page-actions {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+}
+
+.filters-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    border: 1px solid rgba(0,0,0,0.05);
+}
+
+.filter-form .row {
+    align-items: flex-end;
+}
+
+.filter-form .form-group {
+    margin-bottom: 0;
+}
+
+/* Unified Filter Form Styles */
+.filter-form .form-control,
+.filter-form .form-select,
+.form-control,
+.form-select {
+    border: 2px solid #e3e6f0;
+    border-radius: 8px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    width: 100%;
+    height: 42px;
+    line-height: 1.5;
+}
+
+.filter-form .form-control:focus,
+.filter-form .form-select:focus,
+.form-control:focus,
+.form-select:focus {
+    border-color: #2E7D32;
+    box-shadow: 0 0 0 0.2rem rgba(46, 125, 50, 0.15);
+    outline: none;
+}
+
+/* Filter Labels */
+.filter-form .form-label,
+.form-label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #495057;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+/* Filter Buttons - Icon Only */
+.filter-form .btn {
+    border-radius: 8px;
+    font-weight: 600;
+    width: 100%;
+    padding: 0.5rem;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+}
+
+.filter-form .btn i {
+    font-size: 1rem;
+    margin: 0;
+}
+
+.filter-form .btn-primary,
+.btn-primary {
+    background: linear-gradient(135deg, #2E7D32, #4CAF50);
+    border-color: #2E7D32;
+    color: white;
+}
+
+.filter-form .btn-primary:hover,
+.btn-primary:hover {
+    background: linear-gradient(135deg, #1B5E20, #388E3C);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+}
+
+.filter-form .btn-secondary,
+.btn-secondary {
+    background: #6c757d;
+    border-color: #6c757d;
+    color: white;
+}
+
+.filter-form .btn-secondary:hover,
+.btn-secondary:hover {
+    background: #5a6268;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(108, 117, 125, 0.3);
+}
+
+.filter-form .btn-light,
+.btn-light {
+    background: #f8f9fa;
+    border-color: #dee2e6;
+    color: #495057;
+}
+
+.filter-form .btn-light:hover,
+.btn-light:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.filter-form .btn-outline-secondary {
+    background: transparent;
+    border-color: #dee2e6;
+    color: #6c757d;
+}
+
+.filter-form .btn-outline-secondary:hover {
+    background: #6c757d;
+    border-color: #6c757d;
+    color: white;
+    transform: translateY(-2px);
+}
+
+.filter-form .btn-outline-success {
+    background: transparent;
+    border-color: #2E7D32;
+    color: #2E7D32;
+}
+
+.filter-form .btn-outline-success:hover {
+    background: #2E7D32;
+    border-color: #2E7D32;
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* Button tooltips for icon-only buttons */
+.filter-form .btn[title]:hover::after {
+    content: attr(title);
+    position: absolute;
+    bottom: -35px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
+}
+
+/* Filter Row Responsive Columns */
+.filter-form .row > [class*="col-"] {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+/* Specific column widths for filters */
+.filter-form .col-search {
+    flex: 0 0 auto;
+    width: 25%;
+}
+
+.filter-form .col-select {
+    flex: 0 0 auto;
+    width: 15%;
+}
+
+.filter-form .col-select-small {
+    flex: 0 0 auto;
+    width: 10%;
+}
+
+.filter-form .col-button {
+    flex: 0 0 auto;
+    width: 8%;
+}
+
 /* Sidebar Overlay for Mobile */
 .sidebar-overlay {
     position: fixed;
@@ -316,50 +529,91 @@
     }
 }
 
-/* Card Styles */
-.stats-card {
+/* Card Styles - Unified Stat Cards */
+.stats-card,
+.stat-card {
+    background: white;
     border: none;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     transition: all 0.3s ease;
     overflow: hidden;
+    border: 1px solid rgba(0,0,0,0.05);
 }
 
-.stats-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+.stats-card:hover,
+.stat-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border-color: rgba(46, 125, 50, 0.2);
 }
 
-.stats-card .card-body {
+.stats-card .card-body,
+.stat-card-body {
     padding: 1.5rem;
 }
 
-.stats-icon {
-    width: 60px;
-    height: 60px;
+/* Stat Card Layout - Vertical Centered */
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    min-height: 140px;
+    text-align: center;
+    padding: 1.25rem;
+}
+
+.stats-icon,
+.stat-icon {
+    width: 56px;
+    height: 56px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     color: white;
+    flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.stats-number {
-    font-size: 2rem;
+.stat-content,
+.stat-info {
+    flex: 1;
+    width: 100%;
+}
+
+.stats-number,
+.stat-content .stat-number,
+.stat-info h3,
+.stat-value {
+    font-size: 1.75rem;
     font-weight: 700;
-    margin: 0;
+    margin: 0 0 0.25rem 0;
+    color: #2c3e50;
+    line-height: 1.2;
 }
 
-.stats-label {
+.stats-label,
+.stat-content .stat-label,
+.stat-info p,
+.stat-label {
     color: #6c757d;
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     margin: 0;
+    line-height: 1.3;
 }
 
 .stats-change {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
     margin-top: 0.5rem;
+    font-weight: 500;
+    display: block;
 }
 
 .stats-change.positive {
@@ -368,6 +622,63 @@
 
 .stats-change.negative {
     color: #dc3545;
+}
+
+/* Background color variants for stat cards */
+.stat-card.bg-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.stat-card.bg-primary .stat-icon {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.stat-card.bg-primary .stat-number,
+.stat-card.bg-primary .stat-label {
+    color: white;
+}
+
+.stat-card.bg-success {
+    background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    color: white;
+}
+
+.stat-card.bg-success .stat-icon {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.stat-card.bg-success .stat-number,
+.stat-card.bg-success .stat-label {
+    color: white;
+}
+
+.stat-card.bg-info {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    color: white;
+}
+
+.stat-card.bg-info .stat-icon {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.stat-card.bg-info .stat-number,
+.stat-card.bg-info .stat-label {
+    color: white;
+}
+
+.stat-card.bg-warning {
+    background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+    color: white;
+}
+
+.stat-card.bg-warning .stat-icon {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.stat-card.bg-warning .stat-number,
+.stat-card.bg-warning .stat-label {
+    color: #333;
 }
 
 /* Chart Container */
@@ -577,22 +888,7 @@
     color: #721c24;
 }
 
-.action-buttons {
-    display: flex;
-    gap: 0.25rem;
-}
-
-.btn-action {
-    padding: 0.375rem 0.5rem;
-    border-radius: 4px;
-    border: 1px solid transparent;
-    font-size: 0.875rem;
-    min-width: 32px;
-    height: 32px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
+/* Action buttons styles moved to line 1779 */
 
 .btn-outline-primary:hover {
     background-color: #0d6efd;
@@ -886,56 +1182,67 @@
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(5, 1fr);
     gap: 1rem;
     margin-bottom: 2rem;
 }
 
 .stat-card {
     background: white;
-    border-radius: 10px;
-    padding: 1.5rem;
+    border-radius: 12px;
+    padding: 1.25rem;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 1rem;
+    justify-content: center;
+    gap: 0.75rem;
     transition: all 0.3s ease;
+    border: 1px solid rgba(0,0,0,0.05);
+    min-height: 140px;
+    text-align: center;
 }
 
 .stat-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    border-color: rgba(46, 125, 50, 0.2);
 }
 
 .stat-icon {
-    width: 60px;
-    height: 60px;
+    width: 56px;
+    height: 56px;
     border-radius: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.5rem;
+    font-size: 1.75rem;
     color: white;
     flex-shrink: 0;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 
-.stat-content {
+.stat-info {
     flex: 1;
+    width: 100%;
 }
 
-.stat-number {
-    font-size: 2rem;
+.stat-info h3 {
+    font-size: 1.75rem;
     font-weight: 700;
-    margin-bottom: 0.5rem;
+    margin: 0 0 0.25rem 0;
     color: #2c3e50;
+    line-height: 1.2;
 }
 
-.stat-label {
+.stat-info p {
     color: #6c757d;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
+    font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     margin: 0;
+    line-height: 1.3;
 }
 
 .orders-table {
@@ -950,6 +1257,44 @@
     font-weight: 600;
     color: #2c3e50;
     margin-bottom: 1rem;
+}
+
+@media (max-width: 1400px) {
+    .stats-grid {
+        grid-template-columns: repeat(5, 1fr);
+        gap: 0.75rem;
+    }
+    
+    .stat-card {
+        padding: 1rem;
+        min-height: 120px;
+    }
+    
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        font-size: 1.5rem;
+    }
+    
+    .stat-info h3 {
+        font-size: 1.5rem;
+    }
+    
+    .stat-info p {
+        font-size: 0.75rem;
+    }
+}
+
+@media (max-width: 1200px) {
+    .stats-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 992px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
 }
 
 @media (max-width: 768px) {
@@ -974,13 +1319,136 @@
         border-radius: 8px;
     }
     
-    .action-buttons {
-        flex-direction: column;
-    }
+    /* Action buttons responsive styles moved to line 1423 */
     
     .stats-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
     }
+}
+
+@media (max-width: 576px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 0.75rem;
+    }
+    
+    .stat-card {
+        flex-direction: row;
+        justify-content: flex-start;
+        text-align: left;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .stat-info {
+        text-align: left;
+    }
+    
+    .page-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .page-header h1 {
+        font-size: 1.5rem;
+    }
+    
+    .page-actions {
+        width: 100%;
+    }
+    
+    .page-actions .btn {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .filters-section {
+        padding: 1rem;
+    }
+    
+    .filter-form .col-md-1,
+    .filter-form .col-md-2,
+    .filter-form .col-md-3,
+    .filter-form .col-md-4,
+    .filter-form .col-search,
+    .filter-form .col-select,
+    .filter-form .col-select-small,
+    .filter-form .col-button {
+        width: 100%;
+        margin-bottom: 0.75rem;
+    }
+    
+    .filter-form .btn {
+        margin-bottom: 0.75rem;
+    }
+    
+    /* Stack buttons horizontally on mobile */
+    .filter-form .d-flex {
+        flex-direction: row !important;
+        gap: 0.5rem;
+    }
+    
+    .filter-form .d-flex .btn {
+        flex: 1;
+        min-width: 0;
+    }
+    
+    .table-container {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+    
+    .table {
+        min-width: 1000px;
+    }
+    
+    .action-buttons {
+        gap: 0.25rem;
+    }
+    
+    .action-buttons .btn.btn-sm,
+    .action-buttons .btn,
+    .btn-action {
+        padding: 0.25rem 0.4rem !important;
+        font-size: 0.8rem !important;
+        min-width: 30px !important;
+        height: 30px !important;
+    }
+    
+    .action-buttons .btn i,
+    .action-buttons .btn.btn-sm i,
+    .btn-action i {
+        font-size: 0.8rem !important;
+    }
+}
+
+/* Ensure full width on all screen sizes */
+.admin-content {
+    width: 100%;
+    max-width: 100%;
+}
+
+.admin-content .row {
+    margin-left: -0.5rem;
+    margin-right: -0.5rem;
+    width: calc(100% + 1rem);
+}
+
+.admin-content .row > [class*="col-"] {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+}
+
+/* Fix column widths */
+.row {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+/* Ensure stats row uses full width */
+.stats-grid.row {
+    display: grid !important;
 }
 
 /* ===== PRODUCT MANAGEMENT STYLES ===== */
@@ -1292,39 +1760,177 @@
     border: 1px solid rgba(220, 53, 69, 0.3);
 }
 
-/* Action Buttons Enhanced */
+/* Action Buttons - Outline Style (Unified across all pages) */
 .action-buttons {
     display: flex;
-    gap: 0.25rem;
+    gap: 0.35rem;
+    flex-wrap: nowrap;
+    justify-content: center;
+    align-items: center;
 }
 
-.action-buttons .btn {
-    padding: 0.375rem 0.5rem;
-    font-size: 0.875rem;
-    border-radius: 6px;
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
+/* Override Bootstrap button styles - Outline Style */
+.action-buttons .btn.btn-sm,
+.action-buttons .btn,
+.btn-action {
+    padding: 0.3rem 0.5rem !important;
+    font-size: 0.875rem !important;
+    border-radius: 4px !important;
+    transition: all 0.2s ease !important;
+    min-width: 32px !important;
+    height: 32px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    border-width: 1px !important;
+    border-style: solid !important;
+    line-height: 1 !important;
+    background: transparent !important;
 }
 
-.action-buttons .btn::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-    transition: left 0.3s;
+.action-buttons .btn i,
+.action-buttons .btn.btn-sm i,
+.btn-action i {
+    margin: 0 !important;
+    font-size: 0.875rem !important;
 }
 
-.action-buttons .btn:hover::before {
-    left: 100%;
+/* Outline Button Colors - Info (View/Detail) */
+.action-buttons .btn.btn-sm.btn-outline-info,
+.action-buttons .btn.btn-sm.btn-info,
+.action-buttons .btn-outline-info,
+.action-buttons .btn-info,
+.btn-action.btn-outline-info,
+.btn-action.btn-info {
+    background: transparent !important;
+    border-color: #17a2b8 !important;
+    color: #17a2b8 !important;
 }
 
-.action-buttons .btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+.action-buttons .btn.btn-sm.btn-outline-info:hover,
+.action-buttons .btn.btn-sm.btn-info:hover,
+.action-buttons .btn-outline-info:hover,
+.action-buttons .btn-info:hover,
+.btn-action.btn-outline-info:hover,
+.btn-action.btn-info:hover {
+    background: #17a2b8 !important;
+    border-color: #17a2b8 !important;
+    color: white !important;
+}
+
+/* Outline Button Colors - Primary (Edit) */
+.action-buttons .btn.btn-sm.btn-outline-primary,
+.action-buttons .btn.btn-sm.btn-primary,
+.action-buttons .btn-outline-primary,
+.action-buttons .btn-primary,
+.btn-action.btn-outline-primary,
+.btn-action.btn-primary {
+    background: transparent !important;
+    border-color: #007bff !important;
+    color: #007bff !important;
+}
+
+.action-buttons .btn.btn-sm.btn-outline-primary:hover,
+.action-buttons .btn.btn-sm.btn-primary:hover,
+.action-buttons .btn-outline-primary:hover,
+.action-buttons .btn-primary:hover,
+.btn-action.btn-outline-primary:hover,
+.btn-action.btn-primary:hover {
+    background: #007bff !important;
+    border-color: #007bff !important;
+    color: white !important;
+}
+
+/* Outline Button Colors - Warning (Edit/Variants) */
+.action-buttons .btn.btn-sm.btn-outline-warning,
+.action-buttons .btn.btn-sm.btn-warning,
+.action-buttons .btn-outline-warning,
+.action-buttons .btn-warning,
+.btn-action.btn-outline-warning,
+.btn-action.btn-warning {
+    background: transparent !important;
+    border-color: #ffc107 !important;
+    color: #ffc107 !important;
+}
+
+.action-buttons .btn.btn-sm.btn-outline-warning:hover,
+.action-buttons .btn.btn-sm.btn-warning:hover,
+.action-buttons .btn-outline-warning:hover,
+.action-buttons .btn-warning:hover,
+.btn-action.btn-outline-warning:hover,
+.btn-action.btn-warning:hover {
+    background: #ffc107 !important;
+    border-color: #ffc107 !important;
+    color: #212529 !important;
+}
+
+/* Outline Button Colors - Success */
+.action-buttons .btn.btn-sm.btn-outline-success,
+.action-buttons .btn.btn-sm.btn-success,
+.action-buttons .btn-outline-success,
+.action-buttons .btn-success,
+.btn-action.btn-outline-success,
+.btn-action.btn-success {
+    background: transparent !important;
+    border-color: #28a745 !important;
+    color: #28a745 !important;
+}
+
+.action-buttons .btn.btn-sm.btn-outline-success:hover,
+.action-buttons .btn.btn-sm.btn-success:hover,
+.action-buttons .btn-outline-success:hover,
+.action-buttons .btn-success:hover,
+.btn-action.btn-outline-success:hover,
+.btn-action.btn-success:hover {
+    background: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
+}
+
+/* Outline Button Colors - Danger (Delete) */
+.action-buttons .btn.btn-sm.btn-outline-danger,
+.action-buttons .btn.btn-sm.btn-danger,
+.action-buttons .btn-outline-danger,
+.action-buttons .btn-danger,
+.btn-action.btn-outline-danger,
+.btn-action.btn-danger {
+    background: transparent !important;
+    border-color: #dc3545 !important;
+    color: #dc3545 !important;
+}
+
+.action-buttons .btn.btn-sm.btn-outline-danger:hover,
+.action-buttons .btn.btn-sm.btn-danger:hover,
+.action-buttons .btn-outline-danger:hover,
+.action-buttons .btn-danger:hover,
+.btn-action.btn-outline-danger:hover,
+.btn-action.btn-danger:hover {
+    background: #dc3545 !important;
+    border-color: #dc3545 !important;
+    color: white !important;
+}
+
+/* Outline Button Colors - Secondary (Variants/Other) */
+.action-buttons .btn.btn-sm.btn-outline-secondary,
+.action-buttons .btn.btn-sm.btn-secondary,
+.action-buttons .btn-outline-secondary,
+.action-buttons .btn-secondary,
+.btn-action.btn-outline-secondary,
+.btn-action.btn-secondary {
+    background: transparent !important;
+    border-color: #6c757d !important;
+    color: #6c757d !important;
+}
+
+.action-buttons .btn.btn-sm.btn-outline-secondary:hover,
+.action-buttons .btn.btn-sm.btn-secondary:hover,
+.action-buttons .btn-outline-secondary:hover,
+.action-buttons .btn-secondary:hover,
+.btn-action.btn-outline-secondary:hover,
+.btn-action.btn-secondary:hover {
+    background: #6c757d !important;
+    border-color: #6c757d !important;
+    color: white !important;
 }
 
 /* Product Form Styles Enhanced */

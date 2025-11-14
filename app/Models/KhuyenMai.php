@@ -66,8 +66,7 @@ class KhuyenMai extends Model
             'khuyen_mai_san_pham',
             'ma_khuyen_mai',
             'ma_san_pham'
-        )->withPivot('gia_tri_giam_cu_the', 'so_lan_ap_dung', 'ngay_them')
-         ->withTimestamps();
+        )->withPivot('gia_tri_giam_cu_the', 'so_lan_ap_dung', 'ngay_them');
     }
 
     /**
@@ -80,8 +79,7 @@ class KhuyenMai extends Model
             'khuyen_mai_danh_muc',
             'ma_khuyen_mai',
             'ma_danh_muc'
-        )->withPivot('gia_tri_giam_cu_the', 'so_lan_ap_dung', 'ngay_them')
-         ->withTimestamps();
+        )->withPivot('gia_tri_giam_cu_the', 'so_lan_ap_dung', 'ngay_them');
     }
 
     /**

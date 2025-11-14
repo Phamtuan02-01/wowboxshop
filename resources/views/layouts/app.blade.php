@@ -124,6 +124,9 @@
         @yield('content')
     </main>
 
+    <!-- Advanced Chatbot Widget V2 -->
+    @include('components.chatbot-v2')
+
     <!-- Footer -->
     <footer class="main-footer">
         <div class="footer-container">

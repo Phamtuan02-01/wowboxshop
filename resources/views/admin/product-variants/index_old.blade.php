@@ -119,10 +119,10 @@
                         <label>&nbsp;</label>
                         <div class="d-flex">
                             <button type="submit" class="btn btn-primary me-2">
-                                <i class="fas fa-search"></i> Tìm kiếm
+                                <i class="fas fa-search"></i>
                             </button>
                             <a href="{{ route('admin.product-variants.index') }}" class="btn btn-secondary">
-                                <i class="fas fa-undo"></i> Xóa lọc
+                                <i class="fas fa-undo"></i>
                             </a>
                         </div>
                     </div>

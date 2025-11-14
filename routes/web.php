@@ -152,6 +152,9 @@ Route::middleware('guest')->group(function () {
     Route::post('/dang-ky', [DangKyController::class, 'xuLyDangKy']);
 });
 
+// Chatbot V2 (available for all users - with AI features)
+Route::post('/chatbot/message', [App\Http\Controllers\ChatbotControllerV2::class, 'sendMessage'])->name('chatbot.message');
+
 // Routes cho user đã đăng nhập
 Route::middleware('auth')->group(function () {
     // Đăng xuất
@@ -175,6 +178,9 @@ Route::middleware('auth')->group(function () {
     Route::delete('/gio-hang/xoa/{id}', [App\Http\Controllers\GioHangController::class, 'xoaSanPhamAjax'])->name('giohang.xoa.ajax');
     Route::get('/gio-hang/count', [App\Http\Controllers\GioHangController::class, 'demSanPham'])->name('giohang.count');
 });
+
+// Route public để kiểm tra mã khuyến mãi (không cần admin)
+Route::post('/api/check-promotion-code', [App\Http\Controllers\Admin\PromotionController::class, 'checkCode'])->name('promotions.check-code');
 
 // Routes cho admin
 Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
@@ -224,7 +230,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     ]);
     
     // Các route bổ sung cho quản lý biến thể sản phẩm
-    Route::patch('/product-variants/{id}/toggle-status', [ProductVariantController::class, 'toggleStatus'])->name('admin.product-variants.toggle-status');
+    Route::post('/product-variants/{id}/toggle-status', [ProductVariantController::class, 'toggleStatus'])->name('admin.product-variants.toggle-status');
     Route::post('/product-variants/bulk-action', [ProductVariantController::class, 'bulkAction'])->name('admin.product-variants.bulk-action');
     
     // Quản lý đơn hàng

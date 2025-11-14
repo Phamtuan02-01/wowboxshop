@@ -16,6 +16,60 @@
 .chart-container.chart-small {
     height: 300px;
 }
+
+/* Recent Orders Table Styling */
+.admin-table {
+    background-color: #ffffff;
+}
+
+.admin-table .table {
+    margin-bottom: 0;
+}
+
+.admin-table .table thead th {
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #2c3e50;
+    background-color: #f1f3f5;
+    border-bottom: 2px solid #dee2e6;
+    padding: 1rem 0.75rem;
+}
+
+.admin-table .table tbody tr {
+    background-color: #ffffff;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.admin-table .table tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+.admin-table .table tbody td {
+    vertical-align: middle;
+    padding: 1rem 0.75rem;
+    font-size: 0.9rem;
+    color: #495057;
+}
+
+.admin-table .text-primary {
+    color: #007bff !important;
+    font-weight: 600;
+}
+
+.admin-table .text-success {
+    color: #28a745 !important;
+    font-weight: 600;
+}
+
+.admin-table .user-avatar {
+    background-color: #e3f2fd !important;
+}
+
+.admin-table .user-avatar i {
+    color: #1976d2 !important;
+}
 </style>
 @endpush
 
@@ -35,82 +89,58 @@
     </div>
 
     <!-- Quick Stats -->
-    <div class="row mb-4">
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card stats-card border-0">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-primary">
-                            <i class="fas fa-users"></i>
-                        </div>
-                        <div class="ms-3 flex-grow-1">
-                            <h3 class="stats-number text-primary">{{ number_format($totalUsers) }}</h3>
-                            <p class="stats-label">Tổng người dùng</p>
-                            <small class="stats-change positive">
-                                <i class="fas fa-arrow-up"></i> +{{ $monthlyNewUsers[11]['users'] ?? 0 }} tháng này
-                            </small>
-                        </div>
-                    </div>
-                </div>
+    <div class="stats-grid mb-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <i class="fas fa-users"></i>
             </div>
+            <div class="stat-info">
+                <h3>{{ number_format($totalUsers) }}</h3>
+                <p>Tổng người dùng</p>
+            </div>
+            <small class="stats-change positive">
+                <i class="fas fa-arrow-up"></i> +{{ $monthlyNewUsers[11]['users'] ?? 0 }} tháng này
+            </small>
         </div>
         
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card stats-card border-0">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-success">
-                            <i class="fas fa-box"></i>
-                        </div>
-                        <div class="ms-3 flex-grow-1">
-                            <h3 class="stats-number text-success">{{ number_format($totalProducts) }}</h3>
-                            <p class="stats-label">Tổng sản phẩm</p>
-                            <small class="stats-change positive">
-                                <i class="fas fa-chart-line"></i> Đang hoạt động
-                            </small>
-                        </div>
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <i class="fas fa-box"></i>
             </div>
+            <div class="stat-info">
+                <h3>{{ number_format($totalProducts) }}</h3>
+                <p>Tổng sản phẩm</p>
+            </div>
+            <small class="stats-change positive">
+                <i class="fas fa-chart-line"></i> Đang hoạt động
+            </small>
         </div>
         
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card stats-card border-0">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-warning">
-                            <i class="fas fa-shopping-cart"></i>
-                        </div>
-                        <div class="ms-3 flex-grow-1">
-                            <h3 class="stats-number text-warning">{{ number_format($totalOrders) }}</h3>
-                            <p class="stats-label">Tổng đơn hàng</p>
-                            <small class="stats-change positive">
-                                <i class="fas fa-arrow-up"></i> +{{ $monthlyOrders[11]['orders'] ?? 0 }} tháng này
-                            </small>
-                        </div>
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <i class="fas fa-shopping-cart"></i>
             </div>
+            <div class="stat-info">
+                <h3>{{ number_format($totalOrders) }}</h3>
+                <p>Tổng đơn hàng</p>
+            </div>
+            <small class="stats-change positive">
+                <i class="fas fa-arrow-up"></i> +{{ $monthlyOrders[11]['orders'] ?? 0 }} tháng này
+            </small>
         </div>
         
-        <div class="col-xl-3 col-md-6 mb-3">
-            <div class="card stats-card border-0">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="stats-icon bg-info">
-                            <i class="fas fa-dollar-sign"></i>
-                        </div>
-                        <div class="ms-3 flex-grow-1">
-                            <h3 class="stats-number text-info">{{ number_format($totalRevenue) }}₫</h3>
-                            <p class="stats-label">Tổng doanh thu</p>
-                            <small class="stats-change {{ $revenueChange >= 0 ? 'positive' : 'negative' }}">
-                                <i class="fas fa-arrow-{{ $revenueChange >= 0 ? 'up' : 'down' }}"></i> 
-                                {{ number_format(abs($revenueChange), 1) }}% so với tháng trước
-                            </small>
-                        </div>
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <i class="fas fa-dollar-sign"></i>
             </div>
+            <div class="stat-info">
+                <h3>{{ number_format($totalRevenue) }}₫</h3>
+                <p>Tổng doanh thu</p>
+            </div>
+            <small class="stats-change {{ $revenueChange >= 0 ? 'positive' : 'negative' }}">
+                <i class="fas fa-arrow-{{ $revenueChange >= 0 ? 'up' : 'down' }}"></i> 
+                {{ number_format(abs($revenueChange), 1) }}% so với tháng trước
+            </small>
         </div>
     </div>
 
@@ -216,15 +246,14 @@
                     @if($recentOrders->count() > 0)
                         <div class="table-responsive">
                             <table class="table table-hover mb-0">
-                                <thead>
+                                <thead class="table-light">
                                     <tr>
-                                        <th>Mã đơn hàng</th>
-                                        <th>Khách hàng</th>
-                                        <th>Ngày đặt</th>
-                                        <th>Sản phẩm</th>
-                                        <th>Tổng tiền</th>
-                                        <th>Trạng thái</th>
-                                        <th>Thao tác</th>
+                                        <th style="width: 10%;">Mã đơn</th>
+                                        <th style="width: 20%;">Khách hàng</th>
+                                        <th style="width: 15%;">Ngày đặt</th>
+                                        <th style="width: 15%;" class="text-center">Số lượng SP</th>
+                                        <th style="width: 20%;" class="text-end">Tổng tiền</th>
+                                        <th style="width: 20%;" class="text-center">Trạng thái</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -244,20 +273,18 @@
                                             </div>
                                         </td>
                                         <td>
-                                            <div>{{ \Carbon\Carbon::parse($order->ngay_dat)->format('d/m/Y') }}</div>
-                                            <small class="text-muted">{{ \Carbon\Carbon::parse($order->ngay_dat)->format('H:i') }}</small>
+                                            <div>{{ $order->ngay_dat_hang ? $order->ngay_dat_hang->format('d/m/Y') : 'N/A' }}</div>
+                                            <small class="text-muted">{{ $order->ngay_dat_hang ? $order->ngay_dat_hang->format('H:i') : '' }}</small>
                                         </td>
-                                        <td>
-                                            <small class="text-muted">{{ $order->chiTietDonHangs->count() }} sản phẩm</small>
+                                        <td class="text-center">
+                                            <span class="badge bg-light text-dark">{{ $order->chiTietDonHangs->count() }} SP</span>
                                         </td>
-                                        <td>
-                                            <strong class="text-success">
-                                                {{ number_format($order->chiTietDonHangs->sum(function($item) {
-                                                    return $item->so_luong * $item->gia;
-                                                })) }}₫
+                                        <td class="text-end">
+                                            <strong class="text-success" style="font-size: 1.05rem;">
+                                                {{ number_format($order->tong_tien, 0, ',', '.') }}₫
                                             </strong>
                                         </td>
-                                        <td>
+                                        <td class="text-center">
                                             @php
                                                 $statusTexts = [
                                                     'cho_xac_nhan' => 'Chờ xác nhận',
@@ -274,19 +301,9 @@
                                                 $statusText = $statusTexts[$order->trang_thai] ?? $order->trang_thai;
                                                 $statusClass = $statusClasses[$order->trang_thai] ?? 'secondary';
                                             @endphp
-                                            <span class="badge bg-{{ $statusClass }}">
+                                            <span class="badge bg-{{ $statusClass }}" style="padding: 0.5em 1em; font-size: 0.875rem;">
                                                 {{ $statusText }}
                                             </span>
-                                        </td>
-                                        <td>
-                                            <div class="btn-group btn-group-sm">
-                                                <button class="btn btn-outline-primary" title="Xem chi tiết">
-                                                    <i class="fas fa-eye"></i>
-                                                </button>
-                                                <button class="btn btn-outline-success" title="Cập nhật">
-                                                    <i class="fas fa-edit"></i>
-                                                </button>
-                                            </div>
                                         </td>
                                     </tr>
                                     @endforeach

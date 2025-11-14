@@ -29,72 +29,63 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon bg-primary">
-                    <i class="fas fa-list"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-number">{{ $stats['total_categories'] }}</div>
-                    <div class="stat-label">Tổng danh mục</div>
-                </div>
+    <div class="stats-grid mb-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <i class="fas fa-list"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ $stats['total_categories'] }}</h3>
+                <p>Tổng danh mục</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon bg-success">
-                    <i class="fas fa-sitemap"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-number">{{ $stats['root_categories'] }}</div>
-                    <div class="stat-label">Danh mục gốc</div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <i class="fas fa-sitemap"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ $stats['root_categories'] }}</h3>
+                <p>Danh mục gốc</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon bg-info">
-                    <i class="fas fa-layer-group"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-number">{{ $stats['child_categories'] }}</div>
-                    <div class="stat-label">Danh mục con</div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <i class="fas fa-layer-group"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ $stats['child_categories'] }}</h3>
+                <p>Danh mục con</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card">
-                <div class="stat-icon bg-warning">
-                    <i class="fas fa-box"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-number">{{ $stats['categories_with_products'] }}</div>
-                    <div class="stat-label">Có sản phẩm</div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <i class="fas fa-box"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ $stats['categories_with_products'] }}</h3>
+                <p>Có sản phẩm</p>
             </div>
         </div>
     </div>
 
     <!-- Search and Filter -->
-    <div class="filter-row">
-        <form method="GET" action="{{ route('admin.categories.index') }}">
+    <div class="filters-section">
+        <form method="GET" action="{{ route('admin.categories.index') }}" class="filter-form">
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-search">
                     <div class="form-group">
-                        <label for="search">Tìm kiếm theo tên</label>
+                        <label class="form-label">Tìm kiếm</label>
                         <input type="text" 
                                class="form-control" 
-                               id="search" 
                                name="search" 
                                value="{{ request('search') }}" 
                                placeholder="Nhập tên danh mục...">
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-select">
                     <div class="form-group">
-                        <label for="parent_id">Danh mục cha</label>
-                        <select class="form-control" id="parent_id" name="parent_id">
+                        <label class="form-label">Danh mục cha</label>
+                        <select class="form-select" name="parent_id">
                             <option value="">Tất cả</option>
                             <option value="root" {{ request('parent_id') == 'root' ? 'selected' : '' }}>Danh mục gốc</option>
                             @foreach($parentCategories as $parent)
@@ -105,17 +96,20 @@
                         </select>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-button">
                     <div class="form-group">
-                        <label>&nbsp;</label>
-                        <div class="d-flex">
-                            <button type="submit" class="btn btn-primary me-2">
-                                <i class="fas fa-search"></i> Tìm kiếm
-                            </button>
-                            <a href="{{ route('admin.categories.index') }}" class="btn btn-secondary">
-                                <i class="fas fa-undo"></i> Xóa lọc
-                            </a>
-                        </div>
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary" title="Tìm kiếm">
+                            <i class="fas fa-search"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="col-button">
+                    <div class="form-group">
+                        <label class="form-label">&nbsp;</label>
+                        <a href="{{ route('admin.categories.index') }}" class="btn btn-light" title="Đặt lại bộ lọc">
+                            <i class="fas fa-redo"></i>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -149,7 +143,7 @@
                             <th>Số danh mục con</th>
                             <th>Số sản phẩm</th>
                             <th>Ngày tạo</th>
-                            <th>Hành động</th>
+                            <th width="120">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>

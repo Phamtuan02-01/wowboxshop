@@ -28,95 +28,98 @@
     </div>
 
     <!-- Stats Cards -->
-    <div class="row mb-4">
-        <div class="col-md-3">
-            <div class="stat-card bg-primary">
-                <div class="stat-icon">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-number">{{ $stats['total'] }}</div>
-                    <div class="stat-label">Tổng người dùng</div>
-                </div>
+    <div class="stats-grid mb-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <i class="fas fa-users"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ $stats['total'] }}</h3>
+                <p>Tổng người dùng</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card bg-success">
-                <div class="stat-icon">
-                    <i class="fas fa-user-shield"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-number">{{ $stats['admin'] }}</div>
-                    <div class="stat-label">Quản trị viên</div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <i class="fas fa-user-shield"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ $stats['admin'] }}</h3>
+                <p>Quản trị viên</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card bg-info">
-                <div class="stat-icon">
-                    <i class="fas fa-user-friends"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-number">{{ $stats['customer'] }}</div>
-                    <div class="stat-label">Khách hàng</div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <i class="fas fa-user-friends"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ $stats['customer'] }}</h3>
+                <p>Khách hàng</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="stat-card bg-warning">
-                <div class="stat-icon">
-                    <i class="fas fa-user-plus"></i>
-                </div>
-                <div class="stat-content">
-                    <div class="stat-number">{{ $stats['new_this_month'] }}</div>
-                    <div class="stat-label">Mới tháng này</div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <i class="fas fa-user-plus"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ $stats['new_this_month'] }}</h3>
+                <p>Mới tháng này</p>
             </div>
         </div>
     </div>
 
     <!-- Filters -->
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="GET" action="{{ route('admin.users.index') }}" class="row g-3">
-                <div class="col-md-4">
-                    <label class="form-label">Tìm kiếm</label>
-                    <input type="text" class="form-control" name="search" value="{{ request('search') }}" 
-                           placeholder="Tên, email, số điện thoại...">
+    <div class="filters-section">
+        <form method="GET" action="{{ route('admin.users.index') }}" class="filter-form">
+            <div class="row">
+                <div class="col-search">
+                    <div class="form-group">
+                        <label class="form-label">Tìm kiếm</label>
+                        <input type="text" class="form-control" name="search" value="{{ request('search') }}" 
+                               placeholder="Tên, email, số điện thoại...">
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Vai trò</label>
-                    <select class="form-select" name="role">
-                        <option value="">Tất cả vai trò</option>
-                        @foreach($vaiTros as $vaiTro)
-                            <option value="{{ $vaiTro->ma_vai_tro }}" 
-                                    {{ request('role') == $vaiTro->ma_vai_tro ? 'selected' : '' }}>
-                                {{ $vaiTro->ten_vai_tro }}
-                            </option>
-                        @endforeach
-                    </select>
+                <div class="col-select">
+                    <div class="form-group">
+                        <label class="form-label">Vai trò</label>
+                        <select class="form-select" name="role">
+                            <option value="">Tất cả vai trò</option>
+                            @foreach($vaiTros as $vaiTro)
+                                <option value="{{ $vaiTro->ma_vai_tro }}" 
+                                        {{ request('role') == $vaiTro->ma_vai_tro ? 'selected' : '' }}>
+                                    {{ $vaiTro->ten_vai_tro }}
+                                </option>
+                            @endforeach
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md-3">
-                    <label class="form-label">Trạng thái</label>
-                    <select class="form-select" name="status">
-                        <option value="">Tất cả trạng thái</option>
-                        <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Hoạt động</option>
-                        <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Vô hiệu hóa</option>
-                    </select>
+                <div class="col-select">
+                    <div class="form-group">
+                        <label class="form-label">Trạng thái</label>
+                        <select class="form-select" name="status">
+                            <option value="">Tất cả trạng thái</option>
+                            <option value="active" {{ request('status') == 'active' ? 'selected' : '' }}>Hoạt động</option>
+                            <option value="inactive" {{ request('status') == 'inactive' ? 'selected' : '' }}>Vô hiệu hóa</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="col-md-2">
-                    <label class="form-label">&nbsp;</label>
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">
+                <div class="col-button">
+                    <div class="form-group">
+                        <label class="form-label">&nbsp;</label>
+                        <button type="submit" class="btn btn-primary" title="Tìm kiếm">
                             <i class="fas fa-search"></i>
                         </button>
-                        <a href="{{ route('admin.users.index') }}" class="btn btn-outline-secondary">
-                            <i class="fas fa-times"></i>
+                    </div>
+                </div>
+                <div class="col-button">
+                    <div class="form-group">
+                        <label class="form-label">&nbsp;</label>
+                        <a href="{{ route('admin.users.index') }}" class="btn btn-light" title="Đặt lại bộ lọc">
+                            <i class="fas fa-redo"></i>
                         </a>
                     </div>
                 </div>
-            </form>
-        </div>
+            </div>
+        </form>
     </div>
 
     <!-- Users Table -->
@@ -145,7 +148,7 @@
                             <th>Vai trò</th>
                             <th>Ngày tạo</th>
                             <th>Trạng thái</th>
-                            <th>Thao tác</th>
+                            <th width="120">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -182,27 +185,27 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="btn-group" role="group">
+                                    <div class="action-buttons">
                                         <a href="{{ route('admin.users.show', $user->ma_tai_khoan) }}" 
-                                           class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                           class="btn btn-outline-info btn-action" title="Xem chi tiết">
                                             <i class="fas fa-eye"></i>
                                         </a>
                                         <a href="{{ route('admin.users.edit', $user->ma_tai_khoan) }}" 
-                                           class="btn btn-sm btn-outline-primary" title="Chỉnh sửa">
+                                           class="btn btn-outline-warning btn-action" title="Chỉnh sửa">
                                             <i class="fas fa-edit"></i>
                                         </a>
                                         @if(!$user->trashed())
                                             <form method="POST" action="{{ route('admin.users.destroy', $user->ma_tai_khoan) }}" 
-                                                  class="d-inline" onsubmit="return confirm('Bạn có chắc muốn xóa người dùng này?')">
+                                                  style="display: inline;" onsubmit="return confirm('Bạn có chắc muốn xóa người dùng này?')">
                                                 @csrf
                                                 @method('DELETE')
-                                                <button type="submit" class="btn btn-sm btn-outline-danger" title="Xóa">
+                                                <button type="submit" class="btn btn-outline-danger btn-action" title="Xóa">
                                                     <i class="fas fa-trash"></i>
                                                 </button>
                                             </form>
                                         @else
                                             <a href="{{ route('admin.users.restore', $user->ma_tai_khoan) }}" 
-                                               class="btn btn-sm btn-outline-success" title="Khôi phục"
+                                               class="btn btn-outline-success btn-action" title="Khôi phục"
                                                onclick="return confirm('Bạn có chắc muốn khôi phục người dùng này?')">
                                                 <i class="fas fa-undo"></i>
                                             </a>

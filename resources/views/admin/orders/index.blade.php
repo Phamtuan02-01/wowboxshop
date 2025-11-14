@@ -27,122 +27,93 @@
     </div>
 
     <!-- Statistics Cards -->
-    <div class="row mb-4">
-        <div class="col-md-2">
-            <div class="stat-card">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="stat-label">Đơn hàng</p>
-                            <h3 class="stat-value text-primary">{{ number_format($stats['total']) }}</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-shopping-cart fa-2x text-primary"></i>
-                        </div>
-                    </div>
-                </div>
+    <div class="stats-grid mb-4">
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                <i class="fas fa-shopping-cart"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ number_format($stats['total']) }}</h3>
+                <p>Đơn hàng</p>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="stat-card">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="stat-label">Chờ xử lý</p>
-                            <h3 class="stat-value text-warning">{{ number_format($stats['pending']) }}</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-clock fa-2x text-warning"></i>
-                        </div>
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                <i class="fas fa-clock"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ number_format($stats['pending']) }}</h3>
+                <p>Chờ xác nhận</p>
             </div>
         </div>
-
-        <div class="col-md-2">
-            <div class="stat-card">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="stat-label">Đã giao</p>
-                            <h3 class="stat-value text-success">{{ number_format($stats['completed']) }}</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-check-circle fa-2x text-success"></i>
-                        </div>
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                <i class="fas fa-check-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ number_format($stats['completed']) }}</h3>
+                <p>Đã giao</p>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="stat-card">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="stat-label">Đã hủy</p>
-                            <h3 class="stat-value text-danger">{{ number_format($stats['cancelled']) }}</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-times-circle fa-2x text-danger"></i>
-                        </div>
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
+                <i class="fas fa-times-circle"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ number_format($stats['cancelled']) }}</h3>
+                <p>Đã hủy</p>
             </div>
         </div>
-        <div class="col-md-2">
-            <div class="stat-card">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="stat-label">Doanh thu</p>
-                            <h3 class="stat-value text-success">{{ number_format($stats['total_revenue']) }}đ</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-dollar-sign fa-2x text-success"></i>
-                        </div>
-                    </div>
-                </div>
+        <div class="stat-card">
+            <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                <i class="fas fa-dollar-sign"></i>
+            </div>
+            <div class="stat-info">
+                <h3>{{ number_format($stats['total_revenue']) }}đ</h3>
+                <p>Doanh thu</p>
             </div>
         </div>
     </div>
 
     <!-- Filters and Search -->
-    <div class="table-container">
-        <div class="table-header">
-            <h6 class="section-title mb-0">
-                <i class="fas fa-filter me-2"></i>
-                Bộ lọc và tìm kiếm
-            </h6>
-        </div>
-        <div class="p-4">
-            <form method="GET" action="{{ route('admin.orders.index') }}" id="filter-form">
-                <div class="row g-3">
-                    <div class="col-md-3">
+    <div class="filters-section">
+        <form method="GET" action="{{ route('admin.orders.index') }}" class="filter-form">
+            <div class="row">
+                <div class="col-search">
+                    <div class="form-group">
                         <label class="form-label">Tìm kiếm</label>
                         <input type="text" name="search" class="form-control" 
                                placeholder="Mã đơn hàng, tên khách hàng..." 
                                value="{{ request('search') }}">
                     </div>
-                    <div class="col-md-2">
+                </div>
+                <div class="col-select">
+                    <div class="form-group">
                         <label class="form-label">Trạng thái</label>
                         <select name="status" class="form-select">
-                            <option value="">Tất cả trạng thái</option>
-                            <option value="cho_xu_ly" {{ request('status') === 'cho_xu_ly' ? 'selected' : '' }}>Chờ xử lý</option>
+                            <option value="">Tất cả</option>
+                            <option value="cho_xac_nhan" {{ request('status') === 'cho_xac_nhan' ? 'selected' : '' }}>Chờ xác nhận</option>
                             <option value="da_giao" {{ request('status') === 'da_giao' ? 'selected' : '' }}>Đã giao</option>
                             <option value="da_huy" {{ request('status') === 'da_huy' ? 'selected' : '' }}>Đã hủy</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                </div>
+                <div class="col-select">
+                    <div class="form-group">
                         <label class="form-label">Từ ngày</label>
                         <input type="date" name="date_from" class="form-control" 
                                value="{{ request('date_from') }}">
                     </div>
-                    <div class="col-md-2">
+                </div>
+                <div class="col-select">
+                    <div class="form-group">
                         <label class="form-label">Đến ngày</label>
                         <input type="date" name="date_to" class="form-control" 
                                value="{{ request('date_to') }}">
                     </div>
-                    <div class="col-md-2">
+                </div>
+                <div class="col-select">
+                    <div class="form-group">
                         <label class="form-label">Sắp xếp</label>
                         <select name="sort_by" class="form-select">
                             <option value="ngay_dat_hang" {{ request('sort_by') === 'ngay_dat_hang' ? 'selected' : '' }}>Ngày đặt</option>
@@ -150,17 +121,25 @@
                             <option value="trang_thai" {{ request('sort_by') === 'trang_thai' ? 'selected' : '' }}>Trạng thái</option>
                         </select>
                     </div>
-                    <div class="col-md-1">
+                </div>
+                <div class="col-button">
+                    <div class="form-group">
                         <label class="form-label">&nbsp;</label>
-                        <div class="d-grid">
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search"></i>
-                            </button>
-                        </div>
+                        <button type="submit" class="btn btn-primary" title="Tìm kiếm">
+                            <i class="fas fa-search"></i>
+                        </button>
                     </div>
                 </div>
-            </form>
-        </div>
+                <div class="col-button">
+                    <div class="form-group">
+                        <label class="form-label">&nbsp;</label>
+                        <a href="{{ route('admin.orders.index') }}" class="btn btn-light" title="Đặt lại bộ lọc">
+                            <i class="fas fa-redo"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
 
     <!-- Orders Table -->
@@ -197,7 +176,7 @@
                         <th>Tổng tiền</th>
                         <th>Trạng thái</th>
                         <th>Ngày đặt</th>
-                        <th width="160">Thao tác</th>
+                        <th width="120">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -260,15 +239,15 @@
                             </div>
                         </td>
                         <td>
-                            <div class="btn-group" role="group">
+                            <div class="action-buttons">
                                 <a href="{{ route('admin.orders.show', $order->ma_don_hang) }}" 
-                                   class="btn btn-sm btn-outline-info" title="Xem chi tiết">
+                                   class="btn btn-outline-info btn-action" title="Xem chi tiết">
                                     <i class="fas fa-eye"></i>
                                 </a>
                                 @if(!in_array($order->trang_thai, ['da_giao', 'Đã giao', 'da_huy', 'Đã hủy']))
-                                <div class="dropdown">
-                                    <button class="btn btn-sm btn-outline-primary dropdown-toggle" 
-                                            type="button" data-bs-toggle="dropdown">
+                                <div class="dropdown" style="display: inline;">
+                                    <button class="btn btn-outline-warning btn-action dropdown-toggle" 
+                                            type="button" data-bs-toggle="dropdown" title="Cập nhật">
                                         <i class="fas fa-edit"></i>
                                     </button>
                                     <ul class="dropdown-menu">

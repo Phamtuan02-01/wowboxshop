@@ -1,3 +1,7 @@
+<!-- Load Flash Messages CSS & JS -->
+<link href="{{ asset('css/flash-messages.css') }}?v={{ time() }}" rel="stylesheet">
+<script src="{{ asset('js/flash-messages.js') }}?v={{ time() }}"></script>
+
 <!-- Toast Container - Góc dưới phải -->
 <div class="toast-container" id="toastContainer">
     @if(session('success'))

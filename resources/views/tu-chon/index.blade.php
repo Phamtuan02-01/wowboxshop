@@ -9,6 +9,153 @@
         min-height: 100vh;
     }
 
+    /* Custom Alert Overlay */
+    .custom-alert-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.3s ease;
+    }
+
+    .custom-alert-overlay.show {
+        display: flex;
+    }
+
+    .custom-alert-box {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        animation: slideDown 0.3s ease;
+        position: relative;
+    }
+
+    .custom-alert-icon {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 20px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+    }
+
+    .custom-alert-icon.success {
+        background: linear-gradient(135deg, #004b00, #006600);
+        color: white;
+    }
+
+    .custom-alert-icon.error {
+        background: linear-gradient(135deg, #dc3545, #c82333);
+        color: white;
+    }
+
+    .custom-alert-icon.warning {
+        background: linear-gradient(135deg, #FFE135, #FFA500);
+        color: #004b00;
+    }
+
+    .custom-alert-icon.info {
+        background: linear-gradient(135deg, #17a2b8, #138496);
+        color: white;
+    }
+
+    .custom-alert-message {
+        color: #004b00;
+        font-size: 1.1rem;
+        text-align: center;
+        margin-bottom: 25px;
+        line-height: 1.5;
+    }
+
+    .custom-alert-button {
+        width: 100%;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #004b00, #006600);
+        color: white;
+        font-size: 1rem;
+        font-weight: 400;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .custom-alert-button:hover {
+        background: linear-gradient(135deg, #006600, #008800);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 75, 0, 0.3);
+    }
+
+    /* Custom Confirm Dialog */
+    .custom-confirm-buttons {
+        display: flex;
+        gap: 10px;
+    }
+
+    .custom-confirm-buttons button {
+        flex: 1;
+        padding: 12px;
+        border: none;
+        border-radius: 10px;
+        font-size: 1rem;
+        font-weight: 400;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .custom-confirm-yes {
+        background: linear-gradient(135deg, #004b00, #006600);
+        color: white;
+    }
+
+    .custom-confirm-yes:hover {
+        background: linear-gradient(135deg, #006600, #008800);
+        transform: translateY(-2px);
+    }
+
+    .custom-confirm-no {
+        background: white;
+        color: #dc3545;
+        border: 2px solid #dc3545;
+    }
+
+    .custom-confirm-no:hover {
+        background: #dc3545;
+        color: white;
+        transform: translateY(-2px);
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    @keyframes slideDown {
+        from {
+            transform: translateY(-50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
     /* Banner Section */
     .banner-section {
         width: 100%;
@@ -517,7 +664,7 @@
             @if($gioTuChon && count($gioTuChon) > 0)
                 @foreach($gioTuChon as $item)
                 <div class="cart-item" data-variant-id="{{ $item['ma_bien_the'] }}">
-                    <img src="{{ $item['hinh_anh'] ? asset('storage/' . $item['hinh_anh']) : asset('images/default-product.jpg') }}" 
+                    <img src="{{ $item['hinh_anh'] ? asset('images/products/' . $item['hinh_anh']) : asset('images/default-product.jpg') }}" 
                          alt="{{ $item['ten_san_pham'] }}" 
                          class="cart-item-image">
                     <div class="cart-item-info">
@@ -573,7 +720,7 @@
                             $bienThe = $sp->bienThes->first();
                             $giaHienThi = $bienThe ? $bienThe->gia : 0;
                             $soLuongTon = $bienThe ? $bienThe->so_luong_ton : 0;
-                            $hinhAnh = $sp->hinh_anh ? asset('storage/' . $sp->hinh_anh) : asset('images/default-product.jpg');
+                            $hinhAnh = $sp->hinh_anh ? asset('images/products/' . $sp->hinh_anh) : asset('images/default-product.jpg');
                         @endphp
                         <div class="ingredient-card" data-product-id="{{ $sp->ma_san_pham }}" 
                              data-variant-id="{{ $bienThe ? $bienThe->ma_bien_the : '' }}"
@@ -614,11 +761,84 @@
         </div>
         @endforeach
     </div>
+
+    <!-- Custom Alert Overlay -->
+    <div class="custom-alert-overlay" id="customAlertOverlay">
+        <div class="custom-alert-box">
+            <div class="custom-alert-icon" id="customAlertIcon">
+                <i class="fas fa-check"></i>
+            </div>
+            <div class="custom-alert-message" id="customAlertMessage"></div>
+            <button class="custom-alert-button" onclick="closeCustomAlert()">OK</button>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Overlay -->
+    <div class="custom-alert-overlay" id="customConfirmOverlay">
+        <div class="custom-alert-box">
+            <div class="custom-alert-icon warning">
+                <i class="fas fa-question"></i>
+            </div>
+            <div class="custom-alert-message" id="customConfirmMessage"></div>
+            <div class="custom-confirm-buttons">
+                <button class="custom-confirm-no" onclick="closeCustomConfirm(false)">Hủy</button>
+                <button class="custom-confirm-yes" onclick="closeCustomConfirm(true)">Đồng ý</button>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
 @section('scripts')
 <script>
+    // Custom Alert Functions
+    let confirmCallback = null;
+
+    function showCustomAlert(message, type = 'success') {
+        const overlay = document.getElementById('customAlertOverlay');
+        const icon = document.getElementById('customAlertIcon');
+        const messageEl = document.getElementById('customAlertMessage');
+        
+        // Set icon based on type
+        icon.className = 'custom-alert-icon ' + type;
+        if (type === 'success') {
+            icon.innerHTML = '<i class="fas fa-check"></i>';
+        } else if (type === 'error') {
+            icon.innerHTML = '<i class="fas fa-times"></i>';
+        } else if (type === 'warning') {
+            icon.innerHTML = '<i class="fas fa-exclamation"></i>';
+        } else if (type === 'info') {
+            icon.innerHTML = '<i class="fas fa-info"></i>';
+        }
+        
+        messageEl.textContent = message;
+        overlay.classList.add('show');
+    }
+
+    function closeCustomAlert() {
+        const overlay = document.getElementById('customAlertOverlay');
+        overlay.classList.remove('show');
+    }
+
+    function showCustomConfirm(message, callback) {
+        const overlay = document.getElementById('customConfirmOverlay');
+        const messageEl = document.getElementById('customConfirmMessage');
+        
+        messageEl.textContent = message;
+        confirmCallback = callback;
+        overlay.classList.add('show');
+    }
+
+    function closeCustomConfirm(result) {
+        const overlay = document.getElementById('customConfirmOverlay');
+        overlay.classList.remove('show');
+        
+        if (confirmCallback) {
+            confirmCallback(result);
+            confirmCallback = null;
+        }
+    }
+
     // Toggle Cart Visibility
     let cartVisible = true;
     
@@ -694,7 +914,7 @@
         // Không cho phép vượt quá tồn kho hoặc giảm xuống dưới 0
         if (newQty < 0 || newQty > stock) {
             if (newQty > stock) {
-                alert('Số lượng vượt quá tồn kho!');
+                showCustomAlert('Số lượng vượt quá tồn kho!', 'warning');
             }
             return;
         }
@@ -713,6 +933,7 @@
         })
         .then(response => response.json())
         .then(data => {
+            console.log('Response data:', data); // Debug
             if (data.success) {
                 // Update quantity display
                 quantityDisplay.textContent = newQty;
@@ -720,19 +941,26 @@
                 // Update cart
                 updateCartDisplay(data.cart, data.tong_tien);
             } else {
-                alert(data.message || 'Có lỗi xảy ra');
+                showCustomAlert(data.message || 'Có lỗi xảy ra', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Có lỗi xảy ra khi cập nhật giỏ hàng');
+            showCustomAlert('Có lỗi xảy ra khi cập nhật giỏ hàng', 'error');
         });
     }
 
     // Remove from Cart
     function removeFromCart(variantId) {
-        if (!confirm('Bạn có chắc muốn xóa sản phẩm này?')) return;
-        
+        showCustomConfirm('Bạn có chắc muốn xóa sản phẩm này?', function(confirmed) {
+            if (!confirmed) return;
+            
+            // Send AJAX request to set quantity to 0
+            removeFromCartAjax(variantId);
+        });
+    }
+
+    function removeFromCartAjax(variantId) {
         // Send AJAX request to set quantity to 0
         fetch('{{ route("tu-chon.update-session") }}', {
             method: 'POST',
@@ -760,17 +988,18 @@
                 // Update cart
                 updateCartDisplay(data.cart, data.tong_tien);
             } else {
-                alert(data.message || 'Có lỗi xảy ra');
+                showCustomAlert(data.message || 'Có lỗi xảy ra', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Có lỗi xảy ra khi xóa sản phẩm');
+            showCustomAlert('Có lỗi xảy ra khi xóa sản phẩm', 'error');
         });
     }
 
     // Update Cart Display
     function updateCartDisplay(cartItems, totalAmount) {
+        console.log('updateCartDisplay called with:', cartItems); // Debug
         const container = document.getElementById('cart-items-container');
         let totalItems = 0;
         
@@ -781,20 +1010,30 @@
             let html = '';
             Object.values(cartItems).forEach(item => {
                 totalItems += item.so_luong;
-                html += `
-                    <div class="cart-item" data-variant-id="${item.ma_bien_the}">
-                        <img src="${item.hinh_anh ? '/storage/' + item.hinh_anh : '/images/default-product.jpg'}" 
-                             alt="${item.ten_san_pham}" 
-                             class="cart-item-image">
-                        <div class="cart-item-info">
-                            <div class="cart-item-name">${item.ten_san_pham}</div>
-                            <div class="cart-item-details">
-                                ${item.kich_co} - ${parseInt(item.gia).toLocaleString('vi-VN')}₫ x ${item.so_luong}
-                            </div>
-                        </div>
-                        <button class="cart-item-remove" onclick="removeFromCart(${item.ma_bien_the})">×</button>
-                    </div>
-                `;
+                console.log('Item hinh_anh:', item.hinh_anh); // Debug
+                // Xử lý đường dẫn ảnh
+                const baseUrl = '{{ url("/") }}';
+                let imgSrc = baseUrl + '/images/default-product.jpg';
+                if (item.hinh_anh) {
+                    // Nếu đường dẫn đã có /images/ hoặc /storage/ hoặc http thì giữ nguyên
+                    if (item.hinh_anh.startsWith('/images/') || item.hinh_anh.startsWith('/storage/') || item.hinh_anh.startsWith('http')) {
+                        imgSrc = baseUrl + item.hinh_anh;
+                    } else {
+                        // Nếu chỉ là tên file thì thêm /images/products/
+                        imgSrc = baseUrl + '/images/products/' + item.hinh_anh;
+                    }
+                }
+                console.log('Final imgSrc:', imgSrc); // Debug
+                html += '<div class="cart-item" data-variant-id="' + item.ma_bien_the + '">' +
+                    '<img src="' + imgSrc + '" alt="' + item.ten_san_pham + '" class="cart-item-image">' +
+                    '<div class="cart-item-info">' +
+                        '<div class="cart-item-name">' + item.ten_san_pham + '</div>' +
+                        '<div class="cart-item-details">' +
+                            item.kich_co + ' - ' + parseInt(item.gia).toLocaleString('vi-VN') + '₫ x ' + item.so_luong +
+                        '</div>' +
+                    '</div>' +
+                    '<button class="cart-item-remove" onclick="removeFromCart(' + item.ma_bien_the + ')">×</button>' +
+                '</div>';
             });
             container.innerHTML = html;
             document.querySelectorAll('.cart-btn').forEach(btn => btn.disabled = false);
@@ -809,8 +1048,14 @@
 
     // Add All to Cart
     function addAllToCart() {
-        if (!confirm('Bạn có chắc muốn thêm tất cả vào giỏ hàng chính?')) return;
+        showCustomConfirm('Bạn có chắc muốn thêm tất cả vào giỏ hàng chính?', function(confirmed) {
+            if (!confirmed) return;
+            
+            addAllToCartAjax();
+        });
+    }
 
+    function addAllToCartAjax() {
         fetch('{{ route("tu-chon.add-to-cart") }}', {
             method: 'POST',
             headers: {
@@ -821,7 +1066,7 @@
         .then(response => response.json())
         .then(data => {
             if (data.success) {
-                alert(data.message);
+                showCustomAlert(data.message, 'success');
                 // Reset all quantity displays
                 document.querySelectorAll('.quantity-display').forEach(display => {
                     display.textContent = '0';
@@ -829,19 +1074,25 @@
                 // Clear cart display
                 updateCartDisplay({}, 0);
             } else {
-                alert(data.message || 'Có lỗi xảy ra');
+                showCustomAlert(data.message || 'Có lỗi xảy ra', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Có lỗi xảy ra khi thêm vào giỏ hàng');
+            showCustomAlert('Có lỗi xảy ra khi thêm vào giỏ hàng', 'error');
         });
     }
 
     // Clear Cart
     function clearCart() {
-        if (!confirm('Bạn có chắc muốn xóa tất cả?')) return;
+        showCustomConfirm('Bạn có chắc muốn xóa tất cả?', function(confirmed) {
+            if (!confirmed) return;
+            
+            clearCartAjax();
+        });
+    }
 
+    function clearCartAjax() {
         fetch('{{ route("tu-chon.clear-session") }}', {
             method: 'POST',
             headers: {
@@ -859,12 +1110,12 @@
                 // Clear cart display
                 updateCartDisplay({}, 0);
             } else {
-                alert(data.message || 'Có lỗi xảy ra');
+                showCustomAlert(data.message || 'Có lỗi xảy ra', 'error');
             }
         })
         .catch(error => {
             console.error('Error:', error);
-            alert('Có lỗi xảy ra');
+            showCustomAlert('Có lỗi xảy ra', 'error');
         });
     }
 </script>

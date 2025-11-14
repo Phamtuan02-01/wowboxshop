@@ -1,0 +1,238 @@
+/* Toast Container - Bottom Right */
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-width: 400px;
+    width: 90%;
+}
+
+/* Flash Toast Base */
+.flash-toast {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    animation: slideInRight 0.4s ease, fadeIn 0.4s ease;
+    position: relative;
+    min-width: 350px;
+}
+
+.flash-toast.hiding {
+    animation: slideOutRight 0.3s ease, fadeOut 0.3s ease;
+}
+
+/* Toast Header */
+.toast-header {
+    display: flex;
+    align-items: center;
+    padding: 12px 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    gap: 12px;
+}
+
+.toast-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.toast-content {
+    flex: 1;
+}
+
+.toast-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #6c757d;
+    cursor: pointer;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    border-radius: 4px;
+}
+
+.btn-close:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: #000;
+}
+
+/* Toast Body */
+.toast-body {
+    padding: 12px 15px;
+    color: #495057;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* Progress Bar */
+.progress-bar {
+    height: 4px;
+    background: rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    animation: progress 5s linear forwards;
+}
+
+/* Success Toast */
+.toast-success {
+    border-left: 4px solid #28a745;
+}
+
+.toast-success .toast-icon {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+}
+
+.toast-success .toast-title {
+    color: #28a745;
+}
+
+.toast-success .progress-bar::after {
+    background: #28a745;
+}
+
+/* Error Toast */
+.toast-error {
+    border-left: 4px solid #dc3545;
+}
+
+.toast-error .toast-icon {
+    background: linear-gradient(135deg, #dc3545, #c82333);
+    color: white;
+}
+
+.toast-error .toast-title {
+    color: #dc3545;
+}
+
+.toast-error .progress-bar::after {
+    background: #dc3545;
+}
+
+/* Warning Toast */
+.toast-warning {
+    border-left: 4px solid #ffc107;
+}
+
+.toast-warning .toast-icon {
+    background: linear-gradient(135deg, #ffc107, #ff9800);
+    color: #212529;
+}
+
+.toast-warning .toast-title {
+    color: #ffc107;
+}
+
+.toast-warning .progress-bar::after {
+    background: #ffc107;
+}
+
+/* Info Toast */
+.toast-info {
+    border-left: 4px solid #17a2b8;
+}
+
+.toast-info .toast-icon {
+    background: linear-gradient(135deg, #17a2b8, #138496);
+    color: white;
+}
+
+.toast-info .toast-title {
+    color: #17a2b8;
+}
+
+.toast-info .progress-bar::after {
+    background: #17a2b8;
+}
+
+/* Animations */
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+    }
+    to {
+        transform: translateX(400px);
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+@keyframes progress {
+    from {
+        transform: translateX(-100%);
+    }
+    to {
+        transform: translateX(0);
+    }
+}
+
+/* Responsive */
+@media (max-width: 576px) {
+    .toast-container {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        max-width: 100%;
+    }
+    
+    .flash-toast {
+        min-width: auto;
+        width: 100%;
+    }
+}

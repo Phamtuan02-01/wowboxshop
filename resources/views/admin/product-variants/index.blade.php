@@ -119,10 +119,10 @@
                         <label>&nbsp;</label>
                         <div class="d-flex">
                             <button type="submit" class="btn btn-primary me-2">
-                                <i class="fas fa-search"></i> Tìm kiếm
+                                <i class="fas fa-search"></i>
                             </button>
                             <a href="{{ route('admin.product-variants.index') }}" class="btn btn-secondary">
-                                <i class="fas fa-undo"></i> Xóa lọc
+                                <i class="fas fa-undo"></i>
                             </a>
                         </div>
                     </div>
@@ -180,13 +180,12 @@
                             <th width="40">
                                 <input type="checkbox" class="form-check-input" id="select-all">
                             </th>
-                            <th width="80">Hình ảnh</th>
                             <th>Thông tin biến thể</th>
                             <th>Giá</th>
                             <th>Tồn kho</th>
                             <th>Trạng thái</th>
                             <th>Ngày tạo</th>
-                            <th>Hành động</th>
+                            <th width="120">Thao tác</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -194,19 +193,6 @@
                             <tr>
                                 <td>
                                     <input type="checkbox" class="form-check-input variant-checkbox" value="{{ $variant->ma_bien_the }}">
-                                </td>
-                                <td>
-                                    @if($variant->hinh_anh)
-                                        <img src="{{ asset('images/variants/' . $variant->hinh_anh) }}" 
-                                             alt="{{ $variant->sanPham->ten_san_pham }}" 
-                                             class="img-thumbnail" 
-                                             style="width: 50px; height: 50px; object-fit: cover;">
-                                    @else
-                                        <div class="bg-light d-flex align-items-center justify-content-center" 
-                                             style="width: 50px; height: 50px; border-radius: 0.375rem;">
-                                            <i class="fas fa-image text-muted"></i>
-                                        </div>
-                                    @endif
                                 </td>
                                 <td>
                                     <div class="d-flex align-items-center">
@@ -380,9 +366,10 @@ $('.status-toggle').change(function() {
     const variantId = $(this).data('id');
     const isActive = this.checked;
     const statusBadge = $(this).siblings('label').find('.badge');
+    const toggleSwitch = $(this);
     
     $.ajax({
-        url: `/admin/product-variants/${variantId}/toggle-status`,
+        url: '{{ url("admin/product-variants") }}/' + variantId + '/toggle-status',
         method: 'POST',
         data: {
             _token: '{{ csrf_token() }}'
@@ -392,13 +379,23 @@ $('.status-toggle').change(function() {
                 statusBadge.removeClass('bg-success bg-secondary')
                           .addClass(response.status ? 'bg-success' : 'bg-secondary')
                           .text(response.status ? 'Hoạt động' : 'Không hoạt động');
-                showToast('success', response.message);
+                
+                // Show success toast if available
+                if (typeof showToast === 'function') {
+                    showToast('success', response.message);
+                }
             }
         },
-        error: function() {
+        error: function(xhr) {
             // Revert checkbox state
-            $(this).prop('checked', !isActive);
-            showToast('error', 'Có lỗi xảy ra khi cập nhật trạng thái');
+            toggleSwitch.prop('checked', !isActive);
+            
+            // Show error toast if available
+            if (typeof showToast === 'function') {
+                showToast('error', xhr.responseJSON?.message || 'Có lỗi xảy ra khi cập nhật trạng thái');
+            } else {
+                alert('Có lỗi xảy ra khi cập nhật trạng thái');
+            }
         }
     });
 });
@@ -417,7 +414,7 @@ $('#confirm-delete').click(function() {
     const variantId = $(this).data('id');
     
     $.ajax({
-        url: `/admin/product-variants/${variantId}`,
+        url: '{{ url("admin/product-variants") }}/' + variantId,
         method: 'DELETE',
         data: {
             _token: '{{ csrf_token() }}'
@@ -504,10 +501,93 @@ $('#product_filter, #status_filter').change(function() {
     this.form.submit();
 });
 
-// Toast notification function
+// Toast notification function - Local implementation
 function showToast(type, message) {
-    // Implementation depends on your notification system
-    console.log(`${type}: ${message}`);
+    // Create or get toast container
+    let toastContainer = document.getElementById('toastContainer');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.className = 'toast-container';
+        toastContainer.id = 'toastContainer';
+        toastContainer.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 15px; max-width: 400px;';
+        document.body.appendChild(toastContainer);
+    }
+    
+    const iconMap = {
+        success: 'fa-check',
+        error: 'fa-times',
+        warning: 'fa-exclamation',
+        info: 'fa-info'
+    };
+    
+    const colorMap = {
+        success: '#28a745',
+        error: '#dc3545',
+        warning: '#ffc107',
+        info: '#17a2b8'
+    };
+    
+    const titleMap = {
+        success: 'Thành công!',
+        error: 'Lỗi!',
+        warning: 'Cảnh báo!',
+        info: 'Thông tin!'
+    };
+    
+    const toast = document.createElement('div');
+    toast.className = 'flash-toast toast-' + type;
+    toast.setAttribute('role', 'alert');
+    toast.style.cssText = `
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+        animation: slideInRight 0.4s ease;
+        min-width: 350px;
+        border-left: 4px solid ${colorMap[type]};
+    `;
+    
+    toast.innerHTML = `
+        <div style="display: flex; align-items: center; padding: 12px 15px; border-bottom: 1px solid rgba(0, 0, 0, 0.05); gap: 12px;">
+            <div style="width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; background: linear-gradient(135deg, ${colorMap[type]}, ${colorMap[type]}); color: white;">
+                <i class="fas ${iconMap[type]}"></i>
+            </div>
+            <div style="flex: 1;">
+                <div style="font-size: 0.95rem; font-weight: 600; color: ${colorMap[type]};">${titleMap[type]}</div>
+            </div>
+            <button type="button" style="background: transparent; border: none; font-size: 1.5rem; color: #6c757d; cursor: pointer;" onclick="this.closest('.flash-toast').remove();">
+                ×
+            </button>
+        </div>
+        <div style="padding: 12px 15px; color: #495057; font-size: 0.9rem; line-height: 1.5;">
+            ${message}
+        </div>
+    `;
+    
+    toastContainer.appendChild(toast);
+    
+    // Auto hide after 5 seconds
+    setTimeout(() => {
+        toast.style.animation = 'slideOutRight 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 5000);
+}
+
+// Add animations if not already present
+if (!document.getElementById('toast-animations')) {
+    const style = document.createElement('style');
+    style.id = 'toast-animations';
+    style.textContent = `
+        @keyframes slideInRight {
+            from { transform: translateX(400px); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOutRight {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(400px); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
 }
 </script>
 @endsection

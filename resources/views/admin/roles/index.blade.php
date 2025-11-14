@@ -46,7 +46,7 @@
                         <th>#</th>
                         <th>Tên vai trò</th>
                         <th>Người dùng</th>
-                        <th>Hành động</th>
+                        <th width="120">Thao tác</th>
                     </tr>
                 </thead>
                 <tbody>

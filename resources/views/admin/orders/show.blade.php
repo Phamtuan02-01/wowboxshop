@@ -29,7 +29,7 @@
                         <i class="fas fa-edit"></i> Cập nhật trạng thái
                     </button>
                     <ul class="dropdown-menu">
-                        @if($order->trang_thai === 'cho_xu_ly')
+                        @if($order->trang_thai === 'cho_xac_nhan')
                             <li><a class="dropdown-item" href="#" onclick="updateOrderStatus('da_giao')">
                                 <i class="fas fa-check text-success"></i> Đã giao
                             </a></li>
@@ -65,26 +65,53 @@
                     <div class="order-status-timeline">
                         @php
                             $statuses = [
-                                'cho_xu_ly' => ['label' => 'Chờ xử lý', 'icon' => 'clock'],
+                                'cho_xac_nhan' => ['label' => 'Chờ xác nhận', 'icon' => 'clock'],
                                 'da_giao' => ['label' => 'Đã giao', 'icon' => 'check-circle'],
                             ];
                             $isCancelled = $order->trang_thai === 'da_huy';
                         @endphp
                         
                         @if($isCancelled)
-                            <div class="alert alert-danger">
-                                <i class="fas fa-times-circle"></i>
-                                <strong>Đơn hàng đã bị hủy</strong>
-                                @if($order->ghi_chu)
-                                    <br><small>Lý do: {{ $order->ghi_chu }}</small>
-                                @endif
+                            <div class="alert alert-danger border-0 shadow-sm">
+                                <div class="d-flex align-items-start">
+                                    <div class="flex-shrink-0">
+                                        <i class="fas fa-times-circle fa-2x"></i>
+                                    </div>
+                                    <div class="flex-grow-1 ms-3">
+                                        <h5 class="alert-heading mb-2">
+                                            <i class="fas fa-ban"></i> Đơn hàng đã bị hủy
+                                        </h5>
+                                        
+                                        @if($order->ly_do_huy)
+                                            <div class="mb-2">
+                                                <strong><i class="fas fa-user text-primary"></i> Lý do khách hàng hủy đơn:</strong>
+                                                <p class="mb-0 mt-1 ps-3">{{ $order->ly_do_huy }}</p>
+                                            </div>
+                                        @endif
+                                        
+                                        @if($order->ghi_chu)
+                                            <div class="mb-2">
+                                                <strong><i class="fas fa-store text-warning"></i> Lý do quán hủy đơn:</strong>
+                                                <p class="mb-0 mt-1 ps-3">{{ $order->ghi_chu }}</p>
+                                            </div>
+                                        @endif
+                                        
+                                        @if($order->ngay_huy)
+                                            <div class="mt-2 pt-2 border-top border-danger">
+                                                <small class="text-muted">
+                                                    <i class="fas fa-clock"></i> Thời gian hủy: {{ $order->ngay_huy->format('d/m/Y H:i:s') }}
+                                                </small>
+                                            </div>
+                                        @endif
+                                    </div>
+                                </div>
                             </div>
                         @else
                             <div class="status-timeline">
                                 @foreach($statuses as $statusCode => $statusInfo)
                                     @php
                                         $isCompleted = false;
-                                        if ($statusCode === 'cho_xu_ly') {
+                                        if ($statusCode === 'cho_xac_nhan') {
                                             $isCompleted = true; // Always completed if order exists
                                         } elseif ($statusCode === 'da_giao') {
                                             $isCompleted = ($order->trang_thai === 'da_giao');
@@ -325,7 +352,7 @@
                     <div class="mb-3">
                         <label class="form-label">Trạng thái mới</label>
                         <select name="trang_thai" id="newStatus" class="form-select" required>
-                            <option value="cho_xu_ly">Chờ xử lý</option>
+                            <option value="cho_xac_nhan">Chờ xác nhận</option>
                             <option value="da_giao">Đã giao</option>
                             <option value="da_huy">Đã hủy</option>
                         </select>
