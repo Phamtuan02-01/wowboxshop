@@ -229,15 +229,15 @@
                 <li class="nav-header">BÁO CÁO & THỐNG KÊ</li>
                 
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
+                    <a href="{{ route('admin.reports.revenue') }}" class="nav-link {{ Request::is('admin/reports/revenue*') ? 'active' : '' }}">
                         <i class="fas fa-chart-line"></i>
                         <span>Báo cáo doanh thu</span>
                     </a>
                 </li>
                 
                 <li class="nav-item">
-                    <a href="#" class="nav-link">
-                        <i class="fas fa-chart-pie"></i>
+                    <a href="{{ route('admin.reports.sales') }}" class="nav-link {{ Request::is('admin/reports/sales*') ? 'active' : '' }}">
+                        <i class="fas fa-shopping-bag"></i>
                         <span>Thống kê bán hàng</span>
                     </a>
                 </li>

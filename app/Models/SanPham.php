@@ -450,4 +450,25 @@ class SanPham extends Model
             'so_luot_danh_gia' => $totalRatings
         ]);
     }
+
+    /**
+     * Tính tổng số lượng đã bán của sản phẩm này (từ tất cả các biến thể)
+     * Chỉ tính các đơn hàng đã giao (trang_thai = 'da_giao')
+     */
+    public function getTotalSoldQuantity()
+    {
+        // Tính tổng số lượng từ chi_tiet_don_hang của tất cả các biến thể
+        // Chỉ tính các đơn hàng đã giao thành công
+        $totalSold = 0;
+        
+        foreach ($this->bienThes as $bienThe) {
+            $totalSold += $bienThe->chiTietDonHangs()
+                ->whereHas('donHang', function($query) {
+                    $query->where('trang_thai', 'da_giao');
+                })
+                ->sum('so_luong');
+        }
+        
+        return $totalSold;
+    }
 }

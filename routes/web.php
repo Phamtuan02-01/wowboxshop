@@ -279,4 +279,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->group(function () {
     Route::patch('promotions/{promotion}/toggle-status', [PromotionController::class, 'toggleStatus'])->name('admin.promotions.toggle-status');
     Route::post('promotions/bulk-action', [PromotionController::class, 'bulkAction'])->name('admin.promotions.bulk-action');
     Route::post('promotions/check-code', [PromotionController::class, 'checkCode'])->name('admin.promotions.check-code');
+    
+    // Báo cáo
+    Route::get('reports/revenue', [App\Http\Controllers\Admin\ReportController::class, 'revenue'])->name('admin.reports.revenue');
+    Route::get('reports/revenue/export', [App\Http\Controllers\Admin\ReportController::class, 'exportRevenue'])->name('admin.reports.revenue.export');
+    Route::get('reports/sales', [App\Http\Controllers\Admin\ReportController::class, 'sales'])->name('admin.reports.sales');
+    Route::get('reports/sales/export', [App\Http\Controllers\Admin\ReportController::class, 'exportSales'])->name('admin.reports.sales.export');
 });

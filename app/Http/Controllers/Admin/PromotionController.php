@@ -61,8 +61,15 @@ class PromotionController extends Controller
 
     public function create()
     {
-        $products = SanPham::where('trang_thai', true)->get();
-        $categories = DanhMuc::all(); // Bỏ điều kiện trang_thai vì bảng danh_muc không có cột này
+        // Chỉ lấy sản phẩm loại 'product' và đang hoạt động
+        $products = SanPham::where('trang_thai', true)
+                          ->where('loai_san_pham', 'product')
+                          ->get();
+        
+        // Chỉ lấy danh mục có chứa sản phẩm loại 'product'
+        $categories = DanhMuc::whereHas('sanPhams', function($query) {
+            $query->where('loai_san_pham', 'product');
+        })->get();
         
         return view('admin.promotions.create', compact('products', 'categories'));
     }
@@ -86,21 +93,12 @@ class PromotionController extends Controller
             'san_pham_ap_dung.*' => 'exists:san_pham,ma_san_pham',
             'danh_muc_ap_dung' => 'nullable|array',
             'danh_muc_ap_dung.*' => 'exists:danh_muc,ma_danh_muc',
-            'hinh_anh' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'trang_thai' => 'boolean'
         ]);
 
         // Generate code if not provided
         if (empty($validated['ma_code'])) {
             $validated['ma_code'] = 'PROMO' . strtoupper(Str::random(6));
-        }
-
-        // Handle image upload
-        if ($request->hasFile('hinh_anh')) {
-            $image = $request->file('hinh_anh');
-            $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images/promotions'), $imageName);
-            $validated['hinh_anh'] = $imageName;
         }
 
         // Handle application scope
@@ -149,8 +147,15 @@ class PromotionController extends Controller
 
     public function edit(KhuyenMai $promotion)
     {
-        $products = SanPham::where('trang_thai', true)->get();
-        $categories = DanhMuc::all(); // Bỏ điều kiện trang_thai vì bảng danh_muc không có cột này
+        // Chỉ lấy sản phẩm loại 'product' và đang hoạt động
+        $products = SanPham::where('trang_thai', true)
+                          ->where('loai_san_pham', 'product')
+                          ->get();
+        
+        // Chỉ lấy danh mục có chứa sản phẩm loại 'product'
+        $categories = DanhMuc::whereHas('sanPhams', function($query) {
+            $query->where('loai_san_pham', 'product');
+        })->get();
         
         return view('admin.promotions.edit', compact('promotion', 'products', 'categories'));
     }
@@ -174,22 +179,8 @@ class PromotionController extends Controller
             'san_pham_ap_dung.*' => 'exists:san_pham,ma_san_pham',
             'danh_muc_ap_dung' => 'nullable|array',
             'danh_muc_ap_dung.*' => 'exists:danh_muc,ma_danh_muc',
-            'hinh_anh' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'trang_thai' => 'boolean'
         ]);
-
-        // Handle image upload
-        if ($request->hasFile('hinh_anh')) {
-            // Delete old image
-            if ($promotion->hinh_anh && file_exists(public_path('images/promotions/' . $promotion->hinh_anh))) {
-                unlink(public_path('images/promotions/' . $promotion->hinh_anh));
-            }
-            
-            $image = $request->file('hinh_anh');
-            $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
-            $image->move(public_path('images/promotions'), $imageName);
-            $validated['hinh_anh'] = $imageName;
-        }
 
         // Handle application scope
         $validated['ap_dung_tat_ca'] = $request->has('ap_dung_tat_ca') ? true : false;

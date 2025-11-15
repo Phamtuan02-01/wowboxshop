@@ -124,17 +124,21 @@
                             <!-- Discount Value -->
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="gia_tri" class="form-label fw-bold">
+                                    <label for="gia_tri_display" class="form-label fw-bold">
                                         <i class="fas fa-money-bill text-warning me-2"></i>
                                         Giá trị giảm <span class="text-danger">*</span>
                                     </label>
                                     <div class="input-group">
-                                        <input type="number" name="gia_tri" id="gia_tri" 
+                                        <input type="number" id="gia_tri_display" 
                                                class="form-control @error('gia_tri') is-invalid @enderror" 
                                                value="{{ old('gia_tri') }}" 
                                                placeholder="0" min="0" step="0.01" required>
                                         <span class="input-group-text" id="discount-unit">%</span>
                                     </div>
+                                    <input type="hidden" name="gia_tri" id="gia_tri" value="{{ old('gia_tri') }}">
+                                    <small class="form-text text-muted" id="gia_tri_helper" style="display: none;">
+                                        Nhập số nghìn (VD: nhập 10 = 10.000 VNĐ)
+                                    </small>
                                     @error('gia_tri')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -144,19 +148,20 @@
                             <!-- Max Discount Value -->
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="gia_tri_toi_da" class="form-label fw-bold">
+                                    <label for="gia_tri_toi_da_display" class="form-label fw-bold">
                                         <i class="fas fa-chart-line text-warning me-2"></i>
                                         Giá trị giảm tối đa
                                     </label>
                                     <div class="input-group">
-                                        <input type="number" name="gia_tri_toi_da" id="gia_tri_toi_da" 
+                                        <input type="number" id="gia_tri_toi_da_display" 
                                                class="form-control @error('gia_tri_toi_da') is-invalid @enderror" 
                                                value="{{ old('gia_tri_toi_da') }}" 
                                                placeholder="0" min="0" step="0.01">
-                                        <span class="input-group-text">VNĐ</span>
+                                        <span class="input-group-text">nghìn VNĐ</span>
                                     </div>
+                                    <input type="hidden" name="gia_tri_toi_da" id="gia_tri_toi_da" value="{{ old('gia_tri_toi_da') }}">
                                     <small class="form-text text-muted">
-                                        Chỉ áp dụng cho loại giảm theo phần trăm
+                                        Chỉ áp dụng cho loại giảm theo phần trăm. Nhập số nghìn (VD: 50 = 50.000 VNĐ)
                                     </small>
                                     @error('gia_tri_toi_da')
                                         <div class="invalid-feedback">{{ $message }}</div>
@@ -169,17 +174,21 @@
                             <!-- Minimum Order Value -->
                             <div class="col-md-6">
                                 <div class="form-group mb-3">
-                                    <label for="don_hang_toi_thieu" class="form-label fw-bold">
+                                    <label for="don_hang_toi_thieu_display" class="form-label fw-bold">
                                         <i class="fas fa-shopping-cart text-secondary me-2"></i>
                                         Đơn hàng tối thiểu
                                     </label>
                                     <div class="input-group">
-                                        <input type="number" name="don_hang_toi_thieu" id="don_hang_toi_thieu" 
+                                        <input type="number" id="don_hang_toi_thieu_display" 
                                                class="form-control @error('don_hang_toi_thieu') is-invalid @enderror" 
                                                value="{{ old('don_hang_toi_thieu', 0) }}" 
                                                placeholder="0" min="0" step="0.01">
-                                        <span class="input-group-text">VNĐ</span>
+                                        <span class="input-group-text">nghìn VNĐ</span>
                                     </div>
+                                    <input type="hidden" name="don_hang_toi_thieu" id="don_hang_toi_thieu" value="{{ old('don_hang_toi_thieu', 0) }}">
+                                    <small class="form-text text-muted">
+                                        Nhập số nghìn (VD: 100 = 100.000 VNĐ)
+                                    </small>
                                     @error('don_hang_toi_thieu')
                                         <div class="invalid-feedback">{{ $message }}</div>
                                     @enderror
@@ -277,7 +286,7 @@
                                 <div class="row">
                                     <div class="col-md-6">
                                         <label class="form-label">Sản phẩm cụ thể</label>
-                                        <select name="san_pham_ap_dung[]" class="form-select" multiple size="6">
+                                        <select name="san_pham_ap_dung[]" class="form-select-pr" multiple size="12">
                                             @foreach($products as $product)
                                                 <option value="{{ $product->ma_san_pham }}"
                                                     {{ in_array($product->ma_san_pham, old('san_pham_ap_dung', [])) ? 'selected' : '' }}>
@@ -290,7 +299,7 @@
                                     
                                     <div class="col-md-6">
                                         <label class="form-label">Danh mục sản phẩm</label>
-                                        <select name="danh_muc_ap_dung[]" class="form-select" multiple size="6">
+                                        <select name="danh_muc_ap_dung[]" class="form-select form-select-pr" multiple size="12">
                                             @foreach($categories as $category)
                                                 <option value="{{ $category->ma_danh_muc }}"
                                                     {{ in_array($category->ma_danh_muc, old('danh_muc_ap_dung', [])) ? 'selected' : '' }}>
@@ -300,41 +309,6 @@
                                         </select>
                                         <small class="form-text text-muted">Giữ Ctrl để chọn nhiều danh mục</small>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <!-- Image Upload -->
-                        <div class="form-group mb-4">
-                            <label class="form-label fw-bold">
-                                <i class="fas fa-image text-primary me-2"></i>
-                                Hình ảnh banner khuyến mãi
-                            </label>
-                            <div class="upload-area border-2 border-dashed rounded p-4 text-center" 
-                                 style="cursor: pointer; transition: all 0.3s ease;" 
-                                 onclick="document.getElementById('hinh_anh').click()">
-                                <div class="upload-content">
-                                    <i class="fas fa-cloud-upload-alt fa-3x text-muted mb-3"></i>
-                                    <h6 class="mb-2">Nhấn để chọn hình ảnh</h6>
-                                    <p class="text-muted mb-0">hoặc kéo thả file vào đây</p>
-                                    <small class="text-muted">Hỗ trợ: JPG, PNG, GIF (tối đa 2MB)</small>
-                                </div>
-                            </div>
-                            <input type="file" name="hinh_anh" id="hinh_anh" 
-                                   class="d-none @error('hinh_anh') is-invalid @enderror" 
-                                   accept="image/*">
-                            @error('hinh_anh')
-                                <div class="invalid-feedback d-block">{{ $message }}</div>
-                            @enderror
-                            
-                            <!-- Image Preview -->
-                            <div id="image-preview" class="mt-3" style="display: none;">
-                                <div class="position-relative d-inline-block">
-                                    <img id="preview-image" src="" alt="Preview" class="img-thumbnail" style="max-height: 200px;">
-                                    <button type="button" class="btn btn-danger btn-sm position-absolute top-0 end-0" 
-                                            style="transform: translate(50%, -50%);" onclick="removeImage()">
-                                        <i class="fas fa-times"></i>
-                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -463,27 +437,6 @@
 
 @push('styles')
 <style>
-.upload-area {
-    background: #f8f9fa;
-    border: 2px dashed #dee2e6 !important;
-    transition: all 0.3s ease;
-    min-height: 120px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.upload-area:hover {
-    border-color: #0d6efd !important;
-    background: #e7f1ff;
-}
-
-.upload-area.dragover {
-    border-color: #0d6efd !important;
-    background: #e7f1ff;
-    transform: scale(1.02);
-}
-
 .form-check-input:checked {
     background-color: #198754;
     border-color: #198754;
@@ -549,13 +502,16 @@ $(document).ready(function() {
     $('#loai_khuyen_mai').change(function() {
         const type = $(this).val();
         const unit = $('#discount-unit');
-        const maxValueField = $('#gia_tri_toi_da').closest('.form-group');
+        const maxValueField = $('#gia_tri_toi_da_display').closest('.form-group');
+        const helperText = $('#gia_tri_helper');
         
         if (type === 'percent') {
             unit.text('%');
+            helperText.hide();
             maxValueField.show();
         } else {
-            unit.text('VNĐ');
+            unit.text('nghìn VNĐ');
+            helperText.show();
             if (type === 'fixed') {
                 maxValueField.hide();
             } else {
@@ -563,6 +519,36 @@ $(document).ready(function() {
             }
         }
         updatePreview();
+    });
+    
+    // Auto convert display values to actual values (multiply by 1000 for non-percent)
+    function syncDisplayToActual() {
+        const type = $('#loai_khuyen_mai').val();
+        
+        if (type !== 'percent') {
+            // Convert gia_tri: display value * 1000 = actual value
+            const giaTriDisplay = parseFloat($('#gia_tri_display').val()) || 0;
+            $('#gia_tri').val(giaTriDisplay * 1000);
+        } else {
+            // For percent, keep the same value
+            $('#gia_tri').val($('#gia_tri_display').val());
+        }
+        
+        // Always convert these values (they're always in VND)
+        const giaTriToiDaDisplay = parseFloat($('#gia_tri_toi_da_display').val()) || 0;
+        $('#gia_tri_toi_da').val(giaTriToiDaDisplay * 1000);
+        
+        const donHangDisplay = parseFloat($('#don_hang_toi_thieu_display').val()) || 0;
+        $('#don_hang_toi_thieu').val(donHangDisplay * 1000);
+    }
+    
+    // Sync on input change
+    $('#gia_tri_display, #gia_tri_toi_da_display, #don_hang_toi_thieu_display').on('input', syncDisplayToActual);
+    $('#loai_khuyen_mai').on('change', syncDisplayToActual);
+    
+    // Sync before form submit
+    $('#promotion-form').on('submit', function(e) {
+        syncDisplayToActual();
     });
     
     // Toggle application scope
@@ -575,60 +561,11 @@ $(document).ready(function() {
         updatePreview();
     });
     
-    // Image upload preview
-    $('#hinh_anh').change(function(e) {
-        const file = e.target.files[0];
-        if (file) {
-            // Validate file size (2MB)
-            if (file.size > 2 * 1024 * 1024) {
-                alert('Kích thước file không được vượt quá 2MB');
-                this.value = '';
-                return;
-            }
-            
-            // Validate file type
-            if (!file.type.match('image.*')) {
-                alert('Vui lòng chọn file hình ảnh');
-                this.value = '';
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                $('#preview-image').attr('src', e.target.result);
-                $('#image-preview').show();
-            };
-            reader.readAsDataURL(file);
-        }
-    });
-    
     // Update preview on input changes
     $('input, select, textarea').on('input change', updatePreview);
     
     // Initial preview update
     updatePreview();
-    
-    // Drag and drop functionality
-    $('.upload-area').on('dragover', function(e) {
-        e.preventDefault();
-        $(this).addClass('dragover');
-    });
-
-    $('.upload-area').on('dragleave', function(e) {
-        e.preventDefault();
-        $(this).removeClass('dragover');
-    });
-
-    $('.upload-area').on('drop', function(e) {
-        e.preventDefault();
-        $(this).removeClass('dragover');
-        
-        const files = e.originalEvent.dataTransfer.files;
-        if (files.length > 0) {
-            $('#hinh_anh')[0].files = files;
-            $('#hinh_anh').trigger('change');
-        }
-    });
     
     // Form validation
     $('#promotion-form').submit(function(e) {
@@ -673,11 +610,6 @@ function generateCode() {
     updatePreview();
 }
 
-function removeImage() {
-    $('#hinh_anh').val('');
-    $('#image-preview').hide();
-}
-
 function resetForm() {
     if (confirm('Bạn có chắc chắn muốn reset form? Tất cả thông tin sẽ bị mất.')) {
         location.reload();
@@ -699,14 +631,15 @@ function updatePreview() {
     
     // Update value
     const type = $('#loai_khuyen_mai').val();
-    const value = $('#gia_tri').val();
+    const valueDisplay = $('#gia_tri_display').val();
     let valueText = 'Giá trị giảm';
     
-    if (value && type) {
+    if (valueDisplay && type) {
         if (type === 'percent') {
-            valueText = value + '%';
+            valueText = valueDisplay + '%';
         } else {
-            valueText = new Intl.NumberFormat('vi-VN').format(value) + ' VNĐ';
+            const actualValue = parseFloat(valueDisplay) * 1000;
+            valueText = new Intl.NumberFormat('vi-VN').format(actualValue) + ' VNĐ';
         }
     }
     $('#preview-value').text(valueText);
@@ -724,8 +657,9 @@ function updatePreview() {
     $('#preview-time').text(timeText);
     
     // Update min order
-    const minOrder = $('#don_hang_toi_thieu').val() || 0;
-    const minOrderText = new Intl.NumberFormat('vi-VN').format(minOrder) + ' VNĐ';
+    const minOrderDisplay = $('#don_hang_toi_thieu_display').val() || 0;
+    const minOrderActual = parseFloat(minOrderDisplay) * 1000;
+    const minOrderText = new Intl.NumberFormat('vi-VN').format(minOrderActual) + ' VNĐ';
     $('#preview-min-order').text(minOrderText);
     
     // Update limit

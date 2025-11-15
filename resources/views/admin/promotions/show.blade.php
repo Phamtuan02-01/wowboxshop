@@ -45,63 +45,45 @@
     <div class="row mb-4">
         <div class="col-md-3">
             <div class="stat-card">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="stat-label">Tổng sử dụng</p>
-                            <h3 class="stat-value text-primary">{{ $usageStats['total_used'] }}</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-chart-line fa-2x text-primary"></i>
-                        </div>
-                    </div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ $usageStats['total_used'] }}</h3>
+                    <p>Tổng sử dụng</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="stat-card">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="stat-label">Tổng tiết kiệm</p>
-                            <h3 class="stat-value text-success">{{ number_format($usageStats['total_discount'], 0, ',', '.') }} VNĐ</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-money-bill-wave fa-2x text-success"></i>
-                        </div>
-                    </div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ number_format($usageStats['total_discount'], 0, ',', '.') }}</h3>
+                    <p>Tiết kiệm (VNĐ)</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="stat-card">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="stat-label">Khách hàng</p>
-                            <h3 class="stat-value text-info">{{ $usageStats['unique_users'] }}</h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-users fa-2x text-info"></i>
-                        </div>
-                    </div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ $usageStats['unique_users'] }}</h3>
+                    <p>Khách hàng</p>
                 </div>
             </div>
         </div>
         <div class="col-md-3">
             <div class="stat-card">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div>
-                            <p class="stat-label">Còn lại</p>
-                            <h3 class="stat-value text-warning">
-                                {{ $promotion->gioi_han_su_dung ? max(0, $promotion->gioi_han_su_dung - $promotion->so_luong_su_dung) : '∞' }}
-                            </h3>
-                        </div>
-                        <div class="stat-icon">
-                            <i class="fas fa-hourglass-half fa-2x text-warning"></i>
-                        </div>
-                    </div>
+                <div class="stat-icon" style="background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);">
+                    <i class="fas fa-hourglass-half"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>{{ $promotion->gioi_han_su_dung ? max(0, $promotion->gioi_han_su_dung - $promotion->so_luong_su_dung) : '∞' }}</h3>
+                    <p>Còn lại</p>
                 </div>
             </div>
         </div>
@@ -119,14 +101,6 @@
                     </h6>
                 </div>
                 <div class="p-4">
-                    @if($promotion->hinh_anh)
-                    <div class="mb-4">
-                        <img src="{{ asset('images/promotions/' . $promotion->hinh_anh) }}" 
-                             alt="{{ $promotion->ten_khuyen_mai }}" 
-                             class="img-fluid rounded" style="max-height: 200px;">
-                    </div>
-                    @endif
-                    
                     <div class="row">
                         <div class="col-md-6">
                             <table class="table table-borderless">

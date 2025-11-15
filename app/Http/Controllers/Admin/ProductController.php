@@ -166,7 +166,7 @@ class ProductController extends Controller
 
     public function show($id)
     {
-        $product = SanPham::with(['danhMuc'])->findOrFail($id);
+        $product = SanPham::with(['danhMuc', 'bienThes.chiTietDonHangs'])->findOrFail($id);
         return view('admin.products.show', compact('product'));
     }
 

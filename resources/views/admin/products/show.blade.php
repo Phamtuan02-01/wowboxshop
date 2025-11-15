@@ -63,7 +63,7 @@
                                 <tr>
                                     <td><strong>Danh mục:</strong></td>
                                     <td>
-                                        <span class="badge badge-info">
+                                        <span class="badge badge-primary" style="color: black;">
                                             {{ $product->danhMuc->ten_danh_muc ?? 'Chưa phân loại' }}
                                         </span>
                                     </td>
@@ -71,9 +71,9 @@
                                 <tr>
                                     <td><strong>Giá bán:</strong></td>
                                     <td>
-                                        <span class="price-original">{{ number_format($product->gia) }}đ</span>
+                                        <span class="text-primary fw-bold">{{ number_format($product->gia, 0, ',', '.') }} VNĐ</span>
                                         @if($product->gia_khuyen_mai)
-                                            <br><span class="price-sale">KM: {{ number_format($product->gia_khuyen_mai) }}đ</span>
+                                            <br><span class="text-success">Giá KM: {{ number_format($product->gia_khuyen_mai, 0, ',', '.') }} VNĐ</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -133,21 +133,11 @@
                 </div>
                 <div class="card-body">
                     <div class="stat-item">
-                        <div class="stat-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
-                            <i class="fas fa-eye"></i>
-                        </div>
-                        <div class="stat-info">
-                            <h4>{{ number_format($product->luot_xem ?? 0) }}</h4>
-                            <p>Lượt xem</p>
-                        </div>
-                    </div>
-
-                    <div class="stat-item">
                         <div class="stat-icon" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">
                             <i class="fas fa-shopping-cart"></i>
                         </div>
                         <div class="stat-info">
-                            <h4>0</h4>
+                            <h4>{{ number_format($product->getTotalSoldQuantity()) }}</h4>
                             <p>Đã bán</p>
                         </div>
                     </div>
