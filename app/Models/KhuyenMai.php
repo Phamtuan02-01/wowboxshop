@@ -145,10 +145,14 @@ class KhuyenMai extends Model
     // Helper methods
     public function isValid()
     {
+        // Đảm bảo cả hai thời gian đều ở cùng timezone
         $now = Carbon::now();
+        $startDate = $this->ngay_bat_dau ? Carbon::parse($this->ngay_bat_dau) : null;
+        $endDate = $this->ngay_ket_thuc ? Carbon::parse($this->ngay_ket_thuc) : null;
+        
         return $this->trang_thai && 
-               $this->ngay_bat_dau <= $now && 
-               $this->ngay_ket_thuc >= $now;
+               ($startDate === null || $startDate->lte($now)) && 
+               ($endDate === null || $endDate->gte($now));
     }
 
     public function canUse($userId = null)
@@ -257,13 +261,16 @@ class KhuyenMai extends Model
             return 'Đã tắt';
         }
 
+        // Đảm bảo cả hai thời gian đều ở cùng timezone
         $now = Carbon::now();
+        $startDate = Carbon::parse($this->ngay_bat_dau);
+        $endDate = Carbon::parse($this->ngay_ket_thuc);
         
-        if ($this->ngay_bat_dau > $now) {
+        if ($startDate->gt($now)) {
             return 'Chưa bắt đầu';
         }
         
-        if ($this->ngay_ket_thuc < $now) {
+        if ($endDate->lt($now)) {
             return 'Đã kết thúc';
         }
         

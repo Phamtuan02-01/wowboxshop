@@ -167,7 +167,7 @@
                 </thead>
                 <tbody>
                     @forelse($promotions as $promotion)
-                    <tr>
+                    <tr data-promotion-id="{{ $promotion->ma_khuyen_mai }}">
                         <td>
                             <input type="checkbox" class="form-check-input item-checkbox" 
                                    value="{{ $promotion->ma_khuyen_mai }}">
@@ -252,7 +252,7 @@
                                 elseif ($promotion->trang_thai_text === 'Chưa bắt đầu') $statusClass = 'warning';
                                 elseif ($promotion->trang_thai_text === 'Đã tắt') $statusClass = 'secondary';
                             @endphp
-                            <span class="badge bg-{{ $statusClass }}">{{ $statusText }}</span>
+                            <span class="badge bg-{{ $statusClass }} status-badge">{{ $statusText }}</span>
                             <br>
                             <div class="form-check form-switch mt-1">
                                 <input class="form-check-input" type="checkbox" 
@@ -332,7 +332,61 @@ $(document).ready(function() {
     
     // Test AJAX setup
     console.log('AJAX headers:', $.ajaxSettings.headers);
+    
+    // Auto-refresh status badges every 30 seconds without reloading page
+    setInterval(function() {
+        refreshPromotionStatuses();
+    }, 30000);
+    
+    // Initial status check
+    refreshPromotionStatuses();
 });
+
+function refreshPromotionStatuses() {
+    // Collect all promotion IDs from the table
+    const promotionIds = [];
+    $('tr[data-promotion-id]').each(function() {
+        promotionIds.push($(this).data('promotion-id'));
+    });
+    
+    if (promotionIds.length === 0) {
+        return;
+    }
+    
+    // Call API to get current statuses
+    $.ajax({
+        url: '{{ route("admin.promotions.get-statuses") }}',
+        method: 'POST',
+        data: {
+            ids: promotionIds,
+            _token: $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(data) {
+            console.log('Status update received:', data);
+            
+            // Update each status badge
+            $.each(data, function(promotionId, statusInfo) {
+                const $row = $('tr[data-promotion-id="' + promotionId + '"]');
+                const $badge = $row.find('.status-badge');
+                
+                // Log debug info
+                if (statusInfo.debug) {
+                    console.log('Promotion #' + promotionId + ':', statusInfo.debug);
+                }
+                
+                if ($badge.length) {
+                    // Update badge text and class
+                    $badge.removeClass('bg-success bg-danger bg-warning bg-secondary')
+                           .addClass('bg-' + statusInfo.status_class)
+                           .text(statusInfo.status_text);
+                }
+            });
+        },
+        error: function(xhr, status, error) {
+            console.error('Failed to refresh statuses:', error);
+        }
+    });
+}
 
 function submitFilter() {
     $('#filter-form').submit();

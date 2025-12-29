@@ -131,9 +131,9 @@
                                     <div class="input-group">
                                         <input type="number" id="gia_tri_display" 
                                                class="form-control @error('gia_tri') is-invalid @enderror" 
-                                               value="{{ old('gia_tri') }}" 
+                                               value="{{ old('gia_tri') && old('loai_khuyen_mai') !== 'percent' ? old('gia_tri') / 1000 : old('gia_tri') }}" 
                                                placeholder="0" min="0" step="0.01" required>
-                                        <span class="input-group-text" id="discount-unit">%</span>
+                                        <span class="input-group-text" id="discount-unit">{{ old('loai_khuyen_mai') === 'percent' ? '%' : 'nghìn VNĐ' }}</span>
                                     </div>
                                     <input type="hidden" name="gia_tri" id="gia_tri" value="{{ old('gia_tri') }}">
                                     <small class="form-text text-muted" id="gia_tri_helper" style="display: none;">
@@ -155,7 +155,7 @@
                                     <div class="input-group">
                                         <input type="number" id="gia_tri_toi_da_display" 
                                                class="form-control @error('gia_tri_toi_da') is-invalid @enderror" 
-                                               value="{{ old('gia_tri_toi_da') }}" 
+                                               value="{{ old('gia_tri_toi_da') ? old('gia_tri_toi_da') / 1000 : '' }}" 
                                                placeholder="0" min="0" step="0.01">
                                         <span class="input-group-text">nghìn VNĐ</span>
                                     </div>
@@ -181,7 +181,7 @@
                                     <div class="input-group">
                                         <input type="number" id="don_hang_toi_thieu_display" 
                                                class="form-control @error('don_hang_toi_thieu') is-invalid @enderror" 
-                                               value="{{ old('don_hang_toi_thieu', 0) }}" 
+                                               value="{{ old('don_hang_toi_thieu') ? old('don_hang_toi_thieu') / 1000 : 0 }}" 
                                                placeholder="0" min="0" step="0.01">
                                         <span class="input-group-text">nghìn VNĐ</span>
                                     </div>

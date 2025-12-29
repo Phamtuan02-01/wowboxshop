@@ -40,9 +40,6 @@
                 <div class="nav-item">
                     <a class="nav-link {{ Request::is('tu-chon*') ? 'active' : '' }}" href="{{ route('tu-chon.index') }}">Tự chọn</a>
                 </div>
-                <div class="nav-item">
-                    <a class="nav-link" href="#">Blog</a>
-                </div>
             </nav>
             
             <!-- Header Actions -->

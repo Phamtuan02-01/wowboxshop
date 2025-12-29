@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-// use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -14,18 +14,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        $this->call([
-            VaiTroSeeder::class,
-            DanhMucSeeder::class,
-            TaiKhoanSeeder::class,
-            DiaChiSeeder::class,
-            UpdateDiaChiMacDinhSeeder::class,
-            SanPhamSeeder::class,
-            BienTheSanPhamSeeder::class,
-            BaiVietBlogSeeder::class,
-            DanhGiaSeeder::class,
-            GioHangSeeder::class,
-            ChiTietGioHangSeeder::class,
-        ]);
+        // Import data from SQL file
+        $sqlFile = database_path('seeders/wowboxshop_data.sql');
+        
+        if (file_exists($sqlFile)) {
+            DB::unprepared(file_get_contents($sqlFile));
+            $this->command->info('Data imported successfully from SQL file!');
+        } else {
+            $this->command->error('SQL file not found: ' . $sqlFile);
+        }
     }
 }

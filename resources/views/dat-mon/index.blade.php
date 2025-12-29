@@ -243,7 +243,7 @@
     /* Sort Section */
     .sort-section {
         display: flex;
-        justify-content: between;
+        justify-content: space-between;
         align-items: center;
         margin-bottom: 30px;
         flex-wrap: wrap;
@@ -1312,12 +1312,12 @@
             
             <div class="categories-container" id="categoriesContainer">
                 <div class="category-item {{ request('danh_muc') == '' ? 'active' : '' }}" data-category="">
-                    <span>TẤT CẢ</span>
+                    <span>Tất Cả</span>
                 </div>
                 @foreach($danhMucs as $danhMuc)
                     <div class="category-item {{ request('danh_muc') == $danhMuc->ma_danh_muc ? 'active' : '' }}" 
                          data-category="{{ $danhMuc->ma_danh_muc }}">
-                        <span>{{ strtoupper($danhMuc->ten_danh_muc) }}</span>
+                        <span>{{ mb_convert_case($danhMuc->ten_danh_muc, MB_CASE_TITLE, 'UTF-8') }}</span>
                     </div>
                 @endforeach
             </div>
@@ -1378,9 +1378,13 @@
 
     <!-- Sort and Results Info Section -->
     <section class="sort-section">
+        <div class="sort-info">
+            <span>Hiển thị {{ $sanPhams->count() }} / {{ $sanPhams->total() }} sản phẩm</span>
+        </div>
         <div class="sort-controls">
             <span class="sort-label">Sắp xếp theo:</span>
-            <select class="form-select sort-select" id="sort-select">
+            <select class="form-select sort-select" id="sort-select" data-current-sort="{{ request('sort', '') }}">
+                <option value="" {{ !request('sort') || request('sort') == '' ? 'selected' : '' }}>Mặc định</option>
                 <option value="moi_nhat" {{ request('sort') == 'moi_nhat' ? 'selected' : '' }}>Mới nhất</option>
                 <option value="gia_thap" {{ request('sort') == 'gia_thap' ? 'selected' : '' }}>Giá thấp đến cao</option>
                 <option value="gia_cao" {{ request('sort') == 'gia_cao' ? 'selected' : '' }}>Giá cao đến thấp</option>
@@ -1396,8 +1400,8 @@
     <!-- Products Grid -->
     @if($sanPhams->count() > 0 || $sanPhamNoiBat->count() > 0)
         <section class="products-grid">
-            {{-- Hiển thị sản phẩm nổi bật đầu tiên (đã được lọc theo danh mục trong controller) --}}
-            @if($sanPhamNoiBat->count() > 0)
+            {{-- Chỉ hiển thị sản phẩm nổi bật khi KHÔNG có tùy chọn sắp xếp (mặc định) --}}
+            @if($sanPhamNoiBat->count() > 0 && (!request('sort') || request('sort') == ''))
                 @foreach($sanPhamNoiBat as $sanPham)
                 <div class="product-card" data-product-id="{{ $sanPham->ma_san_pham }}">
                     <!-- Badge sale/featured -->
@@ -1510,9 +1514,9 @@
                 @endforeach
             @endif
             
-            {{-- Hiển thị các sản phẩm từ danh sách filtered (loại bỏ sản phẩm nổi bật đã hiển thị) --}}
+            {{-- Hiển thị các sản phẩm từ danh sách filtered (loại bỏ sản phẩm nổi bật đã hiển thị nếu đang ở chế độ mặc định) --}}
             @php
-                $displayedProductIds = $sanPhamNoiBat->pluck('ma_san_pham')->toArray();
+                $displayedProductIds = (!request('sort') || request('sort') == '') ? $sanPhamNoiBat->pluck('ma_san_pham')->toArray() : [];
             @endphp
             
             @foreach($sanPhams as $sanPham)
@@ -1930,14 +1934,24 @@ $(document).ready(function() {
     // Xử lý thay đổi sắp xếp
     $('#sort-select').on('change', function() {
         const sortValue = $(this).val();
-        const currentUrl = new URL(window.location.href);
+        console.log('Sort value selected:', sortValue);
         
-        if (sortValue) {
+        const currentUrl = new URL(window.location.href);
+        console.log('Current URL:', currentUrl.toString());
+        
+        if (sortValue && sortValue !== '') {
             currentUrl.searchParams.set('sort', sortValue);
         } else {
             currentUrl.searchParams.delete('sort');
         }
         
+        console.log('New URL:', currentUrl.toString());
+        
+        // Thêm loading indicator
+        $(this).prop('disabled', true);
+        $('body').css('cursor', 'wait');
+        
+        // Reload trang với URL mới
         window.location.href = currentUrl.toString();
     });
 

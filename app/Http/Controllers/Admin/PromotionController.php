@@ -432,4 +432,50 @@ class PromotionController extends Controller
             ]
         ]);
     }
+    
+    /**
+     * Get realtime status of promotions
+     */
+    public function getStatuses(Request $request)
+    {
+        $promotionIds = $request->input('ids', []);
+        
+        if (empty($promotionIds)) {
+            return response()->json([]);
+        }
+        
+        $promotions = KhuyenMai::whereIn('ma_khuyen_mai', $promotionIds)->get();
+        
+        $statuses = [];
+        $now = Carbon::now();
+        
+        foreach ($promotions as $promotion) {
+            $statuses[$promotion->ma_khuyen_mai] = [
+                'status_text' => $promotion->trang_thai_text,
+                'status_class' => $this->getStatusClass($promotion->trang_thai_text),
+                // Debug info
+                'debug' => [
+                    'now' => $now->format('Y-m-d H:i:s'),
+                    'start' => $promotion->ngay_bat_dau ? $promotion->ngay_bat_dau->format('Y-m-d H:i:s') : null,
+                    'end' => $promotion->ngay_ket_thuc ? $promotion->ngay_ket_thuc->format('Y-m-d H:i:s') : null,
+                    'timezone' => $now->timezoneName,
+                    'trang_thai' => $promotion->trang_thai
+                ]
+            ];
+        }
+        
+        return response()->json($statuses);
+    }
+    
+    private function getStatusClass($statusText)
+    {
+        $classes = [
+            'Đang hoạt động' => 'success',
+            'Đã kết thúc' => 'danger',
+            'Chưa bắt đầu' => 'warning',
+            'Đã tắt' => 'secondary'
+        ];
+        
+        return $classes[$statusText] ?? 'secondary';
+    }
 }

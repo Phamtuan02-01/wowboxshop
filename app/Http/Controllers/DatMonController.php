@@ -51,13 +51,13 @@ class DatMonController extends Controller
         }
         
         // Sắp xếp
-        $sort = $request->get('sort', 'moi_nhat');
+        $sort = $request->get('sort', '');
         switch ($sort) {
             case 'gia_thap':
-                $query->orderBy('gia', 'asc');
+                $query->orderBy('gia', 'asc')->orderBy('ten_san_pham', 'asc');
                 break;
             case 'gia_cao':
-                $query->orderBy('gia', 'desc');
+                $query->orderBy('gia', 'desc')->orderBy('ten_san_pham', 'asc');
                 break;
             case 'ten_az':
                 $query->orderBy('ten_san_pham', 'asc');
@@ -66,16 +66,20 @@ class DatMonController extends Controller
                 $query->orderBy('ten_san_pham', 'desc');
                 break;
             case 'noi_bat':
-                $query->orderBy('la_noi_bat', 'desc');
+                $query->orderBy('la_noi_bat', 'desc')->orderBy('ngay_tao', 'desc');
                 break;
             case 'danh_gia':
-                $query->orderBy('diem_danh_gia_trung_binh', 'desc');
+                $query->orderBy('diem_danh_gia_trung_binh', 'desc')->orderBy('so_luot_danh_gia', 'desc');
                 break;
             case 'ban_chay':
-                $query->orderBy('luot_xem', 'desc');
+                $query->orderBy('luot_xem', 'desc')->orderBy('ngay_tao', 'desc');
                 break;
-            default: // moi_nhat
+            case 'moi_nhat':
                 $query->orderBy('ngay_tao', 'desc');
+                break;
+            default:
+                // Mặc định: Nổi bật trước, sau đó mới nhất
+                $query->orderBy('la_noi_bat', 'desc')->orderBy('ngay_tao', 'desc');
         }
         
         // Phân trang
